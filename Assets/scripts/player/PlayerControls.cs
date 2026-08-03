@@ -1,54 +1,80 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerControls : MonoBehaviour
 {
-    Vector3 moveDirection;
-    Transform cameraObject;
-    Rigidbody rb;
+    private InputManager inputManager;
 
-    InputManager inputManager;
+    private Rigidbody rb;
 
+    private Transform cameraObject;
+
+    [Header("Movement")]
+    public float movementSpeed = 6f;
+    public float acceleration = 8f;
+
+    [Header("Rotation")]
     public float rotationSpeed = 10f;
-    public float movementSpeed = 5f;
-     
+
     private void Awake()
     {
         inputManager = GetComponent<InputManager>();
         rb = GetComponent<Rigidbody>();
+
         cameraObject = Camera.main.transform;
     }
 
-    private void HandleMovement()
+    public void HandleMovement()
     {
-        moveDirection = cameraObject.forward * inputManager.verticalInput;
-        moveDirection = moveDirection + cameraObject.right * inputManager.horizontalInput;
-        moveDirection.Normalize();
-        moveDirection.y = 0;
-        moveDirection *= movementSpeed;
+        Vector3 cameraForward = cameraObject.forward;
+        Vector3 cameraRight = cameraObject.right;
 
-        Vector3 movementVelocity = moveDirection;
-        rb.linearVelocity = movementVelocity ;
+        // Ignora la inclinación de la cámara para que W siempre avance
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        Vector3 moveDirection =
+            cameraForward * inputManager.verticalInput +
+            cameraRight * inputManager.horizontalInput +
+            Vector3.up * inputManager.upDownInput;
+
+        if (moveDirection.sqrMagnitude > 1f)
+            moveDirection.Normalize();
+
+        Vector3 targetVelocity = moveDirection * movementSpeed;
+
+        rb.linearVelocity = Vector3.Lerp(
+            rb.linearVelocity,
+            targetVelocity,
+            acceleration * Time.fixedDeltaTime);
     }
 
-    public void HandleAllMovement()
+    public void HandleRotation()
     {
-        HandleMovement();
-        HandleRotation();
-    }
+        Vector3 cameraForward = cameraObject.forward;
+        Vector3 cameraRight = cameraObject.right;
 
-    private void HandleRotation()
-    {
-        Vector3 targetDirection = Vector3.zero;
-        targetDirection = cameraObject.forward * inputManager.verticalInput;
-        targetDirection = targetDirection + cameraObject.right * inputManager.horizontalInput;
-        targetDirection.Normalize();
-        targetDirection.y = 0;
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
 
-        if (targetDirection == Vector3.zero)
-            targetDirection = transform.forward;
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        Vector3 targetDirection =
+            cameraForward * inputManager.verticalInput +
+            cameraRight * inputManager.horizontalInput;
+
+        if (targetDirection.sqrMagnitude < 0.01f)
+            return;
 
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-        Quaternion playerRotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        transform.rotation = playerRotation;
+
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            targetRotation,
+            rotationSpeed * Time.deltaTime);
     }
 }

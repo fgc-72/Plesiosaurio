@@ -2,23 +2,24 @@ using UnityEngine;
 
 public class PlayerManager : MonoBehaviour
 {
-    
-    InputManager inputManager;
-    PlayerControls playerControls;
+    private InputManager inputManager;
+    private PlayerControls playerControls;
 
-    void Awake()
+    private void Awake()
     {
         inputManager = GetComponent<InputManager>();
         playerControls = GetComponent<PlayerControls>();
     }
 
-    void Update()
+    private void Update()
     {
         inputManager.HandleAllInputs();
+
+        playerControls.HandleRotation();
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-       playerControls.HandleAllMovement();
+        playerControls.HandleMovement();
     }
 }
