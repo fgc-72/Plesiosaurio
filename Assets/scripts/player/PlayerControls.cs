@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerControls : MonoBehaviour
 {
-    private InputManager inputManager;
+    private InputManagerBueno inputManager;
 
     private Rigidbody rb;
 
@@ -18,7 +18,7 @@ public class PlayerControls : MonoBehaviour
 
     private void Awake()
     {
-        inputManager = GetComponent<InputManager>();
+        inputManager = GetComponent<InputManagerBueno>();
         rb = GetComponent<Rigidbody>();
 
         cameraObject = Camera.main.transform;

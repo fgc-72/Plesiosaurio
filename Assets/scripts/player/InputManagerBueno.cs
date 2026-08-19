@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class InputManager : MonoBehaviour
+public class InputManagerBueno: MonoBehaviour
 {
     private InputSystem_Actions playerInput;
 
@@ -40,6 +40,7 @@ public class InputManager : MonoBehaviour
 
         if (playerInput.Player.Jump.IsPressed())
             upDownInput += 1f;
+            
 
         if (playerInput.Player.GoingDown.IsPressed())
             upDownInput -= 1f;
