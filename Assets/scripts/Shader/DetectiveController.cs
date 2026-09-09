@@ -7,18 +7,19 @@ using System.Linq;
 public class DetectiveController : MonoBehaviour
 {
     [Header("Referencias")]
+    [SerializeField] private InputManagerBueno inputManager;
     [SerializeField] private Volume grayscaleVolume;
     [SerializeField] private ScriptableRendererData rendererData;
     [SerializeField] private string highlightFeatureName = "HighlightPass";
 
     [Header("Config")]
-    [SerializeField] private Key activationKey = Key.Q;
     [SerializeField] private float fadeSpeed = 5f;
 
     private ScriptableRendererFeature highlightFeature;
     private float targetWeight;
+    private bool previousState;
 
-    void Start()
+    private void Start()
     {
         if (rendererData != null)
         {
@@ -26,17 +27,30 @@ public class DetectiveController : MonoBehaviour
                 .FirstOrDefault(f => f.name == highlightFeatureName);
 
             if (highlightFeature == null)
-                Debug.LogWarning($"No hay feature '{highlightFeatureName}'.");
+            {
+                Debug.LogWarning(
+                    $"No hay feature '{highlightFeatureName}'."
+                );
+            }
         }
     }
 
-    void Update()
+    private void Update()
     {
-        bool isPressed = Keyboard.current != null && Keyboard.current[activationKey].isPressed;
+        // LT + RT al mismo tiempo
+        bool isPressed = inputManager != null &&
+                         inputManager.detectiveInput;
 
-        if (highlightFeature != null)
-            highlightFeature.SetActive(isPressed);
+        // Solo activa/desactiva el Highlight cuando cambia el estado
+        if (isPressed != previousState)
+        {
+            if (highlightFeature != null)
+                highlightFeature.SetActive(isPressed);
 
+            previousState = isPressed;
+        }
+
+        // Grayscale
         targetWeight = isPressed ? 1f : 0f;
 
         if (grayscaleVolume != null)
