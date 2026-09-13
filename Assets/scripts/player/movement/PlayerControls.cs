@@ -5,7 +5,7 @@ public class PlayerControls : MonoBehaviour
 {
     private InputManagerBueno inputManager;
     private Rigidbody rb;
-    [SerializeField] private Transform cameraObject; 
+    [SerializeField] private Transform cameraObject; // Asignar manualmente en el Inspector (más rápido y seguro que Camera.main)
 
     [Header("Normal Movement")]
     [SerializeField] private float movementSpeed = 6f;
@@ -49,6 +49,10 @@ public class PlayerControls : MonoBehaviour
     private float currentSpeed;
     private bool isExhausted; // true mientras el jugador está "sin aliento" tras gastar toda la stamina
 
+    // Cuando está en false, HandleMovement no hace nada: deja el Rigidbody libre
+    // para que un sistema externo (ScriptedEvent) lo mueva durante una cinemática.
+    private bool controlEnabled = true;
+
     // Velocidades de referencia que usa SmoothDamp internamente (no tocar desde fuera)
     private float speedSmoothVelocity;
     private float verticalSmoothVelocity;
@@ -70,6 +74,12 @@ public class PlayerControls : MonoBehaviour
 
     public void HandleMovement()
     {
+        // Durante un evento scriptado (cinemática, movimiento forzado) no procesamos
+        // el input del jugador en absoluto, dejando el Rigidbody libre para que
+        // ScriptedEvent lo controle directamente.
+        if (!controlEnabled)
+            return;
+
         float deltaTime = Time.fixedDeltaTime;
 
         bool isMoving =
@@ -184,6 +194,12 @@ public class PlayerControls : MonoBehaviour
     // pose de "subiendo/bajando" o ya puede volver a idle. Como es el mismo ángulo que
     // se está aplicando físicamente, la animación y la rotación quedan siempre sincronizadas.
     public float GetCurrentPitch() => currentPitch;
+
+    // Llamado por ScriptedEvent para quitar/devolver el control al jugador.
+    public void SetControlEnabled(bool isEnabled)
+    {
+        controlEnabled = isEnabled;
+    }
 
     // --- API pública para UI de stamina, etc. ---
     public float GetCurrentStamina() => currentStamina;

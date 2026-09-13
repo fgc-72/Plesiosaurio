@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f9803d3008776943ababf327508ed9d, type: 3}
+  m_Name: MainLocalizationDB
+  m_EditorClassIdentifier: Assembly-CSharp::LocalizationDatabase
+  entries:
+  - key: Nami_title
+    es: 'NAMI: ECOS DEL MAR'
+    en: 'NAMI: ECHOES OF THE SEA'
+  - key: Play
+    es: Jugar
+    en: Play
+  - key: Settings
+    es: Ajustes
+    en: Settings
+  - key: Exit
+    es: Salir
+    en: Exit
+  - key: back
+    es: Volver
+    en: Back
+  - key: Sound
+    es: Sonido
+    en: Sound
+  - key: Environment
+    es: Entorno
+    en: Environment
+  - key: voices
+    es: Voces
+    en: Voices
+  - key: Sensitivity
+    es: Sensibilidad
+    en: Sensitivity
+  - key: Idioma
+    es: Idioma
+    en: Lenguage
+  - key: music
+    es: "M\xFAsica"
+    en: Music
+  - key: spanish
+    es: "Espa\xF1ol"
+    en: Spanish
+  - key: English
+    es: "Ingl\xE9s"
+    en: English

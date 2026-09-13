@@ -11,6 +11,10 @@ public class PlayerAnimation : MonoBehaviour
     private InputManagerBueno inputManager;
     private PlayerControls playerControls;
 
+    // Mientras esto es true, HandleAnimations no hace nada: deja que ScriptedEvent
+    // decida qué animación se reproduce (ej. una de "arrastrado por la corriente").
+    private bool animationOverride;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -18,8 +22,17 @@ public class PlayerAnimation : MonoBehaviour
         playerControls = GetComponent<PlayerControls>();
     }
 
+    // Llamado por ScriptedEvent al iniciar/terminar una cinemática.
+    public void SetAnimationOverride(bool isOverridden)
+    {
+        animationOverride = isOverridden;
+    }
+
     public void HandleAnimations()
     {
+        if (animationOverride)
+            return;
+
         bool isMovingHorizontal =
             Mathf.Abs(inputManager.horizontalInput) > 0.1f ||
             Mathf.Abs(inputManager.verticalInput) > 0.1f;
