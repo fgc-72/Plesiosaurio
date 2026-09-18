@@ -12,7 +12,9 @@ Shader "Custom/XRayHighlight"
 
         Pass
         {
-            ZTest Always
+            Tags { "LightMode" = "SRPDefaultUnlit" }
+
+            ZTest LEqual
             ZWrite Off
             Cull Back
             Blend SrcAlpha OneMinusSrcAlpha
