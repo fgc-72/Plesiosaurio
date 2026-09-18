@@ -7,19 +7,27 @@ using System.Linq;
 public class DetectiveController : MonoBehaviour
 {
     [Header("Referencias")]
-    [SerializeField] private InputManagerBueno inputManager;
     [SerializeField] private Volume grayscaleVolume;
     [SerializeField] private ScriptableRendererData rendererData;
-    [SerializeField] private string highlightFeatureName = "HighlightPass";
+    [SerializeField] private string highlightFeatureName = "BlurredHighlightFeature";
 
-    [Header("Config")]
+    [Header("Input")]
+    [SerializeField] private Key activationKey = Key.Q;
+
+    [Header("Duración")]
     [SerializeField] private float fadeSpeed = 5f;
+    [SerializeField] private float maxDuration = 5f;
+    [SerializeField] private float cooldownDuration = 8f;
 
     private ScriptableRendererFeature highlightFeature;
     private float targetWeight;
-    private bool previousState;
 
-    private void Start()
+    private bool isActive;
+    private float activeTimer;
+    private bool isOnCooldown;
+    private float cooldownTimer;
+
+    void Start()
     {
         if (rendererData != null)
         {
@@ -27,31 +35,48 @@ public class DetectiveController : MonoBehaviour
                 .FirstOrDefault(f => f.name == highlightFeatureName);
 
             if (highlightFeature == null)
-            {
-                Debug.LogWarning(
-                    $"No hay feature '{highlightFeatureName}'."
-                );
-            }
+                Debug.LogWarning($"No se encontró ninguna Renderer Feature llamada '{highlightFeatureName}'.");
         }
     }
 
-    private void Update()
+    void Update()
     {
-        // LT + RT al mismo tiempo
-        bool isPressed = inputManager != null &&
-                         inputManager.detectiveInput;
+        bool keyHeld = Keyboard.current != null && Keyboard.current[activationKey].isPressed;
 
-        // Solo activa/desactiva el Highlight cuando cambia el estado
-        if (isPressed != previousState)
+        if (isOnCooldown)
         {
-            if (highlightFeature != null)
-                highlightFeature.SetActive(isPressed);
-
-            previousState = isPressed;
+            cooldownTimer -= Time.deltaTime;
+            if (cooldownTimer <= 0f)
+                isOnCooldown = false;
         }
 
-        // Grayscale
-        targetWeight = isPressed ? 1f : 0f;
+        bool wantsActive = keyHeld && !isOnCooldown;
+
+        if (wantsActive)
+        {
+            isActive = true;
+            activeTimer += Time.deltaTime;
+
+            if (activeTimer >= maxDuration)
+            {
+                isActive = false;
+                StartCooldown();
+            }
+        }
+        else
+        {
+            if (isActive)
+            {
+                isActive = false;
+                StartCooldown();
+            }
+            activeTimer = 0f;
+        }
+
+        if (highlightFeature != null)
+            highlightFeature.SetActive(isActive);
+
+        targetWeight = isActive ? 1f : 0f;
 
         if (grayscaleVolume != null)
         {
@@ -62,4 +87,14 @@ public class DetectiveController : MonoBehaviour
             );
         }
     }
+
+    private void StartCooldown()
+    {
+        isOnCooldown = true;
+        cooldownTimer = cooldownDuration;
+        activeTimer = 0f;
+    }
+
+    public float GetCooldownProgress() => isOnCooldown ? 1f - (cooldownTimer / cooldownDuration) : 1f;
+    public bool IsOnCooldown => isOnCooldown;
 }
