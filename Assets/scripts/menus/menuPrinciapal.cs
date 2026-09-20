@@ -5,7 +5,10 @@ public class menuPrincipal : MonoBehaviour
 {
     public void PlayGame()
     {
-        SceneManager.LoadScene("SampleScene");
+        if (SceneFader.Instance != null)
+            SceneFader.Instance.LoadScene("SampleScene");
+        else
+            SceneManager.LoadScene("SampleScene"); // respaldo si el SceneFader no está en la escena
     }
 
     public void QuitGame()

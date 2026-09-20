@@ -13,6 +13,13 @@ public class InputManagerBueno : MonoBehaviour
     public bool accelerateInput;
     public bool detectiveInput;
 
+    [Header("Desbloqueos progresivos (tutorial del Acto I)")]
+    [Tooltip("El movimiento horizontal (stick izquierdo) NUNCA se bloquea, siempre está disponible.")]
+    public bool canMoveVertical = false;
+    public bool canSprint = false;
+    public bool canHeadbutt = false;
+    public bool canListen = false;
+
     // Headbutt es una acción de "un solo disparo" (no se mantiene presionada como Sprint),
     // así que se maneja distinto: se activa por evento y se "consume" una sola vez.
     private bool headbuttInput;
@@ -49,28 +56,31 @@ public class InputManagerBueno : MonoBehaviour
         horizontalInput = movementInput.x;
         verticalInput = movementInput.y;
 
-        // Movimiento vertical
+        // Movimiento vertical (bloqueado hasta que se desbloquee en el tutorial)
         upDownInput = 0f;
 
-        if (playerInput.Player.Jump.IsPressed())
-            upDownInput += 1f;
+        if (canMoveVertical)
+        {
+            if (playerInput.Player.Jump.IsPressed())
+                upDownInput += 1f;
 
-        if (playerInput.Player.GoingDown.IsPressed())
-            upDownInput -= 1f;
+            if (playerInput.Player.GoingDown.IsPressed())
+                upDownInput -= 1f;
+        }
 
-        // Aceleración
-        accelerateInput = playerInput.Player.Sprint.IsPressed();
+        // Aceleración (bloqueada hasta desbloquear)
+        accelerateInput = canSprint && playerInput.Player.Sprint.IsPressed();
 
         // Modo escucha: en gamepad es un combo (L1+R1), en PC es UNA sola tecla.
         // Cualquiera de los dos métodos activa el mismo booleano — DetectiveController
-        // no tiene que saber ni le importa cuál se usó.
+        // no tiene que saber ni le importa cuál se usó. Bloqueado hasta desbloquear.
         bool gamepadCombo = playerInput.Player.LT.IsPressed() &&
                             playerInput.Player.RT.IsPressed();
 
         bool pcKey = Keyboard.current != null &&
                      Keyboard.current.qKey.isPressed;
 
-        detectiveInput = gamepadCombo || pcKey;
+        detectiveInput = canListen && (gamepadCombo || pcKey);
     }
 
     // HeadbuttController debe llamar esto para "leer y apagar" el input.
@@ -81,7 +91,7 @@ public class InputManagerBueno : MonoBehaviour
         if (!headbuttInput)
             return false;
 
-        headbuttInput = false;
-        return true;
+        headbuttInput = false; // se descarta el press, aunque esté bloqueado
+        return canHeadbutt;
     }
 }
