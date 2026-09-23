@@ -700,7 +700,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -77.71332, y: -54.559998}
+  m_AnchoredPosition: {x: -77.71338, y: -54.56006}
   m_SizeDelta: {x: 62.70282, y: 61.88501}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &490358706
@@ -1441,7 +1441,7 @@ Transform:
   m_GameObject: {fileID: 826206003}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 167.28, y: 3.53, z: 157.12}
+  m_LocalPosition: {x: 134.2, y: 3.53, z: 157.12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3293,11 +3293,11 @@ MonoBehaviour:
   - {fileID: 1342992959}
   - {fileID: 1662642012}
   - {fileID: 1164301007}
-  moveSpeed: 3
+  moveSpeed: 15
   rotationSpeed: 4
   waypointThreshold: 0.5
-  leashDistance: 8
-  resumeDistance: 5
+  leashDistance: 35
+  resumeDistance: 50
 --- !u!54 &1458102410
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3323,7 +3323,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!136 &1458102411
 CapsuleCollider:
