@@ -1795,6 +1795,77 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 455273289}
   m_CullTransparentMesh: 1
+--- !u!1 &469777968
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 469777970}
+  - component: {fileID: 469777969}
+  m_Layer: 0
+  m_Name: CausticsFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &469777969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 469777968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7349eb8dd3f9fa543bad1dcdc9aaa3c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnderwaterFX.WaterCausticsTexGenerator
+  outputRenderTexture: {fileID: 0}
+  resolution: 256
+  globalTextureName: _WaterCausticsTex
+  speed: 1
+  waves:
+  - active: 1
+    pause: 0
+    density: 5
+    height: 0.4
+    fluctuation: 0.6
+    flowU: 0.7
+    flowV: 0
+  - active: 1
+    pause: 0
+    density: 11
+    height: 0.25
+    fluctuation: 0.6
+    flowU: -0.7
+    flowV: 0
+  depth: 2
+  refractionIndex: 1.333
+  chromaticAberration: 0.02
+  fillGap: 0.08
+  brightness: 0.7
+  gamma: 1
+  clamp: 2
+  shader: {fileID: 4800000, guid: a114ca362789525448b6d0404478761c, type: 3}
+--- !u!4 &469777970
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 469777968}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 312.58713, y: -0, z: 561.6023}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &476651521
 GameObject:
   m_ObjectHideFlags: 0
@@ -5833,3 +5904,4 @@ SceneRoots:
   - {fileID: 1319087194}
   - {fileID: 1142213512}
   - {fileID: 1729195450}
+  - {fileID: 469777970}

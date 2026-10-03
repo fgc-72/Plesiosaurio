@@ -42,7 +42,7 @@ MonoBehaviour:
     en: Sensitivity
   - key: Idioma
     es: Idioma
-    en: Lenguage
+    en: Language
   - key: music
     es: "M\xFAsica"
     en: Music

@@ -15,37 +15,33 @@ MonoBehaviour:
   lines:
   - id: perdida_mara
     speaker: Nami
-    duration: 0
+    duration: 3.5
     translations:
     - languageCode: es
       text: "\xBFMam\xE1? \xBFD\xF3nde est\xE1s?"
+    - languageCode: en
+      text: Mom? Where are you?
   - id: escucha
     speaker: Nami
-    duration: 0
+    duration: 3.5
     translations:
     - languageCode: es
       text: "Puedo sentir a mi mam\xE1 en alg\xFAn lado\u2026"
+    - languageCode: en
+      text: I can feel my mom somewhere around here...
   - id: nami_atisbo
     speaker: Nami
-    duration: 0
+    duration: 3.5
     translations:
     - languageCode: es
       text: "\xA1La veo! Tengo que ir con ella."
+    - languageCode: en
+      text: I see her! I have to go to her.
   - id: nami_senal
     speaker: Nami
-    duration: 0
+    duration: 3.5
     translations:
     - languageCode: es
       text: "\xBFEh? \xBFQu\xE9 es eso? Tengo que investigar."
-  - id: nami_senal
-    speaker: Nami
-    duration: 0
-    translations:
-    - languageCode: es
-      text: "\xBFEh? \xBFQu\xE9 es eso? Tengo que investigar."
-  - id: Mara_inicio
-    speaker: Nami
-    duration: 15
-    translations:
-    - languageCode: es
-      text: Nami...Hija...Despierta, es hora de irnos...una tormenta se acerca
+    - languageCode: en
+      text: Huh? What is that? I need to investigate.
