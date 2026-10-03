@@ -43,3 +43,9 @@ MonoBehaviour:
     translations:
     - languageCode: es
       text: "\xBFEh? \xBFQu\xE9 es eso? Tengo que investigar."
+  - id: Mara_inicio
+    speaker: Nami
+    duration: 15
+    translations:
+    - languageCode: es
+      text: Nami...Hija...Despierta, es hora de irnos...una tormenta se acerca

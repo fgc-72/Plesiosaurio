@@ -15,6 +15,8 @@ public class ThoughtUI : MonoBehaviour
     private readonly Queue<DialogueLine> queue = new();
     private bool isShowing;
 
+    public bool IsShowing => isShowing;
+
     void Awake()
     {
         Instance = this;
@@ -38,7 +40,7 @@ public class ThoughtUI : MonoBehaviour
         while (queue.Count > 0)
         {
             var line = queue.Dequeue();
-            string lang = LanguageManager.Instance != null ? LanguageManager.Instance.CurrentLanguage : "es";
+            string lang = LocalizationManager.Instance != null ? LocalizationManager.Instance.CurrentLanguage : "es";
             textLabel.text = line.GetText(lang);
 
             yield return Fade(1f);
