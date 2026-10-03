@@ -70,7 +70,8 @@ MonoBehaviour:
   - {fileID: 7833122117494664109}
   - {fileID: -3845464552553240552}
   - {fileID: 6715931446614242688}
-  m_RendererFeatureMap: ad6b866f10d7b46c1828b5145d2aa2ca8035517311c8335d
+  - {fileID: 8657175942152161286}
+  m_RendererFeatureMap: ad6b866f10d7b46c1828b5145d2aa2ca8035517311c8335d068809d6a6772478
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -147,3 +148,17 @@ MonoBehaviour:
     BlurQuality: 0
     Falloff: 100
     SampleCount: -1
+--- !u!114 &8657175942152161286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa9bcd625f9813045bf26b323332c39e, type: 3}
+  m_Name: WaterCausticsFeature
+  m_EditorClassIdentifier: Assembly-CSharp::UnderwaterFX.WaterCausticsFeature
+  m_Active: 1
+  shader: {fileID: 4800000, guid: e6a7b664d43b4de4a8251f084cfae142, type: 3}
