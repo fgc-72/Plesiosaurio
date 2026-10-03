@@ -88,7 +88,7 @@ public class MaraGuide : MonoBehaviour
 
         if (direction.sqrMagnitude > 0.01f)
         {
-            Debug.Log($"Mara está girando hacia el waypoint {currentWaypointIndex} en dirección {direction.normalized}");
+           
             Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
             rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
         }

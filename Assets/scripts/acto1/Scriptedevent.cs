@@ -30,6 +30,10 @@ public class ScriptedEvent : MonoBehaviour
     [Tooltip("Duración del empuje forzado (solo aplica al modo 'Empuje En Dirección').")]
     [SerializeField] private float forcedDuration = 3f;
 
+    [Header("Diálogo (usa el sistema ThoughtUI del equipo)")]
+    [Tooltip("IDs de las líneas en el DialogueDatabase, en el orden en que deben mostrarse.")]
+    [SerializeField] private string[] dialogueLineIds;
+
     [Header("Cámara guiada (opcional)")]
     [Tooltip("Cámara virtual de Cinemachine a activar durante el evento. Vacío = no cambia cámara.")]
     [SerializeField] private CinemachineCamera guidedCamera;
@@ -72,6 +76,7 @@ public class ScriptedEvent : MonoBehaviour
 
     private IEnumerator RunEvent(PlayerControls playerControls, Rigidbody rb)
     {
+        
         if (playerControls != null)
             playerControls.SetControlEnabled(false);
 
@@ -90,6 +95,13 @@ public class ScriptedEvent : MonoBehaviour
         {
             originalPriority = guidedCamera.Priority;
             guidedCamera.Priority = guidedCameraPriority;
+        }
+            if (ThoughtUI.Instance != null)
+        {
+            foreach (string id in dialogueLineIds)
+                ThoughtUI.Instance.ShowById(id);
+
+            yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
         }
 
         if (useVibration)
@@ -118,6 +130,8 @@ public class ScriptedEvent : MonoBehaviour
 
         if (playerControls != null)
             playerControls.SetControlEnabled(true);
+
+        
     }
 
     private IEnumerator RunPush(Rigidbody rb)

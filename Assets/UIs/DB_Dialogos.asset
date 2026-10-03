@@ -53,3 +53,12 @@ MonoBehaviour:
       text: Nami...hija...despierta,tenemos que irnos, una tormenta se acerca
     - languageCode: en
       text: Huh? What is that? I need to investigate.
+  - id: Mara_mitad
+    speaker: Mara
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: La tormenta esta comenzando, tenemos que apurarnos, todavia hay muchas
+        ruinas por aca que nos pueden caer encima
+    - languageCode: en
+      text: Huh? What is that? I need to investigate.
