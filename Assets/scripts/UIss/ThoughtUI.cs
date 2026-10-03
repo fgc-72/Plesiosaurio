@@ -15,21 +15,18 @@ public class ThoughtUI : MonoBehaviour
     private readonly Queue<DialogueLine> queue = new();
     private bool isShowing;
 
+    // Para que otros scripts (como una cinemática) puedan esperar a que
+    // termine de mostrarse TODO el diálogo en cola antes de continuar.
+    public bool IsShowing => isShowing;
+
     void Awake()
     {
         Instance = this;
-        if (canvasGroup != null)
-            canvasGroup.alpha = 0f;
+        canvasGroup.alpha = 0f;
     }
 
     public void ShowById(string id)
     {
-        if (database == null)
-        {
-            Debug.LogWarning("ThoughtUI no tiene asignada una DialogueDatabase.");
-            return;
-        }
-
         var line = database.GetById(id);
         if (line == null) return;
 
@@ -45,22 +42,11 @@ public class ThoughtUI : MonoBehaviour
         while (queue.Count > 0)
         {
             var line = queue.Dequeue();
-
-            string lang = "es";
-            if (LocalizationManager.Instance != null)
-                lang = LocalizationManager.Instance.CurrentLanguage;
-            else if (LanguageManager.Instance != null)
-                lang = LanguageManager.Instance.CurrentLanguage;
-
-            if (textLabel != null)
-                textLabel.text = line.GetText(lang);
+            string lang = LocalizationManager.Instance != null ? LocalizationManager.Instance.CurrentLanguage : "es";
+            textLabel.text = line.GetText(lang);
 
             yield return Fade(1f);
-
-            // Si duration es 0 o menor, aseguramos un tiempo de lectura seguro (3.5s)
-            float displayDuration = line.duration > 0f ? line.duration : 3.5f;
-            yield return new WaitForSeconds(displayDuration);
-
+            yield return new WaitForSeconds(line.duration);
             yield return Fade(0f);
         }
 
@@ -69,8 +55,6 @@ public class ThoughtUI : MonoBehaviour
 
     private IEnumerator Fade(float target)
     {
-        if (canvasGroup == null) yield break;
-
         while (!Mathf.Approximately(canvasGroup.alpha, target))
         {
             canvasGroup.alpha = Mathf.MoveTowards(canvasGroup.alpha, target, fadeSpeed * Time.deltaTime);

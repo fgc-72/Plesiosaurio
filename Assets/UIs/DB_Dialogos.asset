@@ -45,3 +45,11 @@ MonoBehaviour:
       text: "\xBFEh? \xBFQu\xE9 es eso? Tengo que investigar."
     - languageCode: en
       text: Huh? What is that? I need to investigate.
+  - id: Mara_inicio
+    speaker: Mara
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: Nami...hija...despierta,tenemos que irnos, una tormenta se acerca
+    - languageCode: en
+      text: Huh? What is that? I need to investigate.

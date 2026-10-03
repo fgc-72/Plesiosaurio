@@ -20,7 +20,7 @@ public class MissionUI : MonoBehaviour
         var mission = database.GetById(id);
         if (mission == null) return;
 
-        string lang = LanguageManager.Instance != null ? LanguageManager.Instance.CurrentLanguage : "es";
+        string lang = LocalizationManager.Instance != null ? LocalizationManager.Instance.CurrentLanguage : "es";
         var localized = mission.GetLocalized(lang);
         if (localized == null) return;
 
