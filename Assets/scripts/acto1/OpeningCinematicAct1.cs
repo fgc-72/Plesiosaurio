@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Cinemachine;
 using System.Collections;
 
 // Coordina la apertura del Acto I: Nami está acostada (bloqueada), Mara nada
@@ -35,8 +36,17 @@ public class OpeningCinematicAct1 : MonoBehaviour
     [SerializeField] private float rotationSpeed = 3f;
     [SerializeField] private float arrivalThreshold = 0.3f;
 
+    [Header("Cámara de la intro (dedicada, posicionada a mano)")]
+    [Tooltip("Cinemachine Camera nueva, SIN Orbital Follow, posicionada manualmente " +
+             "para encuadrar a Nami acostada. Cinemachine hace el blend suave " +
+             "automáticamente al cambiar de prioridad, sin saltos ni desincronización.")]
+    [SerializeField] private CinemachineCamera introCamera;
+    [SerializeField] private int introCameraPriority = 20;
+
     [Header("Checkpoint")]
     [SerializeField] private string sceneName = "Acto1";
+
+    private int introCameraOriginalPriority;
 
     private void Start()
     {
@@ -51,6 +61,18 @@ public class OpeningCinematicAct1 : MonoBehaviour
         Vector3 savedPosition = CheckpointManager.Instance.GetCheckpointPosition();
         namiRigidbody.position = savedPosition;
         playerControls.SetControlEnabled(true);
+
+        // Restauramos también qué habilidades tenía desbloqueadas, para que no
+        // "olvide" el progreso del tutorial al retomar la partida.
+        CheckpointUnlocks unlocks = CheckpointManager.Instance.GetCheckpointUnlocks();
+        InputManagerBueno inputManager = playerControls.GetComponent<InputManagerBueno>();
+        if (inputManager != null)
+        {
+            inputManager.canMoveVertical = unlocks.canMoveVertical;
+            inputManager.canSprint = unlocks.canSprint;
+            inputManager.canHeadbutt = unlocks.canHeadbutt;
+            inputManager.canListen = unlocks.canListen;
+        }
 
         // No hubo cinemática que lo apagara, así que nos aseguramos de que
         // quede activo desde el arranque.
@@ -72,6 +94,15 @@ public class OpeningCinematicAct1 : MonoBehaviour
         if (maraGuide != null)
             maraGuide.enabled = false;
 
+        // Subimos la prioridad de la cámara de intro: Cinemachine hace el blend
+        // automático desde la cámara normal hacia esta, sin que tengamos que
+        // sincronizar ningún valor a mano.
+        if (introCamera != null)
+        {
+            introCameraOriginalPriority = introCamera.Priority;
+            introCamera.Priority = introCameraPriority;
+        }
+
         // 1) Mara nada hacia Nami.
         SetSwimmingAnim(maraAnimator, true);
         yield return SwimTo(maraRigidbody, maraApproachPoint.position);
@@ -87,6 +118,13 @@ public class OpeningCinematicAct1 : MonoBehaviour
 
             yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
         }
+
+        // Bajamos la prioridad AQUÍ, antes de que empiecen a subir — así el
+        // jugador ya puede mirar alrededor (Cinemachine vuelve a la cámara
+        // normal, con blend suave) mientras ve la subida, aunque todavía no
+        // pueda MOVER a Nami (eso se desbloquea después, en el paso 4).
+        if (introCamera != null)
+            introCamera.Priority = introCameraOriginalPriority;
 
         // 3) Ambas suben y se colocan lado a lado, al mismo tiempo.
         //    Nami se mueve "a mano" (rb.MovePosition) mientras su control sigue
@@ -116,7 +154,20 @@ public class OpeningCinematicAct1 : MonoBehaviour
 
         // 5) Primer checkpoint, justo aquí.
         if (CheckpointManager.Instance != null)
-            CheckpointManager.Instance.SaveCheckpoint(sceneName, namiRigidbody.position);
+        {
+            InputManagerBueno inputManager = playerControls.GetComponent<InputManagerBueno>();
+            CheckpointUnlocks unlocks = inputManager != null
+                ? new CheckpointUnlocks
+                {
+                    canMoveVertical = inputManager.canMoveVertical,
+                    canSprint = inputManager.canSprint,
+                    canHeadbutt = inputManager.canHeadbutt,
+                    canListen = inputManager.canListen
+                }
+                : default;
+
+            CheckpointManager.Instance.SaveCheckpoint(sceneName, namiRigidbody.position, unlocks);
+        }
     }
 
     private IEnumerator SwimTo(Rigidbody rb, Vector3 destination)
