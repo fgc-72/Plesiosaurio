@@ -41,6 +41,7 @@ Shader "Hidden/UnderwaterFX/CausticsProjection"
             float _NormalAtten;
             float _ReceiveShadows;
             float _EdgeFade;
+            float _RainIntensity; // global, lo escribe WaterRainController
 
             struct Varyings
             {
@@ -91,10 +92,11 @@ Shader "Hidden/UnderwaterFX/CausticsProjection"
                 float2 cuv = hit.xz / max(_CausticsScale, 1e-3);
 
                 float2 shift = _ColorShift * 0.01;
+                float rainBias = _RainIntensity * 2.0; // con lluvia las causticas se desenfocan
                 float3 caustic;
-                caustic.r = SAMPLE_TEXTURE2D(_WaterCausticsTex, sampler_WaterCausticsTex, cuv + shift).r;
-                caustic.g = SAMPLE_TEXTURE2D(_WaterCausticsTex, sampler_WaterCausticsTex, cuv).g;
-                caustic.b = SAMPLE_TEXTURE2D(_WaterCausticsTex, sampler_WaterCausticsTex, cuv - shift).b;
+                caustic.r = SAMPLE_TEXTURE2D_BIAS(_WaterCausticsTex, sampler_WaterCausticsTex, cuv + shift, rainBias).r;
+                caustic.g = SAMPLE_TEXTURE2D_BIAS(_WaterCausticsTex, sampler_WaterCausticsTex, cuv, rainBias).g;
+                caustic.b = SAMPLE_TEXTURE2D_BIAS(_WaterCausticsTex, sampler_WaterCausticsTex, cuv - shift, rainBias).b;
 
                 // Atenuaciones.
                 float nearAtt = lerp(1.0, saturate(depthBelow / max(_NearSurfaceWidth, 1e-3)), _NearSurface);

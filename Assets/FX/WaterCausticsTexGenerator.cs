@@ -56,6 +56,7 @@ namespace UnderwaterFX
 
         [SerializeField, HideInInspector] Shader shader;
 
+        static readonly int RainId = Shader.PropertyToID("_RainIntensity");
         static readonly int WaveCountId = Shader.PropertyToID("_WaveCount");
         static readonly int WaveAId = Shader.PropertyToID("_WaveA");
         static readonly int WaveBId = Shader.PropertyToID("_WaveB");
@@ -89,12 +90,16 @@ namespace UnderwaterFX
         void OnDisable()
         {
             if (material != null) DestroyImmediate(material);
-            if (ownedRT != null)
-            {
-                ownedRT.Release();
-                DestroyImmediate(ownedRT);
-                ownedRT = null;
-            }
+            ReleaseOwned();
+        }
+
+        void ReleaseOwned()
+        {
+            if (ownedRT == null) return;
+            if (RenderTexture.active == ownedRT) RenderTexture.active = null;
+            ownedRT.Release();
+            DestroyImmediate(ownedRT);
+            ownedRT = null;
         }
 
         void Update()
@@ -111,21 +116,12 @@ namespace UnderwaterFX
 
             if (outputRenderTexture != null)
             {
-                if (ownedRT != null)
-                {
-                    ownedRT.Release();
-                    DestroyImmediate(ownedRT);
-                    ownedRT = null;
-                }
+                ReleaseOwned();
                 return;
             }
 
             if (ownedRT != null && ownedRT.width != res)
-            {
-                ownedRT.Release();
-                DestroyImmediate(ownedRT);
-                ownedRT = null;
-            }
+                ReleaseOwned();
 
             if (ownedRT == null)
             {
@@ -151,12 +147,14 @@ namespace UnderwaterFX
             RenderTexture rt = Output;
             if (rt == null) return;
 
+            // Con lluvia (global _RainIntensity) la superficie esta mas agitada: ondas mas fuertes y rapidas.
+            float rain = Shader.GetGlobalFloat(RainId);
             int count = Mathf.Min(waves != null ? waves.Length : 0, MaxWaves);
             for (int i = 0; i < count; i++)
             {
                 Wave w = waves[i];
-                if (!w.pause) w.time += dt;
-                waveA[i] = new Vector4(w.density, w.height, w.fluctuation, w.active ? 1f : 0f);
+                if (!w.pause) w.time += dt * (1f + rain * 0.6f);
+                waveA[i] = new Vector4(w.density, w.height * (1f + rain * 0.8f), w.fluctuation, w.active ? 1f : 0f);
                 // seed distinto por onda para que no sean identicas
                 waveB[i] = new Vector4(w.flowU, w.flowV, i * 37f, w.time);
             }
@@ -173,7 +171,9 @@ namespace UnderwaterFX
             material.SetFloat(ClampId, clamp);
             material.SetFloat(EpsId, 1.5f / rt.width);
 
+            RenderTexture previous = RenderTexture.active;
             Graphics.Blit(null, rt, material);
+            RenderTexture.active = previous;
 
             if (!string.IsNullOrEmpty(globalTextureName))
                 Shader.SetGlobalTexture(globalTextureName, rt);

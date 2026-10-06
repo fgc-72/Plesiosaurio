@@ -6,40 +6,82 @@ using UnityEngine.Rendering.Universal;
 namespace UnderwaterFX
 {
     /// <summary>
-    /// Renderer Feature de URP (Render Graph). Anadelo en tu URP Renderer asset:
-    /// Add Renderer Feature > Water Caustics Feature.
+    /// Renderer Feature de URP (Render Graph). Dibuja dos pases:
+    /// 1) proyeccion de causticas, 2) niebla/absorcion submarina.
+    /// Anadelo en tu URP Renderer asset: Add Renderer Feature > Water Caustics Feature.
     /// </summary>
     public class WaterCausticsFeature : ScriptableRendererFeature
     {
-        [SerializeField] Shader shader;
+        [SerializeField] Shader causticsShader;
+        [SerializeField] Shader fogShader;
+        [SerializeField] Shader godRaysShader;
 
-        Material material;
-        CausticsPass pass;
+        Material causticsMaterial;
+        Material fogMaterial;
+        Material godRaysMaterial;
+        FullscreenPass causticsPass;
+        FullscreenPass fogPass;
+        FullscreenPass godRaysPass;
         bool warnedNoVolume;
 
         public override void Create()
         {
-            Debug.Log("[WaterCaustics] Create() llamado: el Renderer Feature SI esta en el Renderer activo.");
+            if (causticsShader == null) causticsShader = Shader.Find("Hidden/UnderwaterFX/CausticsProjection");
+            if (fogShader == null) fogShader = Shader.Find("Hidden/UnderwaterFX/UnderwaterFog");
+            if (godRaysShader == null) godRaysShader = Shader.Find("Hidden/UnderwaterFX/GodRays");
 
-            if (shader == null) shader = Shader.Find("Hidden/UnderwaterFX/CausticsProjection");
-            if (shader == null)
+            CoreUtils.Destroy(causticsMaterial);
+            CoreUtils.Destroy(fogMaterial);
+            CoreUtils.Destroy(godRaysMaterial);
+            causticsMaterial = null;
+            fogMaterial = null;
+            godRaysMaterial = null;
+            causticsPass = null;
+            fogPass = null;
+            godRaysPass = null;
+
+            if (causticsShader != null)
             {
-                Debug.LogError("[WaterCaustics] No se encontro el shader Hidden/UnderwaterFX/CausticsProjection. Revisa que CausticsProjection.shader este en el proyecto y sin errores.");
-                return;
+                causticsMaterial = CoreUtils.CreateEngineMaterial(causticsShader);
+                causticsPass = new FullscreenPass(causticsMaterial, "Water Caustics", 1)
+                {
+                    renderPassEvent = RenderPassEvent.AfterRenderingSkybox
+                };
+            }
+            else
+            {
+                Debug.LogError("[WaterCaustics] No se encontro el shader Hidden/UnderwaterFX/CausticsProjection.");
             }
 
-            CoreUtils.Destroy(material);
-            material = CoreUtils.CreateEngineMaterial(shader);
-            pass = new CausticsPass(material)
+            if (fogShader != null)
             {
-                renderPassEvent = RenderPassEvent.AfterRenderingSkybox
-            };
+                fogMaterial = CoreUtils.CreateEngineMaterial(fogShader);
+                fogPass = new FullscreenPass(fogMaterial, "Underwater Fog", 2)
+                {
+                    renderPassEvent = RenderPassEvent.AfterRenderingSkybox + 1
+                };
+            }
+            else
+            {
+                Debug.LogError("[WaterCaustics] No se encontro el shader Hidden/UnderwaterFX/UnderwaterFog.");
+            }
+
+            if (godRaysShader != null)
+            {
+                godRaysMaterial = CoreUtils.CreateEngineMaterial(godRaysShader);
+                godRaysPass = new FullscreenPass(godRaysMaterial, "Underwater God Rays", 1)
+                {
+                    renderPassEvent = RenderPassEvent.AfterRenderingSkybox + 2
+                };
+            }
+            else
+            {
+                Debug.LogError("[WaterCaustics] No se encontro el shader Hidden/UnderwaterFX/GodRays.");
+            }
         }
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if (pass == null || material == null) return;
-
             CameraType type = renderingData.cameraData.cameraType;
             if (type == CameraType.Preview || type == CameraType.Reflection) return;
 
@@ -58,41 +100,69 @@ namespace UnderwaterFX
             }
             warnedNoVolume = false;
 
-            volume.ApplyTo(material);
+            if (causticsPass != null && causticsMaterial != null)
+            {
+                volume.ApplyTo(causticsMaterial);
+                // Pide profundidad y normales a URP (activa el prepass DepthNormals).
+                causticsPass.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
+                renderer.EnqueuePass(causticsPass);
+            }
 
-            // Pide profundidad y normales a URP (activa el prepass DepthNormals).
-            pass.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
-            renderer.EnqueuePass(pass);
+            if (volume.underwaterFog && fogPass != null && fogMaterial != null)
+            {
+                volume.ApplyFogTo(fogMaterial);
+                fogPass.ConfigureInput(ScriptableRenderPassInput.Depth);
+                renderer.EnqueuePass(fogPass);
+            }
+
+            if (volume.godRays && godRaysPass != null && godRaysMaterial != null)
+            {
+                volume.ApplyGodRaysTo(godRaysMaterial);
+                godRaysPass.ConfigureInput(ScriptableRenderPassInput.Depth);
+                renderer.EnqueuePass(godRaysPass);
+            }
         }
 
         protected override void Dispose(bool disposing)
         {
-            CoreUtils.Destroy(material);
-            material = null;
-            pass = null;
+            CoreUtils.Destroy(causticsMaterial);
+            CoreUtils.Destroy(fogMaterial);
+            CoreUtils.Destroy(godRaysMaterial);
+            causticsMaterial = null;
+            fogMaterial = null;
+            godRaysMaterial = null;
+            causticsPass = null;
+            fogPass = null;
+            godRaysPass = null;
         }
 
-        class CausticsPass : ScriptableRenderPass
+        class FullscreenPass : ScriptableRenderPass
         {
             readonly Material material;
+            readonly string passName;
+            readonly int shaderPassCount;
 
             class PassData
             {
                 public Material material;
+                public int shaderPassCount;
             }
 
-            public CausticsPass(Material material)
+            public FullscreenPass(Material material, string passName, int shaderPassCount)
             {
                 this.material = material;
+                this.passName = passName;
+                this.shaderPassCount = shaderPassCount;
             }
 
             public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
             {
                 UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
 
-                using (var builder = renderGraph.AddRasterRenderPass<PassData>("Water Caustics", out PassData passData))
+                using (var builder = renderGraph.AddRasterRenderPass<PassData>(passName, out PassData passData))
                 {
                     passData.material = material;
+                    passData.shaderPassCount = shaderPassCount;
 
                     builder.SetRenderAttachment(resourceData.activeColorTexture, 0, AccessFlags.ReadWrite);
 
@@ -107,7 +177,8 @@ namespace UnderwaterFX
 
                     builder.SetRenderFunc((PassData data, RasterGraphContext context) =>
                     {
-                        context.cmd.DrawProcedural(Matrix4x4.identity, data.material, 0, MeshTopology.Triangles, 3, 1);
+                        for (int p = 0; p < data.shaderPassCount; p++)
+                            context.cmd.DrawProcedural(Matrix4x4.identity, data.material, p, MeshTopology.Triangles, 3, 1);
                     });
                 }
             }
