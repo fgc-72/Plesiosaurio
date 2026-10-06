@@ -42,6 +42,7 @@ public class CheckpointManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        ClearCheckpoint();
     }
 
     public void SaveCheckpoint(string sceneName, Vector3 position, CheckpointUnlocks unlocks)

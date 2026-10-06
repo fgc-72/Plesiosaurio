@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 3957053478618df47b6b383e623d4ce4
 ModelImporter:
-  serializedVersion: 24200
+  serializedVersion: 24300
   internalIDToNameTable: []
   externalObjects:
   - first:
@@ -14,6 +14,7 @@ ModelImporter:
     materialName: 1
     materialSearch: 1
     materialLocation: 1
+    searchTexturesGlobally: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -36,11 +37,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Armature.002|Idle
-      takeName: Armature.002|Idle
+      name: Armature.002|Walk (1)
+      takeName: Armature.002|Walk
       internalID: -4187070084771750883
       firstFrame: 0
-      lastFrame: 142
+      lastFrame: 104
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
