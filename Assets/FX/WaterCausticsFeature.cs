@@ -5,11 +5,6 @@ using UnityEngine.Rendering.Universal;
 
 namespace UnderwaterFX
 {
-    /// <summary>
-    /// Renderer Feature de URP (Render Graph). Dibuja dos pases:
-    /// 1) proyeccion de causticas, 2) niebla/absorcion submarina.
-    /// Anadelo en tu URP Renderer asset: Add Renderer Feature > Water Caustics Feature.
-    /// </summary>
     public class WaterCausticsFeature : ScriptableRendererFeature
     {
         [SerializeField] Shader causticsShader;

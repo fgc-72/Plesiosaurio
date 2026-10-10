@@ -78,6 +78,8 @@ public class DetectiveController : MonoBehaviour
             if (highlightFeature != null)
                 highlightFeature.SetActive(isActive);
 
+            ListenMode.ListenModeFeature.SetListening(isActive);
+
             previousState = isActive;
         }
 

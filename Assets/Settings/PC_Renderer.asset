@@ -71,7 +71,8 @@ MonoBehaviour:
   - {fileID: -3845464552553240552}
   - {fileID: 6715931446614242688}
   - {fileID: 8657175942152161286}
-  m_RendererFeatureMap: ad6b866f10d7b46c1828b5145d2aa2ca8035517311c8335d068809d6a6772478
+  - {fileID: 6296375630232326943}
+  m_RendererFeatureMap: ad6b866f10d7b46c1828b5145d2aa2ca8035517311c8335d068809d6a67724781f936cac46386157
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -100,6 +101,41 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
+--- !u!114 &6296375630232326943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 473170b88face0a44923751705d19f24, type: 3}
+  m_Name: ListenModeFeature
+  m_EditorClassIdentifier: Assembly-CSharp::ListenMode.ListenModeFeature
+  m_Active: 1
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 32768
+  blockerLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  debugListening: 0
+  fadeTime: 0.35
+  debugView: 0
+  auraColor: {r: 2, g: 1.45, b: 0.45, a: 1}
+  coreColor: {r: 3, g: 2.8, b: 2.2, a: 1}
+  radius: 22
+  blurIterations: 2
+  intensity: 2
+  falloff: 1.4
+  occludedFill: 0.2
+  pulseAmount: 0.15
+  pulseSpeed: 2.5
+  maxRange: 80
+  fadeDistance: 10
+  depthBias: 0.08
+  shader: {fileID: 4800000, guid: 1f7e27c005a00a04db28b3e1aeaf55d5, type: 3}
 --- !u!114 &6715931446614242688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,4 +197,6 @@ MonoBehaviour:
   m_Name: WaterCausticsFeature
   m_EditorClassIdentifier: Assembly-CSharp::UnderwaterFX.WaterCausticsFeature
   m_Active: 1
-  shader: {fileID: 4800000, guid: e6a7b664d43b4de4a8251f084cfae142, type: 3}
+  causticsShader: {fileID: 4800000, guid: e6a7b664d43b4de4a8251f084cfae142, type: 3}
+  fogShader: {fileID: 4800000, guid: c155d67129290834da5c97e6ca149c05, type: 3}
+  godRaysShader: {fileID: 4800000, guid: a660069ff6b94d74e9300521a490486d, type: 3}
