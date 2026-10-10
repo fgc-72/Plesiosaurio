@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
@@ -9,13 +10,18 @@ public class MenuButtonHighlight : MonoBehaviour,
     [SerializeField] private TMP_Text label;
 
     [Header("Flecha")]
-    [SerializeField] private bool showArrow = true; // false en los botones de la pausa con ícono
+    [SerializeField] private bool showArrow = true;
     public bool ShowArrow => showArrow;
 
     [Header("Ícono (opcional)")]
     [SerializeField] private RectTransform icon;
     [SerializeField] private float selectedIconScale = 1.2f;
-    [SerializeField] private float iconScaleSpeed = 14f;
+
+    [Header("Escala del texto")]
+    [SerializeField] private bool scaleLabel = true;
+    [SerializeField] private float selectedLabelScale = 1.2f;
+
+    [SerializeField] private float scaleSpeed = 14f;
 
     [Header("Texto")]
     [SerializeField] private Color normalColor   = new Color(0.7f, 0.7f, 0.7f, 1f);
@@ -23,46 +29,75 @@ public class MenuButtonHighlight : MonoBehaviour,
 
     [Header("Resplandor (Underlay de TMP)")]
     [SerializeField] private Color glowColor = Color.white;
-    [SerializeField, Range(0f, 1f)]   private float glowSoftness = 0.6f;
-    [SerializeField, Range(-1f, 1f)]  private float glowDilate   = 0.3f;
+    [SerializeField, Range(0f, 1f)]  private float glowSoftness = 0.6f;
+    [SerializeField, Range(-1f, 1f)] private float glowDilate   = 0.3f;
 
     private Vector3 iconBaseScale = Vector3.one;
-    private bool highlighted;
+    private Vector3 labelBaseScale = Vector3.one;
+    private bool selected;
+    private bool locked;
+    private bool Highlighted => selected || locked;
+
+    private bool IconIsValid => icon != null;
+    private bool LabelScaleIsValid => scaleLabel && label != null;
 
     private void Awake()
     {
-        if (label == null) label = GetComponentInChildren<TMP_Text>();
-        if (icon != null) iconBaseScale = icon.localScale;
-        SetHighlighted(false);
+        if (label == null) label = GetComponentInChildren<TMP_Text>(true);
+        if (IconIsValid) iconBaseScale = icon.localScale;
+        if (label != null) labelBaseScale = label.rectTransform.localScale;
+        ApplyVisuals();
     }
 
     private void Update()
     {
-        if (icon == null) return;
-        Vector3 target = iconBaseScale * (highlighted ? selectedIconScale : 1f);
-        icon.localScale = Vector3.Lerp(icon.localScale, target,
-            1f - Mathf.Exp(-iconScaleSpeed * Time.unscaledDeltaTime));
+        // Con el bloqueo activo, la transición manda sobre las escalas
+        if (locked) return;
+
+        float k = 1f - Mathf.Exp(-scaleSpeed * Time.unscaledDeltaTime);
+
+        if (IconIsValid)
+        {
+            Vector3 t = iconBaseScale * (Highlighted ? selectedIconScale : 1f);
+            icon.localScale = Vector3.Lerp(icon.localScale, t, k);
+        }
+
+        if (LabelScaleIsValid)
+        {
+            Vector3 t = labelBaseScale * (Highlighted ? selectedLabelScale : 1f);
+            label.rectTransform.localScale = Vector3.Lerp(label.rectTransform.localScale, t, k);
+        }
     }
 
     private void OnDisable()
     {
-        SetHighlighted(false);
-        if (icon != null) icon.localScale = iconBaseScale; // sin animación al reabrir
+        selected = false;
+        ApplyVisuals();
+        if (IconIsValid) icon.localScale = iconBaseScale;
+        if (LabelScaleIsValid) label.rectTransform.localScale = labelBaseScale;
+    }
+
+    public void SetLocked(bool value)
+    {
+        locked = value;
+        ApplyVisuals();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        var s = GetComponent<Selectable>();
+        if (s != null && !s.IsInteractable()) return;
         if (EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(gameObject);
     }
 
-    public void OnSelect(BaseEventData eventData)   => SetHighlighted(true);
-    public void OnDeselect(BaseEventData eventData) => SetHighlighted(false);
+    public void OnSelect(BaseEventData eventData)   { selected = true;  ApplyVisuals(); }
+    public void OnDeselect(BaseEventData eventData) { selected = false; ApplyVisuals(); }
 
-    private void SetHighlighted(bool on)
+    private void ApplyVisuals()
     {
-        highlighted = on;
         if (label == null) return;
+        bool on = Highlighted;
 
         label.color = on ? selectedColor : normalColor;
 

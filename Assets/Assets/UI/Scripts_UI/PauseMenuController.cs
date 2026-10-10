@@ -21,6 +21,8 @@ public class PauseMenuController : MonoBehaviour
     [SerializeField] private GameObject confirmGroup;
     [SerializeField] private TMP_Text confirmText;
 
+    [SerializeField] private PauseSettingsTransition settingsTransition;
+
     [Header("Opciones (de arriba a abajo)")]
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button settingsButton;
@@ -86,6 +88,8 @@ public class PauseMenuController : MonoBehaviour
     {
         if (!IsPaused) return;
 
+        if (settingsTransition.IsOpen || settingsTransition.IsBusy) return; // el panel de ajustes maneja su propia selección
+
         var es = EventSystem.current;
         GameObject sel = es.currentSelectedGameObject;
 
@@ -102,11 +106,12 @@ public class PauseMenuController : MonoBehaviour
 
     private void OnPausePerformed(InputAction.CallbackContext ctx)
     {
-        if (!IsPaused)               Pause();
-        else if (pending != Pending.None) CancelConfirm(); // atrás desde la confirmación
-        else                         Resume();
+        if (!IsPaused)                        Pause();
+        else if (settingsTransition.IsBusy)   return;
+        else if (settingsTransition.IsOpen)   settingsTransition.Close();
+        else if (pending != Pending.None)     CancelConfirm();
+        else                                  Resume();
     }
-
     // ---------- Pausa / Reanudar ----------
 
     public void Pause()
@@ -149,7 +154,7 @@ public class PauseMenuController : MonoBehaviour
         Select(focus.gameObject);
     }
 
-    private void OnSettings() { Debug.Log("Ajustes: pendiente de implementar"); }
+    private void OnSettings() => settingsTransition.Open();
     private void OnSave()     { Debug.Log("Guardar: pendiente de implementar"); }
 
     // ---------- Confirmación ----------
