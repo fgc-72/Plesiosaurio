@@ -45,6 +45,7 @@ public class CheckpointManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        ClearCheckpoint(); // Limpia el checkpoint al iniciar el juego, para pruebas desde cero
     }
 
     public void SaveCheckpoint(string sceneName, Vector3 position, Vector3 maraPosition, CheckpointUnlocks unlocks)

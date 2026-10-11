@@ -92,6 +92,12 @@ public class OpeningCinematicAct1 : MonoBehaviour
         // ya debería estar en false por defecto mientras tanto no la desbloqueemos.
         playerControls.SetControlEnabled(false);
 
+        // Forzamos la pose "acostada" (AnimationState = 4) desde el primer frame.
+        // Con override activado, PlayerAnimation deja de decidir sola el estado
+        // y se queda fija en la que le pongamos acá, hasta que lo liberemos más abajo.
+        playerAnimation.SetAnimationOverride(true);
+        SetPlayerAnimState(4); // Acostada (transición Any State -> Acostada, condición == 4)
+
         // IMPORTANTE: apagamos MaraGuide mientras dure la cinemática. Si se queda
         // activo, su propio FixedUpdate sigue intentando mover/rotar a Mara hacia
         // SUS waypoints al mismo tiempo que esta coroutine la mueve hacia los
