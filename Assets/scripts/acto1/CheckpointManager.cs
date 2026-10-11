@@ -27,6 +27,9 @@ public class CheckpointManager : MonoBehaviour
     private const string PosXKey = "CheckpointX";
     private const string PosYKey = "CheckpointY";
     private const string PosZKey = "CheckpointZ";
+    private const string MaraXKey = "CheckpointMaraX";
+    private const string MaraYKey = "CheckpointMaraY";
+    private const string MaraZKey = "CheckpointMaraZ";
     private const string UnlockVerticalKey = "UnlockVertical";
     private const string UnlockSprintKey = "UnlockSprint";
     private const string UnlockHeadbuttKey = "UnlockHeadbutt";
@@ -42,23 +45,25 @@ public class CheckpointManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        ClearCheckpoint();
     }
 
-    public void SaveCheckpoint(string sceneName, Vector3 position, CheckpointUnlocks unlocks)
+    public void SaveCheckpoint(string sceneName, Vector3 position, Vector3 maraPosition, CheckpointUnlocks unlocks)
     {
         PlayerPrefs.SetInt(HasCheckpointKey, 1);
         PlayerPrefs.SetString(SceneKey, sceneName);
         PlayerPrefs.SetFloat(PosXKey, position.x);
         PlayerPrefs.SetFloat(PosYKey, position.y);
         PlayerPrefs.SetFloat(PosZKey, position.z);
+        PlayerPrefs.SetFloat(MaraXKey, maraPosition.x);
+        PlayerPrefs.SetFloat(MaraYKey, maraPosition.y);
+        PlayerPrefs.SetFloat(MaraZKey, maraPosition.z);
         PlayerPrefs.SetInt(UnlockVerticalKey, unlocks.canMoveVertical ? 1 : 0);
         PlayerPrefs.SetInt(UnlockSprintKey, unlocks.canSprint ? 1 : 0);
         PlayerPrefs.SetInt(UnlockHeadbuttKey, unlocks.canHeadbutt ? 1 : 0);
         PlayerPrefs.SetInt(UnlockListenKey, unlocks.canListen ? 1 : 0);
         PlayerPrefs.Save();
 
-        Debug.Log($"Checkpoint guardado en {sceneName}: {position}");
+        Debug.Log($"Checkpoint guardado en {sceneName}: Nami={position}, Mara={maraPosition}");
     }
 
     public bool HasCheckpointFor(string sceneName)
@@ -73,6 +78,15 @@ public class CheckpointManager : MonoBehaviour
             PlayerPrefs.GetFloat(PosXKey, 0f),
             PlayerPrefs.GetFloat(PosYKey, 0f),
             PlayerPrefs.GetFloat(PosZKey, 0f)
+        );
+    }
+
+    public Vector3 GetCheckpointMaraPosition()
+    {
+        return new Vector3(
+            PlayerPrefs.GetFloat(MaraXKey, 0f),
+            PlayerPrefs.GetFloat(MaraYKey, 0f),
+            PlayerPrefs.GetFloat(MaraZKey, 0f)
         );
     }
 

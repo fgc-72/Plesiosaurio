@@ -58,6 +58,11 @@ public class PlayerControls : MonoBehaviour
     private float verticalSmoothVelocity;
     private float currentVerticalSpeed;
 
+    // Multiplicador temporal de velocidad (ej. 0.5 = mitad) que aplica RockSequenceManager
+    // cuando una roca golpea a Nami sin que alcanzara a romperla. 1 = velocidad normal.
+    private float externalSpeedMultiplier = 1f;
+    private Coroutine slowRoutine;
+
     private void Awake()
     {
         inputManager = GetComponent<InputManagerBueno>();
@@ -129,7 +134,9 @@ public class PlayerControls : MonoBehaviour
         // Vector de movimiento final en 3D (horizontal + vertical suavizado).
         // Se usa TANTO para la velocidad como para la rotación: una sola fuente de verdad,
         // así el cuerpo siempre apunta exactamente hacia donde se está moviendo.
-        Vector3 targetVelocity = horizontalDirection * currentSpeed + Vector3.up * currentVerticalSpeed;
+        // externalSpeedMultiplier deja que algo externo (ej. un golpe de roca) frene a
+        // Nami temporalmente sin tocar movementSpeed/accelerationSpeed originales.
+        Vector3 targetVelocity = (horizontalDirection * currentSpeed + Vector3.up * currentVerticalSpeed) * externalSpeedMultiplier;
 
         // Suavizado independiente por eje usando SmoothDamp da una sensación más "elástica" que MoveTowards
         rb.linearVelocity = Vector3.SmoothDamp(
@@ -199,6 +206,25 @@ public class PlayerControls : MonoBehaviour
     public void SetControlEnabled(bool isEnabled)
     {
         controlEnabled = isEnabled;
+    }
+
+    // Ralentiza temporalmente a Nami (ej. una roca que la golpeó sin romperse).
+    // Si se llama de nuevo mientras ya está ralentizada, reinicia el temporizador
+    // en vez de apilar efectos, para que no quede más lenta de lo esperado.
+    public void ApplySlow(float multiplier, float duration)
+    {
+        if (slowRoutine != null)
+            StopCoroutine(slowRoutine);
+
+        slowRoutine = StartCoroutine(SlowRoutine(multiplier, duration));
+    }
+
+    private System.Collections.IEnumerator SlowRoutine(float multiplier, float duration)
+    {
+        externalSpeedMultiplier = multiplier;
+        yield return new WaitForSeconds(duration);
+        externalSpeedMultiplier = 1f;
+        slowRoutine = null;
     }
 
     // --- API pública para UI de stamina, etc. ---

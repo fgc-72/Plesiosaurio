@@ -51,6 +51,12 @@ public class ScriptedEvent : MonoBehaviour
              "hasta que tengas una animación específica de 'arrastrado/indefenso'.")]
     [SerializeField] private int animationStateDuringEvent = 1;
 
+      [Header("Rocas (Acto I)")]
+    [Tooltip("El spawner de rocas de la secuencia que sigue. Arranca APAGADO y se " +
+             "activa justo cuando el jugador recupera el control para moverse " +
+             "(no durante el diálogo de Mara).")]
+    [SerializeField] private RockFallSpawner rockSpawner;
+
     private bool hasTriggered;
 
     private void Awake()
@@ -89,6 +95,8 @@ public class ScriptedEvent : MonoBehaviour
             playerAnimation.SetAnimationOverride(true);
             playerControls.GetComponent<Animator>().SetInteger("AnimationState", animationStateDuringEvent);
         }
+        if (rockSpawner != null)
+            rockSpawner.BeginSpawning();
 
         int originalPriority = 0;
         if (guidedCamera != null)

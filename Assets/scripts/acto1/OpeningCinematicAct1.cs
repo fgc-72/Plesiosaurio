@@ -60,6 +60,12 @@ public class OpeningCinematicAct1 : MonoBehaviour
     {
         Vector3 savedPosition = CheckpointManager.Instance.GetCheckpointPosition();
         namiRigidbody.position = savedPosition;
+
+        // También restauramos a Mara en su posición guardada, para que no
+        // aparezca en su punto de partida original de la cinemática.
+        Vector3 savedMaraPosition = CheckpointManager.Instance.GetCheckpointMaraPosition();
+        maraRigidbody.position = savedMaraPosition;
+
         playerControls.SetControlEnabled(true);
 
         // Restauramos también qué habilidades tenía desbloqueadas, para que no
@@ -166,7 +172,7 @@ public class OpeningCinematicAct1 : MonoBehaviour
                 }
                 : default;
 
-            CheckpointManager.Instance.SaveCheckpoint(sceneName, namiRigidbody.position, unlocks);
+            CheckpointManager.Instance.SaveCheckpoint(sceneName, namiRigidbody.position, maraRigidbody.position, unlocks);
         }
     }
 

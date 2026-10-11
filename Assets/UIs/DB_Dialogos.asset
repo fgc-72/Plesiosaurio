@@ -62,3 +62,19 @@ MonoBehaviour:
         ruinas por aca que nos pueden caer encima
     - languageCode: en
       text: Huh? What is that? I need to investigate.
+  - id: cuidado
+    speaker: Mara
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: cuidado, las rocas te reelentizan, romplelas con el boton Y
+    - languageCode: en
+      text: Huh? What is that? I need to investigate.
+  - id: donde
+    speaker: nami
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: "donde estoy..Mam\xE1? MAM\xC1...donde estas? "
+    - languageCode: en
+      text: Huh? What is that? I need to investigate.
