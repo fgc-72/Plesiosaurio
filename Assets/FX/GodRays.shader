@@ -116,8 +116,8 @@ Shader "Hidden/UnderwaterFX/GodRays"
                     float lightPath = depthBelow / max(L.y, 0.05);
 
                     // Luz que llega al punto desde la superficie y luz que vuelve hasta la camara.
-                    float3 lightAtt = exp(-_GRAbsorption * lightPath);
-                    float3 viewAtt = exp(-_GRAbsorption * (t - tEnter));
+                    float3 lightAtt = exp(-_GRAbsorption * lightPath * 0.5);
+                    float3 viewAtt = exp(-_GRAbsorption * (t - tEnter) * 0.5);
 
                     float4 shadowCoord = TransformWorldToShadowCoord(p);
                     Light shadowLight = GetMainLight(shadowCoord, p, half4(1, 1, 1, 1));
@@ -125,13 +125,13 @@ Shader "Hidden/UnderwaterFX/GodRays"
 
                     // Punto donde este rayo de luz cruza la superficie: ahi se muestrea el patron.
                     float2 suv = (p + L * lightPath).xz / max(_GRScale, 1e-3);
-                    float pat = SAMPLE_TEXTURE2D_LOD(_WaterCausticsTex, sampler_WaterCausticsTex, suv, 3.0).g;
-                    pat = lerp(1.0, pat, _GRPattern);
+                    float pat = SAMPLE_TEXTURE2D_LOD(_WaterCausticsTex, sampler_WaterCausticsTex, suv, 1.0).g;
+                    pat = lerp(1.0, pat * pat, _GRPattern);
 
                     accum += lightAtt * viewAtt * shadow * pat;
                 }
 
-                float3 result = accum * stepLen * 0.02 * phase * _GRIntensity
+                float3 result = accum * stepLen * 0.08 * phase * _GRIntensity
                               * mainLight.color * _GRColor;
                 return float4(result, 1.0);
             }
