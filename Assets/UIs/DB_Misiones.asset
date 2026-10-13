@@ -19,3 +19,15 @@ MonoBehaviour:
       title: busca a mara
       description: intenta localizarla
       hint: presiona[botones] para activar el modo escucha
+  - id: mision1
+    translations:
+    - languageCode: es
+      title: Sigue a Mara
+      description: 
+      hint: 
+  - id: mision2
+    translations:
+    - languageCode: es
+      title: Sigue a Mara
+      description: No te dejes golpear por las rocas
+      hint: puedes romper las piedras con un cabezazo

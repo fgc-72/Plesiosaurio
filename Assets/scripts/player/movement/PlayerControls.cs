@@ -208,6 +208,32 @@ public class PlayerControls : MonoBehaviour
         controlEnabled = isEnabled;
     }
 
+    // Sincroniza smoothYaw/currentPitch (el estado interno de rotación) con la
+    // orientación REAL actual del Rigidbody. Hay que llamar esto justo antes de
+    // SetControlEnabled(true) si algo externo (una cinemática) rotó a Nami
+    // directamente mientras controlEnabled era false — si no, HandleMovement
+    // retoma con el yaw/pitch viejos (de ANTES de la cinemática) y Nami pega
+    // un salto/corte hacia esa orientación vieja apenas recupera el control.
+    public void SyncRotationToCurrentTransform()
+    {
+        Vector3 forward = transform.forward;
+        Vector3 flatForward = Vector3.ProjectOnPlane(forward, Vector3.up).normalized;
+        if (flatForward.sqrMagnitude < 0.0001f)
+            flatForward = Vector3.forward;
+
+        facingDirection = flatForward;
+        smoothYaw = Quaternion.LookRotation(flatForward, Vector3.up);
+
+        // IMPORTANTE: leemos el pitch REAL que tiene el cuerpo en este instante,
+        // en vez de forzarlo a 0. Si Nami terminó la cinemática todavía algo
+        // inclinada (ej. recién termina de subir), ponerlo en 0 a la fuerza la
+        // hace "enderezarse" de un salto justo al recuperar el control — por
+        // eso se veía el corte. Dejándolo en su ángulo real, SmoothDampAngle en
+        // HandleRotation se encarga de nivelarla suavemente por su cuenta.
+        currentPitch = Vector3.SignedAngle(flatForward, forward, transform.right);
+        pitchVelocity = 0f;
+    }
+
     // Ralentiza temporalmente a Nami (ej. una roca que la golpeó sin romperse).
     // Si se llama de nuevo mientras ya está ralentizada, reinicia el temporizador
     // en vez de apilar efectos, para que no quede más lenta de lo esperado.

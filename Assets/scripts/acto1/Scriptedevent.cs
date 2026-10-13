@@ -57,11 +57,14 @@ public class ScriptedEvent : MonoBehaviour
              "(no durante el diálogo de Mara).")]
     [SerializeField] private RockFallSpawner rockSpawner;
 
+    private MissionUI missionUI;
+
     private bool hasTriggered;
 
     private void Awake()
     {
         GetComponent<Collider>().isTrigger = true;
+        missionUI = FindObjectOfType<MissionUI>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -78,6 +81,7 @@ public class ScriptedEvent : MonoBehaviour
         Rigidbody rb = other.GetComponent<Rigidbody>();
 
         StartCoroutine(RunEvent(playerControls, rb));
+        
     }
 
     private IEnumerator RunEvent(PlayerControls playerControls, Rigidbody rb)
@@ -110,6 +114,7 @@ public class ScriptedEvent : MonoBehaviour
                 ThoughtUI.Instance.ShowById(id);
 
             yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
+            missionUI.ShowMission("mision2");
         }
 
         if (useVibration)

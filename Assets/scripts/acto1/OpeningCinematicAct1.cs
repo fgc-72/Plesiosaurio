@@ -45,6 +45,8 @@ public class OpeningCinematicAct1 : MonoBehaviour
 
     [Header("Checkpoint")]
     [SerializeField] private string sceneName = "Acto1";
+    private MissionUI missionUI;
+    [SerializeField] private string id = "mision1";
 
     private int introCameraOriginalPriority;
     private bool forcingLyingPose; // true mientras reafirmamos AnimationState=4 todos los frames
@@ -71,6 +73,7 @@ public class OpeningCinematicAct1 : MonoBehaviour
 
     private void Start()
     {
+        missionUI = Object.FindFirstObjectByType<MissionUI>();
         if (CheckpointManager.Instance != null && CheckpointManager.Instance.HasCheckpointFor(sceneName))
             SkipToCheckpoint();
         else
@@ -79,6 +82,7 @@ public class OpeningCinematicAct1 : MonoBehaviour
 
     private void SkipToCheckpoint()
     {
+        missionUI.ShowMission(id);
         Vector3 savedPosition = CheckpointManager.Instance.GetCheckpointPosition();
         namiRigidbody.position = savedPosition;
 
@@ -109,6 +113,7 @@ public class OpeningCinematicAct1 : MonoBehaviour
 
     private IEnumerator PlayIntro()
     {
+        missionUI.Hide();
         // Nami se queda bloqueada (acostada) desde el principio: controlEnabled
         // ya debería estar en false por defecto mientras tanto no la desbloqueemos.
         playerControls.SetControlEnabled(false);
@@ -166,6 +171,7 @@ public class OpeningCinematicAct1 : MonoBehaviour
 
             // Y ahora sí, esperamos a que termine de verdad (toda la cola de líneas).
             yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
+            missionUI.ShowMission(id);
         }
 
         // Bajamos la prioridad AQUÍ, antes de que empiecen a subir — así el

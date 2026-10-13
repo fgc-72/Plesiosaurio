@@ -23,6 +23,7 @@ public class RockSequenceManager : MonoBehaviour
 
     private int brokenByPlayerCount;
     private bool sequenceFinished;
+    private bool hasWarnedPlayer; // true después de la PRIMERA vez que Mara avisa "cuidado"
 
     // Llamado desde FallingRock (vía DestructibleRock.BrokenByPlayer) cada vez
     // que el jugador rompe una roca a cabezazos.
@@ -45,18 +46,27 @@ public class RockSequenceManager : MonoBehaviour
         if (playerControls != null)
             playerControls.ApplySlow(hitSlowMultiplier, hitSlowDuration);
 
-        if (ThoughtUI.Instance != null && !string.IsNullOrEmpty(warningDialogueId))
+        // La advertencia de Mara solo se muestra UNA vez en total (la primera roca
+        // que te golpea), no cada vez — ya entendiste el peligro, no hace falta repetirlo.
+        if (!hasWarnedPlayer && ThoughtUI.Instance != null && !string.IsNullOrEmpty(warningDialogueId))
+        {
             ThoughtUI.Instance.ShowById(warningDialogueId);
+            hasWarnedPlayer = true;
+        }
     }
 
     private void TriggerBigRock()
     {
         sequenceFinished = true;
+        Debug.Log("🪨 Objetivo cumplido: disparando la cinemática de la roca grande.");
 
         if (spawner != null)
             spawner.SetActive(false);
 
         if (bigRockCinematic != null)
             bigRockCinematic.Play();
+        else
+            Debug.LogWarning("RockSequenceManager: falta asignar 'Big Rock Cinematic' en el Inspector, " +
+                              "así que se cumplió el objetivo pero no va a pasar nada visualmente.");
     }
 }

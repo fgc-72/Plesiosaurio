@@ -8,17 +8,32 @@ using UnityEngine;
 [RequireComponent(typeof(DestructibleRock))]
 public class FallingRock : MonoBehaviour
 {
-    public enum RockTarget { Nami, Mara }
+    // Ambient: roca puramente decorativa, no persigue a nadie, no rompe nada,
+    // solo cae para ambientar la zona (sensación de peligro de fondo).
+    public enum RockTarget { Nami, Mara, Ambient }
 
     [Header("Caída")]
     [SerializeField] private float fallSpeed = 3f;
     [Tooltip("Si la roca cae por debajo de esta altura Y sin haber llegado a su objetivo " +
-             "(por ejemplo, el objetivo se movió lejos), se autodestruye para no dejar basura.")]
+             "(o si es ambiental, sin más), se autodestruye para no dejar basura. Las " +
+             "ambientales normalmente pueden usar un valor más alto (más cerca de la " +
+             "superficie visible) ya que no necesitan llegar hasta ningún personaje.")]
     [SerializeField] private float destroyBelowY = -50f;
 
     [Header("Proximidad")]
-    [Tooltip("A qué distancia del objetivo se considera que la roca 'llegó' y resuelve su efecto.")]
-    [SerializeField] private float proximityThreshold = 1.5f;
+    [Tooltip("Margen extra (en metros) que se suma al radio real de la roca y al del " +
+             "objetivo. Súbelo un poco si todavía ves que la roca se mete antes de romperse.")]
+    [SerializeField] private float proximityMargin = 0.3f;
+    [Tooltip("Radio aproximado del objetivo (Nami o Mara), para que la roca resuelva " +
+             "justo cuando su SUPERFICIE toca al objetivo, no cuando sus centros coinciden.")]
+    [SerializeField] private float targetRadius = 1.2f;
+
+    [Header("Ventana de reacción (cabezazo)")]
+    [Tooltip("Solo aplica a rocas dirigidas a NAMI. Cuando la roca entra en el radio de " +
+             "proximidad, en vez de resolverse en ese mismo instante se QUEDA QUIETA este " +
+             "tiempo, dándote una ventana real para pegarle con Y antes de que te golpee. " +
+             "Si el cabezazo se siente imposible de conectar, sube este valor.")]
+    [SerializeField] private float hitGracePeriod = 0.5f;
 
     private Rigidbody rb;
     private DestructibleRock destructibleRock;
@@ -27,6 +42,8 @@ public class FallingRock : MonoBehaviour
     private RockTarget targetType;
     private Transform target;
     private bool resolved; // ya rompió o ya impactó: dejar de revisar cada frame
+    private bool inGracePeriod; // ya entró en rango y está "congelada" dando tiempo a reaccionar
+    private float proximityThreshold; // calculado en Awake según el tamaño real de ESTA roca
 
     private void Awake()
     {
@@ -35,6 +52,24 @@ public class FallingRock : MonoBehaviour
         rb.useGravity = false;
 
         destructibleRock = GetComponent<DestructibleRock>();
+
+        proximityThreshold = GetOwnRadius() + targetRadius + proximityMargin;
+    }
+
+    // Radio aproximado de ESTA roca, sacado de su propio Collider (ya escalado).
+    // Así una roca grande resuelve más lejos que una chica, en vez de usar la
+    // misma distancia fija para todos los tamaños.
+    private float GetOwnRadius()
+    {
+        Collider col = GetComponent<Collider>();
+        if (col == null) return 1f;
+
+        if (col is SphereCollider sphere)
+            return sphere.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y, transform.lossyScale.z);
+
+        // Para cualquier otro tipo de collider, usamos la mitad de la diagonal de sus bounds
+        // como aproximación razonable del radio.
+        return col.bounds.extents.magnitude;
     }
 
     // Llamado por RockFallSpawner justo después de instanciar la roca.
@@ -66,6 +101,11 @@ public class FallingRock : MonoBehaviour
             return;
         }
 
+        // Mientras está en la ventana de gracia, la roca se queda quieta en el aire
+        // (telegraph) — el coroutine de abajo decide cuándo se resuelve.
+        if (inGracePeriod)
+            return;
+
         rb.MovePosition(rb.position + Vector3.down * fallSpeed * Time.fixedDeltaTime);
 
         if (rb.position.y < destroyBelowY)
@@ -75,13 +115,47 @@ public class FallingRock : MonoBehaviour
             return;
         }
 
+        // Las ambientales no tienen target (caen sin perseguir a nadie), así que
+        // nunca entran a este chequeo: simplemente caen hasta destroyBelowY.
         if (target != null && Vector3.Distance(rb.position, target.position) <= proximityThreshold)
+        {
+            // Las de Mara se resuelven al toque (ella es IA, no necesita ventana de reacción).
+            // Las de Nami primero dan hitGracePeriod segundos quietas para que el jugador
+            // tenga una oportunidad real de cabecearla antes de que "impacte".
+            if (targetType == RockTarget.Mara || hitGracePeriod <= 0f)
+                ResolveProximity();
+            else
+                StartCoroutine(GracePeriodThenResolve());
+        }
+    }
+
+    private System.Collections.IEnumerator GracePeriodThenResolve()
+    {
+        inGracePeriod = true;
+
+        float elapsed = 0f;
+        while (elapsed < hitGracePeriod)
+        {
+            // Si el jugador logró el cabezazo durante la ventana de gracia,
+            // DestructibleRock ya la rompió: cortamos acá, nada que resolver.
+            if (destructibleRock.IsBroken)
+            {
+                resolved = true;
+                yield break;
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (!resolved && !destructibleRock.IsBroken)
             ResolveProximity();
     }
 
     private void ResolveProximity()
     {
         resolved = true;
+        inGracePeriod = false;
 
         if (targetType == RockTarget.Mara)
         {
