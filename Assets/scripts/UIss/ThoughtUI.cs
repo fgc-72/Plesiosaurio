@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ThoughtUI : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class ThoughtUI : MonoBehaviour
     [SerializeField] private DialogueDatabase database;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private TMP_Text textLabel;
+    [SerializeField] private Button button1;
+    [SerializeField] private Button button2;
     [SerializeField] private float fadeSpeed = 4f;
 
     private readonly Queue<DialogueLine> queue = new();
@@ -45,9 +48,13 @@ public class ThoughtUI : MonoBehaviour
             string lang = LocalizationManager.Instance != null ? LocalizationManager.Instance.CurrentLanguage : "es";
             textLabel.text = line.GetText(lang);
 
+            button1.gameObject.SetActive(false);
+            button2.gameObject.SetActive(false);
             yield return Fade(1f);
             yield return new WaitForSeconds(line.duration);
             yield return Fade(0f);
+            button1.gameObject.SetActive(true);
+            button2.gameObject.SetActive(true);
         }
 
         isShowing = false;

@@ -47,6 +47,27 @@ public class OpeningCinematicAct1 : MonoBehaviour
     [SerializeField] private string sceneName = "Acto1";
 
     private int introCameraOriginalPriority;
+    private bool forcingLyingPose; // true mientras reafirmamos AnimationState=4 todos los frames
+
+    private void Awake()
+    {
+        // Nos aseguramos de usar el MISMO PlayerAnimation que ya está usando
+        // PlayerManager (GetComponent desde el Rigidbody de Nami), en vez de
+        // confiar en lo que haya quedado arrastrado en el Inspector. Si hubiera
+        // dos referencias distintas por error, el override que ponemos acá
+        // nunca llegaría al PlayerAnimation real, y por eso se veía que Nami
+        // dejaba de obedecer el override apenas dejábamos de forzar el valor.
+        if (namiRigidbody != null)
+        {
+            PlayerAnimation realPlayerAnimation = namiRigidbody.GetComponent<PlayerAnimation>();
+            if (realPlayerAnimation != null)
+                playerAnimation = realPlayerAnimation;
+
+            PlayerControls realPlayerControls = namiRigidbody.GetComponent<PlayerControls>();
+            if (realPlayerControls != null)
+                playerControls = realPlayerControls;
+        }
+    }
 
     private void Start()
     {
@@ -98,6 +119,13 @@ public class OpeningCinematicAct1 : MonoBehaviour
         playerAnimation.SetAnimationOverride(true);
         SetPlayerAnimState(4); // Acostada (transición Any State -> Acostada, condición == 4)
 
+        // Algo más (todavía sin identificar del todo) reescribe AnimationState en
+        // paralelo, así que mientras tanto reafirmamos el 4 en TODOS los frames que
+        // dura la pose acostada — no solo una vez. Se apaga justo antes del paso 3,
+        // cuando toca cambiar a la animación de nado.
+        forcingLyingPose = true;
+        StartCoroutine(ForceAnimationStateWhile(() => forcingLyingPose, 4));
+
         // IMPORTANTE: apagamos MaraGuide mientras dure la cinemática. Si se queda
         // activo, su propio FixedUpdate sigue intentando mover/rotar a Mara hacia
         // SUS waypoints al mismo tiempo que esta coroutine la mueve hacia los
@@ -128,6 +156,15 @@ public class OpeningCinematicAct1 : MonoBehaviour
             foreach (string id in dialogueLineIds)
                 ThoughtUI.Instance.ShowById(id);
 
+            // Primero esperamos a que el diálogo REALMENTE empiece a mostrarse.
+            // Si no hacemos esto, puede pasar que ThoughtUI todavía no haya puesto
+            // IsShowing en true en este mismo frame (arranca el fade-in después),
+            // y entonces el siguiente WaitUntil (!IsShowing) se cumple de inmediato
+            // porque nunca llegó a ser true — como si el diálogo nunca hubiera
+            // empezado. Por eso se veía a Nami "levantarse" antes de que acabara el texto.
+            yield return new WaitUntil(() => ThoughtUI.Instance.IsShowing);
+
+            // Y ahora sí, esperamos a que termine de verdad (toda la cola de líneas).
             yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
         }
 
@@ -141,6 +178,8 @@ public class OpeningCinematicAct1 : MonoBehaviour
         // 3) Ambas suben y se colocan lado a lado, al mismo tiempo.
         //    Nami se mueve "a mano" (rb.MovePosition) mientras su control sigue
         //    desactivado — igual que hace ScriptedEvent durante una cinemática.
+        forcingLyingPose = false; // apaga el forzado de "Acostada" antes de pasar a nadar
+
         playerAnimation.SetAnimationOverride(true);
         SetPlayerAnimState(1); // "Nadando"
         SetSwimmingAnim(maraAnimator, true);
@@ -199,16 +238,42 @@ public class OpeningCinematicAct1 : MonoBehaviour
         }
     }
 
+    // Reescribe el parámetro todos los frames mientras condition() sea true. Lo usamos
+    // para sostener la pose "Acostada" a la fuerza mientras investigamos qué más la
+    // está pisando. 'state' es fijo (no necesitamos variarlo todavía).
+    private IEnumerator ForceAnimationStateWhile(System.Func<bool> condition, int state)
+    {
+        while (condition())
+        {
+            SetPlayerAnimState(state);
+            yield return null;
+        }
+    }
+
     private void SetPlayerAnimState(int state)
     {
         Animator animator = playerControls.GetComponent<Animator>();
-        if (animator != null)
-            animator.SetInteger("AnimationState", state);
+
+        if (animator == null)
+        {
+            Debug.LogWarning("OpeningCinematicAct1: Nami no tiene componente Animator en el mismo " +
+                              "GameObject que PlayerControls.");
+            return;
+        }
+
+        animator.SetInteger("AnimationState", state);
+    
     }
 
     private void SetSwimmingAnim(Animator animator, bool isSwimming)
     {
-        if (animator == null) return;
+        if (animator == null)
+        {
+            Debug.LogWarning("OpeningCinematicAct1: 'Mara Animator' está vacío en el Inspector, " +
+                              "así que no se le puede poner animación de nado a Mara durante la intro.");
+            return;
+        }
+
         animator.SetInteger("AnimationState", isSwimming ? 1 : 0);
     }
 }

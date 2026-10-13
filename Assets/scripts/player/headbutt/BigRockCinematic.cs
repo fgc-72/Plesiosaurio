@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using System.Collections;
+using SceneManagement;
 
 // La roca grande que choca a Nami tras romper las 4 rocas pequeñas: viene
 // directo y sin que se pueda evitar, pantalla a negro + desenfoque (misma

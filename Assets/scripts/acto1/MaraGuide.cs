@@ -23,16 +23,36 @@ public class MaraGuide : MonoBehaviour
     [Tooltip("Debe ser MENOR a Leash Distance. Evita que Mara arranque/pare " +
              "constantemente justo en el borde (histéresis).")]
     [SerializeField] private float resumeDistance = 5f;
+    [Tooltip("Tiempo (segundos) que la condición de espera/avance debe mantenerse ANTES " +
+             "de que el cambio se haga efectivo. Si el jugador se queda justo rozando el " +
+             "límite, esto evita que isWaiting (y su animación) parpadeen entre true/false.")]
+    [SerializeField] private float waitStateChangeDelay = 0.2f;
+    [Tooltip("Tiempo MÍNIMO (segundos) que Mara se queda comprometida en un estado (esperando " +
+             "o avanzando) antes de poder volver a cambiar, aunque la distancia ya lo pida. " +
+             "Sin esto, apenas retoma el camino su propio movimiento puede volver a cruzar el " +
+             "límite de inmediato y se ve como pasos cortos de avance-freno-avance-freno.")]
+    [SerializeField] private float minCommitDuration = 1.5f;
+
+    [Header("Animación")]
+    [Tooltip("Si lo dejas vacío, busca un Animator en este mismo GameObject.")]
+    [SerializeField] private Animator animator;
 
     private int currentWaypointIndex;
     private bool isWaiting;
     private Rigidbody rb;
+    private int lastAnimState = -1; // -1 fuerza el primer SetInteger; evita reenviar el mismo valor cada frame
+    private bool pendingWaitState;
+    private float waitStateTimer;
+    private float timeSinceLastCommit = Mathf.Infinity; // Infinity: el primer cambio no debe esperar nada
 
-    public bool IsWaiting => isWaiting; // por si quieres usarlo para animación
+    public bool IsWaiting => isWaiting;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+
+        if (animator == null)
+            animator = GetComponent<Animator>();
 
         // Forzamos Kinematic sin importar lo que tuvieras marcado en el Inspector:
         // Mara se mueve por script (waypoints), no por física, así que un Rigidbody
@@ -48,6 +68,21 @@ public class MaraGuide : MonoBehaviour
             return;
 
         UpdateWaitingState();
+
+        // La animación de Mara sigue el mismo criterio simple que su movimiento:
+        // nadando (1) mientras avanza hacia un waypoint, idle (0) mientras espera.
+        // OpeningCinematicAct1 sigue pudiendo pisar esto manualmente mientras
+        // MaraGuide está desactivado (enabled = false) durante una cinemática.
+        //
+        // Solo llamamos a SetInteger cuando el valor REALMENTE cambia. No hace
+        // diferencia para Mecanim en sí (da igual poner el mismo valor), pero evita
+        // cualquier posibilidad de "reiniciar" una transición en curso cada frame.
+        int targetAnimState = isWaiting ? 0 : 1;
+        if (animator != null && targetAnimState != lastAnimState)
+        {
+            animator.SetInteger("AnimationState", targetAnimState);
+            lastAnimState = targetAnimState;
+        }
     }
 
     private void FixedUpdate()
@@ -61,18 +96,41 @@ public class MaraGuide : MonoBehaviour
     private void UpdateWaitingState()
     {
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        timeSinceLastCommit += Time.deltaTime;
 
-        if (isWaiting)
+        // Histéresis por DISTANCIA (un límite para empezar a esperar, otro más cercano
+        // para retomar): evita el parpadeo si el jugador se queda quieto justo en el borde.
+        bool shouldWait = isWaiting
+            ? distanceToPlayer > resumeDistance   // ya esperando: sigue esperando hasta estar BIEN cerca
+            : distanceToPlayer >= leashDistance;  // avanzando: solo para si se aleja mucho
+
+        if (shouldWait == isWaiting)
         {
-            // Solo retoma el camino cuando el jugador está BIEN cerca (resumeDistance),
-            // no apenas cruza el límite de leashDistance otra vez.
-            if (distanceToPlayer <= resumeDistance)
-                isWaiting = false;
+            // Ya estamos en el estado que corresponde: no hay cambio pendiente.
+            pendingWaitState = isWaiting;
+            waitStateTimer = 0f;
+            return;
         }
-        else
+
+        // Histéresis por TIEMPO (corta): si el jugador roza el límite en milisegundos,
+        // el cambio no se confirma de inmediato.
+        if (shouldWait != pendingWaitState)
         {
-            if (distanceToPlayer >= leashDistance)
-                isWaiting = true;
+            pendingWaitState = shouldWait;
+            waitStateTimer = 0f;
+        }
+
+        waitStateTimer += Time.deltaTime;
+
+        // Histéresis por TIEMPO (larga): además, Mara tiene que haber estado COMPROMETIDA
+        // en su estado actual durante minCommitDuration antes de poder cambiarlo. Esto es
+        // lo que evita el "avanza un poco, frena, avanza un poco" — su propio movimiento al
+        // retomar el camino puede volver a cruzar el límite de inmediato, pero no la saca
+        // de "avanzando" hasta que lleve un rato comprometida con eso.
+        if (waitStateTimer >= waitStateChangeDelay && timeSinceLastCommit >= minCommitDuration)
+        {
+            isWaiting = shouldWait;
+            timeSinceLastCommit = 0f;
         }
     }
 
@@ -88,7 +146,6 @@ public class MaraGuide : MonoBehaviour
 
         if (direction.sqrMagnitude > 0.01f)
         {
-           
             Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
             rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
         }
