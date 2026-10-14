@@ -30,14 +30,16 @@ public class ScriptedEvent : MonoBehaviour
     [Tooltip("Duración del empuje forzado (solo aplica al modo 'Empuje En Dirección').")]
     [SerializeField] private float forcedDuration = 3f;
 
-    [Header("Diálogo (usa el sistema ThoughtUI del equipo)")]
-    [Tooltip("IDs de las líneas en el DialogueDatabase, en el orden en que deben mostrarse.")]
-    [SerializeField] private string[] dialogueLineIds;
-
     [Header("Cámara guiada (opcional)")]
     [Tooltip("Cámara virtual de Cinemachine a activar durante el evento. Vacío = no cambia cámara.")]
     [SerializeField] private CinemachineCamera guidedCamera;
     [SerializeField] private int guidedCameraPriority = 20;
+
+    [Header("Diálogo (opcional)")]
+    [Tooltip("Si lo llenas Y el movimiento es 'Ninguno', el evento espera a que termine este " +
+             "diálogo (en vez de 'forcedDuration') antes de devolver el control. Ideal para " +
+             "cinemáticas de solo cámara+texto, como 'Nami despierta sola en otro lugar'.")]
+    [SerializeField] private string dialogueId;
 
     [Header("Vibración del control (opcional)")]
     [SerializeField] private bool useVibration = false;
@@ -51,20 +53,17 @@ public class ScriptedEvent : MonoBehaviour
              "hasta que tengas una animación específica de 'arrastrado/indefenso'.")]
     [SerializeField] private int animationStateDuringEvent = 1;
 
-      [Header("Rocas (Acto I)")]
-    [Tooltip("El spawner de rocas de la secuencia que sigue. Arranca APAGADO y se " +
-             "activa justo cuando el jugador recupera el control para moverse " +
-             "(no durante el diálogo de Mara).")]
+    [Header("Activar algo al soltar al jugador (opcional)")]
+    [Tooltip("Spawner de rocas que debe arrancar justo cuando este evento termina y el " +
+             "jugador recupera el control (no antes, mientras todavía está bloqueado " +
+             "viendo texto/cámara). Déjalo vacío si este evento no tiene que ver con rocas.")]
     [SerializeField] private RockFallSpawner rockSpawner;
-
-    private MissionUI missionUI;
 
     private bool hasTriggered;
 
     private void Awake()
     {
         GetComponent<Collider>().isTrigger = true;
-        missionUI = FindObjectOfType<MissionUI>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -81,12 +80,10 @@ public class ScriptedEvent : MonoBehaviour
         Rigidbody rb = other.GetComponent<Rigidbody>();
 
         StartCoroutine(RunEvent(playerControls, rb));
-        
     }
 
     private IEnumerator RunEvent(PlayerControls playerControls, Rigidbody rb)
     {
-        
         if (playerControls != null)
             playerControls.SetControlEnabled(false);
 
@@ -99,22 +96,12 @@ public class ScriptedEvent : MonoBehaviour
             playerAnimation.SetAnimationOverride(true);
             playerControls.GetComponent<Animator>().SetInteger("AnimationState", animationStateDuringEvent);
         }
-        if (rockSpawner != null)
-            rockSpawner.BeginSpawning();
 
         int originalPriority = 0;
         if (guidedCamera != null)
         {
             originalPriority = guidedCamera.Priority;
             guidedCamera.Priority = guidedCameraPriority;
-        }
-            if (ThoughtUI.Instance != null)
-        {
-            foreach (string id in dialogueLineIds)
-                ThoughtUI.Instance.ShowById(id);
-
-            yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
-            missionUI.ShowMission("mision2");
         }
 
         if (useVibration)
@@ -129,10 +116,35 @@ public class ScriptedEvent : MonoBehaviour
                 yield return RunPath(rb);
                 break;
             default:
-                // Sin movimiento forzado: solo esperamos la duración (útil para
-                // eventos que son puramente de cámara, como la cápsula de Dimitri).
-                yield return new WaitForSeconds(forcedDuration);
+                // Sin movimiento forzado y sin diálogo: comportamiento viejo, esperar un
+                // tiempo fijo (útil para eventos puramente de cámara, como la cápsula de
+                // Dimitri). Si HAY diálogo, el tiempo lo decide el diálogo (ver abajo),
+                // así que acá no esperamos nada para no sumar una espera doble.
+                if (string.IsNullOrEmpty(dialogueId))
+                    yield return new WaitForSeconds(forcedDuration);
                 break;
+        }
+
+        // El diálogo se maneja APARTE del movimiento (antes estaba metido solo en el
+        // caso 'Ninguno' del switch de arriba, así que si el evento tenía empuje o
+        // camino, el texto nunca se mostraba). Ahora se muestra sin importar el modo
+        // de movimiento, justo después de que ese movimiento (si lo hay) termine.
+        if (!string.IsNullOrEmpty(dialogueId))
+        {
+            if (ThoughtUI.Instance == null)
+            {
+                Debug.LogWarning($"ScriptedEvent en '{name}': dialogueId = '{dialogueId}' pero " +
+                                  "ThoughtUI.Instance es null (no hay ningún ThoughtUI activo en la " +
+                                  "escena en este momento), así que no se pudo mostrar el texto.");
+            }
+            else
+            {
+                ThoughtUI.Instance.ShowById(dialogueId);
+                // Primero esperamos a que REALMENTE aparezca (evita que el segundo
+                // WaitUntil se resuelva de inmediato si el fade-in todavía no arrancó).
+                yield return new WaitUntil(() => ThoughtUI.Instance.IsShowing);
+                yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
+            }
         }
 
         if (guidedCamera != null)
@@ -144,7 +156,10 @@ public class ScriptedEvent : MonoBehaviour
         if (playerControls != null)
             playerControls.SetControlEnabled(true);
 
-        
+        // Justo AQUÍ, no antes: recién cuando el jugador recupera el control de
+        // verdad (ya pasó el texto/cámara/movimiento forzado) arrancan las rocas.
+        if (rockSpawner != null)
+            rockSpawner.BeginSpawning();
     }
 
     private IEnumerator RunPush(Rigidbody rb)

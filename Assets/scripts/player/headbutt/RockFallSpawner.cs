@@ -163,7 +163,12 @@ public class RockFallSpawner : MonoBehaviour
 
         FallingRock fallingRock = rockInstance.GetComponent<FallingRock>();
         if (fallingRock != null)
-            fallingRock.Setup(FallingRock.RockTarget.Ambient, targetTransform: null, manager: null);
+            // Le pasamos el sequenceManager (antes era null) para que, si el jugador la
+            // rompe a cabezazos, SÍ cuente para el objetivo — las ambientales son mucho
+            // más frecuentes y están en el camino real del jugador, así que son la
+            // oportunidad de romper rocas que de verdad usa, a diferencia de las
+            // peligrosas (que persiguen un punto fijo y suelen quedarse atrás).
+            fallingRock.Setup(FallingRock.RockTarget.Ambient, targetTransform: null, manager: sequenceManager);
     }
 
     // Dibuja las zonas ambientales en el Scene View para acomodarlas a ojo.

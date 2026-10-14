@@ -85,6 +85,13 @@ public class PlayerControls : MonoBehaviour
         if (!controlEnabled)
             return;
 
+        // Si Nami sobrevivió un cambio de escena (ej. BigRockCinematic cargando el
+        // mapa nuevo), la cámara de la escena VIEJA ya no existe: la buscamos de
+        // nuevo. Barato (una comparación) cuando ya está asignada, así que no pasa
+        // nada dejarlo corriendo siempre.
+        if (cameraObject == null && Camera.main != null)
+            cameraObject = Camera.main.transform;
+
         float deltaTime = Time.fixedDeltaTime;
 
         bool isMoving =

@@ -9,8 +9,11 @@ EditorBuildSettings:
     path: Assets/Scenes/MENU.unity
     guid: 53d6b00d332dc4643890b9f8d78ffe07
   - enabled: 1
-    path: Assets/Scenes/Acto1.unity
+    path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/acto2.unity
+    guid: f0cea3b5be77d6640a9a48de6dee9bb4
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
