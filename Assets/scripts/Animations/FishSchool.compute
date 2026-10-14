@@ -1,0 +1,262 @@
+// Simulacion de cardumenes (boids) en GPU, con particion espacial en rejilla.
+//
+// Cada frame:
+//   1) ClearGrid : pone a 0 el contador de peces de cada celda
+//   2) FillGrid  : cada pez se anota en su celda (InterlockedAdd)
+//   3) Simulate  : cada pez mira SOLO los peces de su celda y las 26 vecinas y calcula
+//                  cohesion, alineacion y separacion, mas el objetivo, los limites y los obstaculos.
+//                  Escribe en un buffer distinto al que lee (doble buffer) para evitar carreras.
+//
+// El resultado nunca vuelve a la CPU: el shader de dibujo lee el mismo buffer.
+
+#pragma kernel ClearGrid
+#pragma kernel FillGrid
+#pragma kernel Simulate
+
+// ---- Debe coincidir EXACTAMENTE con FishData / SpeciesData de FishSchoolManager.cs (48 y 80 bytes)
+struct Fish
+{
+    float3 pos;
+    float phase;
+    float3 vel;
+    float intensity;
+    uint species;
+    float pad0;
+    float pad1;
+    float pad2;
+};
+
+struct Species
+{
+    float3 target;
+    float targetWeight;
+
+    float cohesionWeight;
+    float alignmentWeight;
+    float separationWeight;
+    float perceptionRadius;
+
+    float separationRadius;
+    float minSpeed;
+    float maxSpeed;
+    float maxAccel;
+
+    float turnRate;
+    float size;
+    float swimFreqBase;
+    float swimFreqGain;
+
+    float turnBoost;
+    float avoidWeight;
+    float idleSwim;
+    float pad;
+};
+
+StructuredBuffer<Fish> _FishRead;
+RWStructuredBuffer<Fish> _FishWrite;
+StructuredBuffer<Species> _Species;
+StructuredBuffer<float4> _Obstacles; // xyz = centro, w = radio
+RWStructuredBuffer<uint> _CellCount;
+RWStructuredBuffer<uint> _CellFish;
+
+uint _FishCount;
+uint _CellTotal;
+uint _MaxPerCell;
+uint _ObstacleCount;
+int3 _GridDim;
+float3 _GridOrigin;
+float _CellSize;
+float _DeltaTime;
+float3 _BoundsCenter;
+float3 _BoundsExtents; // mitad del tamano de la zona
+float _BoundsWeight;
+float _ObstacleMargin;
+
+int3 CellOf(float3 p)
+{
+    int3 c = (int3)floor((p - _GridOrigin) / _CellSize);
+    return clamp(c, int3(0, 0, 0), _GridDim - 1);
+}
+
+uint CellIndex(int3 c)
+{
+    return (uint)(c.x + c.y * _GridDim.x + c.z * _GridDim.x * _GridDim.y);
+}
+
+float3 SafeNormalize(float3 v)
+{
+    float l2 = dot(v, v);
+    return l2 > 1e-10 ? v * rsqrt(l2) : float3(0, 0, 0);
+}
+
+[numthreads(64, 1, 1)]
+void ClearGrid(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _CellTotal) return;
+    _CellCount[id.x] = 0;
+}
+
+[numthreads(64, 1, 1)]
+void FillGrid(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if (i >= _FishCount) return;
+
+    uint ci = CellIndex(CellOf(_FishRead[i].pos));
+
+    uint slot;
+    InterlockedAdd(_CellCount[ci], 1, slot);
+    if (slot < _MaxPerCell)
+        _CellFish[ci * _MaxPerCell + slot] = i;
+}
+
+[numthreads(64, 1, 1)]
+void Simulate(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if (i >= _FishCount) return;
+
+    Fish f = _FishRead[i];
+    Species sp = _Species[f.species];
+    float dt = _DeltaTime;
+
+    float speedNow = length(f.vel);
+    float3 dirNow = speedNow > 1e-4 ? f.vel / speedNow : float3(0, 0, 1);
+
+    float perc2 = sp.perceptionRadius * sp.perceptionRadius;
+    float sep2 = sp.separationRadius * sp.separationRadius;
+
+    float3 cohSum = 0;
+    float3 alignSum = 0;
+    float3 sepSum = 0;
+    uint nCoh = 0;
+    uint nSep = 0;
+
+    // ---------------------------------------------------------------- vecinos (solo celdas cercanas)
+    int3 cell = CellOf(f.pos);
+    for (int dz = -1; dz <= 1; dz++)
+    {
+        for (int dy = -1; dy <= 1; dy++)
+        {
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                int3 c = cell + int3(dx, dy, dz);
+                if (any(c < int3(0, 0, 0)) || any(c >= _GridDim)) continue;
+
+                uint ci = CellIndex(c);
+                uint cnt = min(_CellCount[ci], _MaxPerCell);
+
+                for (uint s = 0; s < cnt; s++)
+                {
+                    uint j = _CellFish[ci * _MaxPerCell + s];
+                    if (j == i) continue;
+
+                    Fish o = _FishRead[j];
+                    float3 d = o.pos - f.pos;
+                    float d2 = dot(d, d);
+                    if (d2 > perc2 || d2 < 1e-8) continue;
+
+                    // Cohesion y alineacion: solo con peces de la MISMA especie.
+                    if (o.species == f.species)
+                    {
+                        cohSum += o.pos;
+                        alignSum += SafeNormalize(o.vel);
+                        nCoh++;
+                    }
+
+                    // Separacion: con la misma especie o con especies MAS GRANDES
+                    // (los pequenos huyen de los grandes; los grandes ignoran a los pequenos).
+                    if (d2 < sep2)
+                    {
+                        if (o.species == f.species || _Species[o.species].size >= sp.size)
+                        {
+                            sepSum -= d / d2; // mas fuerte cuanto mas cerca
+                            nSep++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- direccion deseada
+    float3 steer = 0;
+
+    if (nCoh > 0)
+    {
+        steer += SafeNormalize(cohSum / nCoh - f.pos) * sp.cohesionWeight;
+        steer += SafeNormalize(alignSum) * sp.alignmentWeight;
+    }
+    if (nSep > 0)
+        steer += SafeNormalize(sepSum) * sp.separationWeight;
+
+    steer += SafeNormalize(sp.target - f.pos) * sp.targetWeight;
+
+    // Limites de la zona: empuje suave hacia adentro al acercarse a las paredes.
+    float3 rel = f.pos - _BoundsCenter;
+    float3 soft = _BoundsExtents * 0.8;
+    float3 excess = max(abs(rel) - soft, 0) / max(_BoundsExtents - soft, 1e-3);
+    steer -= sign(rel) * excess * _BoundsWeight;
+
+    // Obstaculos (tiburones, jugador...): huir lo mas rapido posible.
+    float danger = 0;
+    for (uint k = 0; k < _ObstacleCount; k++)
+    {
+        float4 ob = _Obstacles[k];
+        float3 away = f.pos - ob.xyz;
+        float dist = max(length(away), 1e-3);
+        float t = saturate(1.0 - (dist - ob.w) / max(_ObstacleMargin, 1e-3));
+        if (t > 0)
+        {
+            steer += (away / dist) * sp.avoidWeight * t * t;
+            danger = max(danger, t);
+        }
+    }
+
+    float3 desiredDir = SafeNormalize(steer);
+    if (dot(desiredDir, desiredDir) < 0.5) desiredDir = dirNow; // sin estimulos: seguir recto
+
+    // ---------------------------------------------------------------- giro limitado
+    float angle = acos(clamp(dot(dirNow, desiredDir), -1.0, 1.0));
+    float maxTurn = sp.turnRate * dt * (1.0 + danger * 2.0);
+    float tt = angle > 1e-4 ? saturate(maxTurn / angle) : 1.0;
+
+    float3 mixDir = lerp(dirNow, desiredDir, tt);
+    if (dot(mixDir, mixDir) < 1e-4) mixDir = cross(dirNow, float3(0, 1, 0)); // giro de 180 grados
+    float3 newDir = normalize(mixDir);
+
+    float turned = min(angle, maxTurn);
+    float angFactor = saturate((turned / max(dt, 1e-4)) / max(sp.turnRate, 1e-3));
+
+    // ---------------------------------------------------------------- velocidad
+    // Parte de la aceleracion angular se convierte en aceleracion lineal (al girar, la cola empuja).
+    float cruise = lerp(sp.minSpeed, sp.maxSpeed, 0.4);
+    float desiredSpeed = lerp(cruise, sp.maxSpeed, danger) + angFactor * sp.turnBoost * sp.maxSpeed;
+    desiredSpeed = clamp(desiredSpeed, sp.minSpeed, sp.maxSpeed);
+
+    float newSpeed = speedNow + clamp(desiredSpeed - speedNow, -sp.maxAccel * dt, sp.maxAccel * dt);
+    float accelFactor = saturate((abs(newSpeed - speedNow) / max(dt, 1e-4)) / max(sp.maxAccel, 1e-3));
+
+    // ---------------------------------------------------------------- intensidad y fase del nado
+    // La intensidad se guia por la ACELERACION (lineal o angular), no por la velocidad.
+    float targetIntensity = max(max(accelFactor, angFactor), sp.idleSwim);
+    float intensity = lerp(f.intensity, targetIntensity, saturate(dt * 8.0));
+
+    float phase = f.phase + dt * (sp.swimFreqBase + sp.swimFreqGain * intensity);
+    phase -= 6.2831853 * floor(phase / 6.2831853);
+
+    // ---------------------------------------------------------------- integrar
+    float3 pos = f.pos + newDir * newSpeed * dt;
+    pos = clamp(pos, _BoundsCenter - _BoundsExtents, _BoundsCenter + _BoundsExtents);
+
+    Fish outFish;
+    outFish.pos = pos;
+    outFish.phase = phase;
+    outFish.vel = newDir * newSpeed;
+    outFish.intensity = intensity;
+    outFish.species = f.species;
+    outFish.pad0 = 0;
+    outFish.pad1 = 0;
+    outFish.pad2 = 0;
+    _FishWrite[i] = outFish;
+}
