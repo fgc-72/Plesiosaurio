@@ -78,3 +78,11 @@ MonoBehaviour:
       text: "donde estoy..Mam\xE1? MAM\xC1...donde estas? "
     - languageCode: en
       text: Huh? What is that? I need to investigate.
+  - id: advertencia
+    speaker: mara
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: 'NAMI, CUIDADO ARRIBA '
+    - languageCode: en
+      text: Huh? What is that? I need to investigate.

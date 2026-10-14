@@ -3049,6 +3049,7 @@ MonoBehaviour:
   guidedCamera: {fileID: 0}
   guidedCameraPriority: 20
   dialogueId: 
+  missionIdOnFinish: 
   useVibration: 0
   vibrationStrength: 0
   overrideAnimation: 1
@@ -6808,7 +6809,7 @@ GameObject:
   - component: {fileID: 1078355831}
   - component: {fileID: 1078355830}
   m_Layer: 0
-  m_Name: CheckPoint
+  m_Name: WakeUpPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

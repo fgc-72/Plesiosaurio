@@ -1106,7 +1106,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.10207742, y: 0.7865325, z: -0.13519566, w: 0.5938594}
+  m_LocalRotation: {x: 0.10208311, y: 0.78650755, z: -0.13519135, w: 0.59389246}
   m_LocalPosition: {x: 112.8614, y: 30.478905, z: 174.59431}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3032,7 +3032,7 @@ GameObject:
   m_Layer: 0
   m_Name: zonarocas (4)
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -3045,7 +3045,7 @@ Transform:
   m_GameObject: {fileID: 589670220}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 459.43, y: 45.93, z: 737.31}
+  m_LocalPosition: {x: 499.1, y: 61, z: 750.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3240,7 +3240,8 @@ MonoBehaviour:
   forcedDuration: 5
   guidedCamera: {fileID: 680278352}
   guidedCameraPriority: 20
-  dialogueId: 
+  dialogueId: Mara_mitad
+  missionIdOnFinish: mision2
   useVibration: 0
   vibrationStrength: 0
   overrideAnimation: 1
@@ -5892,6 +5893,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1797302612}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1048190191}
     - targetCorrespondingSourceObject: {fileID: 3982504166368023673, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2106138196}
@@ -6289,7 +6293,7 @@ GameObject:
   m_Layer: 0
   m_Name: zonarocas (2)
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -6302,7 +6306,7 @@ Transform:
   m_GameObject: {fileID: 921616409}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 373.24, y: 45.93, z: 688.69}
+  m_LocalPosition: {x: 427.9, y: 61, z: 614.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6798,6 +6802,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1011583634}
   m_CullTransparentMesh: 1
+--- !u!1 &1019204216
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1019204217}
+  m_Layer: 0
+  m_Name: zonarocas (6)
+  m_TagString: Untagged
+  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1019204217
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1019204216}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 580.7, y: 61, z: 729.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1031241146
 GameObject:
   m_ObjectHideFlags: 0
@@ -7343,6 +7378,112 @@ MonoBehaviour:
     position: {x: 90, y: -65.9}
     scale: {x: 0.8, y: 0.8, z: 0.8}
   settingsHighlight: {fileID: 1995672483}
+--- !u!1 &1048190190
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1048190191}
+  - component: {fileID: 1048190192}
+  m_Layer: 0
+  m_Name: 2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1048190191
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048190190}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.5370878, y: -0.3254289, z: -0.19017941, w: 0.7546287}
+  m_LocalPosition: {x: -0.5825279, y: 6.223028, z: 6.007461}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 647012130}
+  m_LocalEulerAnglesHint: {x: -58.866, y: 0, z: 0}
+--- !u!114 &1048190192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048190190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
+  Priority:
+    Enabled: 1
+    m_Value: -1
+  OutputChannel: 1
+  StandbyUpdate: 2
+  m_StreamingVersion: 20241001
+  m_LegacyPriority: 0
+  Target:
+    TrackingTarget: {fileID: 0}
+    LookAtTarget: {fileID: 0}
+    CustomLookAtTarget: 0
+  Lens:
+    FieldOfView: 63.792576
+    OrthographicSize: 5
+    NearClipPlane: 0.3
+    FarClipPlane: 1000
+    Dutch: 0
+    ModeOverride: 0
+    PhysicalProperties:
+      GateFit: 2
+      SensorSize: {x: 21.946, y: 16.002}
+      LensShift: {x: 0, y: 0}
+      FocusDistance: 10
+      Iso: 200
+      ShutterSpeed: 0.005
+      Aperture: 16
+      BladeCount: 5
+      Curvature: {x: 2, y: 11}
+      BarrelClipping: 0.25
+      Anamorphism: 0
+  BlendHint: 0
+--- !u!1 &1057628214
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1057628215}
+  m_Layer: 0
+  m_Name: zonarocas (7)
+  m_TagString: Untagged
+  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1057628215
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1057628214}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 393.1, y: 61, z: 485.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1078355826
 GameObject:
   m_ObjectHideFlags: 0
@@ -7685,7 +7826,7 @@ GameObject:
   m_Layer: 0
   m_Name: zonarocas (1)
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -7698,7 +7839,38 @@ Transform:
   m_GameObject: {fileID: 1202243071}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 433.15, y: 45.93, z: 688.69}
+  m_LocalPosition: {x: 433.15, y: 61, z: 640.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1207773933
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1207773934}
+  m_Layer: 0
+  m_Name: zonarocas (5)
+  m_TagString: Untagged
+  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1207773934
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1207773933}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 400.1, y: 61, z: 576}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10278,7 +10450,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1564302285
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -10417,7 +10589,7 @@ GameObject:
   m_Layer: 0
   m_Name: zonarocas (3)
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -10430,7 +10602,7 @@ Transform:
   m_GameObject: {fileID: 1599249114}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 373.24, y: 45.93, z: 737.31}
+  m_LocalPosition: {x: 373.24, y: 61, z: 737.31}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11854,55 +12026,63 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 1812914065}
     m_Modifications:
+    - target: {fileID: 999101165844488608, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1604413879457636381, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_Name
       value: SM_Rocks_04
       objectReference: {fileID: 0}
+    - target: {fileID: 1604413879457636381, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalScale.x
-      value: 10
+      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalScale.y
-      value: 10
+      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalScale.z
-      value: 10
+      value: 35
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 510.6
+      value: -7.1331787
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 181.4
+      value: 9.377487
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 624
+      value: 20.433472
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.48731542
+      value: 0.9163938
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.873226
+      value: -0.381513
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: -0.046551935
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: -0.11181769
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -121.671005
+      value: -45.206
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -11910,7 +12090,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2432962793492408293, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: -13.914
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -12634,6 +12814,38 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1812123732}
   m_CullTransparentMesh: 1
+--- !u!1 &1812914064
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1812914065}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1812914065
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1812914064}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 420.4, y: 237, z: 696}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 195143203}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1815930890
 GameObject:
   m_ObjectHideFlags: 0
@@ -13170,7 +13382,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15b440de50616504fb0b4ce327bab8de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScreenBlackoutEffect
-  fadeDuration: 2
+  fadeDuration: 4
 --- !u!114 &1838350340
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13186,21 +13398,27 @@ MonoBehaviour:
   playerControls: {fileID: 647012134}
   playerAnimation: {fileID: 647012132}
   namiRigidbody: {fileID: 647012135}
+  namiAnimator: {fileID: 0}
+  wakeUpLyingDown: 1
   maraGuide: {fileID: 1809590200}
-  bigRockObject: {fileID: 195143203}
-  bigRockStartPoint: {fileID: 195143203}
-  bigRockSpeed: 30.3
+  closeUpCamera: {fileID: 1048190192}
+  closeUpCameraPriority: 20
+  bigRockObject: {fileID: 1812914065}
+  bigRockStartPoint: {fileID: 1812914065}
+  bigRockSpeed: 50
+  impactDistance: 2
   blackout: {fileID: 1838350339}
   wakeUpVolume: {fileID: 832575518}
   blurredAperture: 2
   clearAperture: 16
   blurredFocusDistance: 0.3
   normalFocusDistance: 10
-  blurClearDuration: 2
-  wakeUpPoint: {fileID: 1917277178}
+  blurClearDuration: 4
+  wakeUpPoint: {fileID: 0}
   sceneToLoad: acto2
   wakeUpPointName: WakeUpPoint
   wakeUpDialogueId: donde
+  fallingDialogueId: advertencia
 --- !u!114 &1838350341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13247,8 +13465,8 @@ MonoBehaviour:
   namiTarget: {fileID: 647012130}
   maraTarget: {fileID: 1809590202}
   maraTargetChance: 0.117
-  minInterval: 1
-  maxInterval: 5
+  minInterval: 1.3
+  maxInterval: 6.82
   spawnHeight: 50
   horizontalSpawnRadius: 25
   ambientRockPrefabs:
@@ -13265,10 +13483,16 @@ MonoBehaviour:
   - {fileID: 2010085120437849477, guid: 9ec55189fab312141825d31ad5584d45, type: 3}
   ambientSpawnZones:
   - {fileID: 1917277178}
-  ambientSpawnRadius: 25
+  - {fileID: 921616410}
+  - {fileID: 1599249115}
+  - {fileID: 589670221}
+  - {fileID: 1207773934}
+  - {fileID: 1019204217}
+  - {fileID: 1057628215}
+  ambientSpawnRadius: 68.4
   ambientSpawnHeight: 40
-  ambientMinInterval: 0.4
-  ambientMaxInterval: 1.2
+  ambientMinInterval: 0.82
+  ambientMaxInterval: 1.11
   sequenceManager: {fileID: 1838350341}
 --- !u!4 &1838350343
 Transform:
@@ -13509,7 +13733,7 @@ GameObject:
   m_Layer: 0
   m_Name: zonarocas
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -13522,7 +13746,7 @@ Transform:
   m_GameObject: {fileID: 1917277177}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 411, y: 45.93, z: 718.8}
+  m_LocalPosition: {x: 447.9, y: 61, z: 695.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14959,12 +15183,15 @@ SceneRoots:
   - {fileID: 680278353}
   - {fileID: 1483061775}
   - {fileID: 1564302288}
-  - {fileID: 1754960592}
+  - {fileID: 1812914065}
   - {fileID: 1917277178}
   - {fileID: 1202243072}
   - {fileID: 921616410}
   - {fileID: 1599249115}
   - {fileID: 589670221}
+  - {fileID: 1207773934}
+  - {fileID: 1019204217}
+  - {fileID: 1057628215}
   - {fileID: 1838350343}
   - {fileID: 2010061031}
   - {fileID: 1282899380}

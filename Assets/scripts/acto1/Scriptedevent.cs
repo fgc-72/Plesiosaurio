@@ -41,6 +41,11 @@ public class ScriptedEvent : MonoBehaviour
              "cinemáticas de solo cámara+texto, como 'Nami despierta sola en otro lugar'.")]
     [SerializeField] private string dialogueId;
 
+    [Header("Misión al terminar (opcional)")]
+    [Tooltip("ID de la misión (MissionDatabase) a mostrar justo cuando el jugador recupera el " +
+             "control, al final del evento. Déjalo vacío si este evento no activa ninguna misión.")]
+    [SerializeField] private string missionIdOnFinish;
+
     [Header("Vibración del control (opcional)")]
     [SerializeField] private bool useVibration = false;
     [Range(0f, 1f)] [SerializeField] private float vibrationStrength = 0.6f;
@@ -79,6 +84,18 @@ public class ScriptedEvent : MonoBehaviour
         PlayerControls playerControls = other.GetComponent<PlayerControls>();
         Rigidbody rb = other.GetComponent<Rigidbody>();
 
+        StartCoroutine(RunEvent(playerControls, rb));
+    }
+
+    // Dispara el evento directamente por CÓDIGO, sin esperar a que el jugador pise
+    // un Collider — para cuando otro sistema (ej. RockFallSpawner apenas empiezan a
+    // caer las rocas) ya sabe que es el momento exacto de activar cámara/diálogo/etc.
+    public void TriggerManually(PlayerControls playerControls, Rigidbody rb)
+    {
+        if (hasTriggered && triggerOnce)
+            return;
+
+        hasTriggered = true;
         StartCoroutine(RunEvent(playerControls, rb));
     }
 
@@ -139,6 +156,16 @@ public class ScriptedEvent : MonoBehaviour
             }
             else
             {
+                // Si hay rocas asociadas a este evento, no esperamos a que el diálogo
+                // TERMINE para activarlas: arrancan a la MITAD de su duración, en
+                // paralelo, mientras Mara sigue hablando — así se sienten inmediatas
+                // en vez de aparecer recién cuando el jugador recupera el control.
+                if (rockSpawner != null)
+                {
+                    float duration = ThoughtUI.Instance.GetDurationById(dialogueId);
+                    StartCoroutine(BeginRocksPartwayThroughDialogue(duration * 0.5f));
+                }
+
                 ThoughtUI.Instance.ShowById(dialogueId);
                 // Primero esperamos a que REALMENTE aparezca (evita que el segundo
                 // WaitUntil se resuelva de inmediato si el fade-in todavía no arrancó).
@@ -156,8 +183,31 @@ public class ScriptedEvent : MonoBehaviour
         if (playerControls != null)
             playerControls.SetControlEnabled(true);
 
-        // Justo AQUÍ, no antes: recién cuando el jugador recupera el control de
-        // verdad (ya pasó el texto/cámara/movimiento forzado) arrancan las rocas.
+        // Apenas el jugador recupera el control, mostramos la misión nueva (si hay una).
+        if (!string.IsNullOrEmpty(missionIdOnFinish))
+        {
+            if (MissionUI.Instance != null)
+                MissionUI.Instance.ShowMission(missionIdOnFinish);
+            else
+                Debug.LogWarning($"ScriptedEvent en '{name}': missionIdOnFinish = " +
+                                  $"'{missionIdOnFinish}' pero MissionUI.Instance es null.");
+        }
+
+        // Red de seguridad: si por lo que sea el disparo de arriba (a mitad del
+        // diálogo) no llegó a pasar — por ejemplo, este evento no tiene dialogueId,
+        // o usa movimiento forzado en vez de 'Ninguno' — las rocas igual arrancan
+        // acá al final. BeginSpawning() ya se protege solo contra arrancar dos veces.
+        if (rockSpawner != null)
+            rockSpawner.BeginSpawning();
+    }
+
+    // Arranca el RockFallSpawner a mitad de la duración del diálogo, mientras Mara
+    // sigue hablando, en vez de esperar a que termine.
+    private IEnumerator BeginRocksPartwayThroughDialogue(float delay)
+    {
+        if (delay > 0f)
+            yield return new WaitForSeconds(delay);
+
         if (rockSpawner != null)
             rockSpawner.BeginSpawning();
     }

@@ -28,6 +28,15 @@ public class ThoughtUI : MonoBehaviour
         canvasGroup.alpha = 0f;
     }
 
+    // Permite a otros scripts (ej. ScriptedEvent) saber cuánto va a durar una línea
+    // SIN mostrarla todavía — útil para sincronizar algo (como que empiecen a caer
+    // rocas) con la MITAD de un diálogo que ni siquiera ha arrancado.
+    public float GetDurationById(string id)
+    {
+        var line = database.GetById(id);
+        return line != null ? line.duration : 0f;
+    }
+
     public void ShowById(string id)
     {
         var line = database.GetById(id);

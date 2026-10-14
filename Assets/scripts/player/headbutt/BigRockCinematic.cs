@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
+using Unity.Cinemachine;
 using System.Collections;
 
 // La roca grande que choca a Nami tras romper las 4 rocas pequeñas: viene
@@ -14,6 +15,14 @@ public class BigRockCinematic : MonoBehaviour
     [SerializeField] private PlayerControls playerControls;
     [SerializeField] private PlayerAnimation playerAnimation;
     [SerializeField] private Rigidbody namiRigidbody;
+    [Tooltip("Si lo dejas vacío, se busca solo en namiRigidbody al arrancar.")]
+    [SerializeField] private Animator namiAnimator;
+
+    [Header("Pose acostada al despertar (opcional)")]
+    [Tooltip("Si es true, Nami aparece ACOSTADA (AnimationState 4) apenas llega al punto de " +
+             "despertar, se queda así mientras sale el diálogo final, y pasa a Idle justo " +
+             "cuando el diálogo termina (antes de devolver el control).")]
+    [SerializeField] private bool wakeUpLyingDown = true;
 
     [Header("Mara")]
     [Tooltip("Se congela en su sitio durante la cinemática. Al terminar retoma su " +
@@ -21,11 +30,22 @@ public class BigRockCinematic : MonoBehaviour
              "por eso NO la movemos junto con Nami.")]
     [SerializeField] private MaraGuide maraGuide;
 
+    [Header("Cámara (opcional)")]
+    [Tooltip("Solo arrastra la cámara: apenas se activa la roca grande, esta cámara toma " +
+             "prioridad (primer plano de la caída). Apenas se termina de ir a negro, se le " +
+             "devuelve la prioridad original — así la cámara que esté activa en el lugar " +
+             "donde Nami despierta vuelve a tomar el control sola.")]
+    [SerializeField] private CinemachineCamera closeUpCamera;
+    [SerializeField] private int closeUpCameraPriority = 20;
+
     [Header("Roca grande")]
     [Tooltip("El GameObject de la roca grande ya puesto en la escena (puede empezar desactivado).")]
     [SerializeField] private Transform bigRockObject;
     [SerializeField] private Transform bigRockStartPoint;
     [SerializeField] private float bigRockSpeed = 15f;
+    [Tooltip("A qué distancia de Nami se considera que 'ya casi la golpea' y se corta a negro. " +
+             "Súbelo si quieres que el fundido arranque con la roca todavía más lejos.")]
+    [SerializeField] private float impactDistance = 1f;
 
     [Header("Pantalla negra + desenfoque")]
     [SerializeField] private ScreenBlackoutEffect blackout;
@@ -54,9 +74,19 @@ public class BigRockCinematic : MonoBehaviour
     [Header("Diálogo")]
     [Tooltip("ID en el DialogueDatabase para '¿Dónde está mamá?'")]
     [SerializeField] private string wakeUpDialogueId;
+    [Tooltip("Opcional: diálogo que sale MIENTRAS la roca grande va cayendo hacia Nami " +
+             "(en paralelo, no bloquea la caída). Déjalo vacío si no quieres ninguno acá.")]
+    [SerializeField] private string fallingDialogueId;
 
     private DepthOfField depthOfField;
     private bool hasPlayed;
+    private bool forcingLyingPose;
+
+    private void Awake()
+    {
+        if (namiAnimator == null && namiRigidbody != null)
+            namiAnimator = namiRigidbody.GetComponent<Animator>();
+    }
 
     public void Play()
     {
@@ -74,6 +104,15 @@ public class BigRockCinematic : MonoBehaviour
             maraGuide.enabled = false; // Mara se queda quieta donde esté (y, si cambiamos de
                                         // escena, se queda ahí para siempre: no persiste)
 
+        // Primer plano de la caída: apenas se activa la roca grande, esta cámara toma el
+        // control (prioridad alta) hasta que se termine de ir a negro, más abajo.
+        int closeUpOriginalPriority = 0;
+        if (closeUpCamera != null)
+        {
+            closeUpOriginalPriority = closeUpCamera.Priority;
+            closeUpCamera.Priority = closeUpCameraPriority;
+        }
+
         // 1) La roca grande viene directo a Nami: no hay cabezazo que la detenga.
         if (bigRockObject == null || bigRockStartPoint == null)
             Debug.LogWarning("BigRockCinematic: falta asignar 'Big Rock Object' o 'Big Rock Start Point' " +
@@ -84,6 +123,11 @@ public class BigRockCinematic : MonoBehaviour
             bigRockObject.position = bigRockStartPoint.position;
             bigRockObject.gameObject.SetActive(true);
 
+            // Diálogo en PARALELO a la caída (no usamos yield/WaitUntil acá a propósito:
+            // la roca tiene que seguir viniendo igual, hable Mara/Nami o no).
+            if (!string.IsNullOrEmpty(fallingDialogueId) && ThoughtUI.Instance != null)
+                ThoughtUI.Instance.ShowById(fallingDialogueId);
+
             float startDistance = Vector3.Distance(bigRockObject.position, namiRigidbody.position);
             Debug.Log($"🪨 BigRockCinematic: la roca grande arranca a {startDistance:F1}m de Nami " +
                       $"(velocidad {bigRockSpeed}/s → ~{startDistance / bigRockSpeed:F1}s de viaje).");
@@ -91,11 +135,11 @@ public class BigRockCinematic : MonoBehaviour
             // Si esto imprime ~0m o un número de segundos casi nulo, el 'Big Rock Start Point'
             // está puesto demasiado cerca de Nami: muévelo bien lejos (por ejemplo, a la altura
             // de la superficie, igual que haces con las rocas chicas) para que de verdad se vea venir.
-            if (startDistance < 1f)
-                Debug.LogWarning("BigRockCinematic: el Start Point está a menos de 1m de Nami, " +
-                                  "por eso la roca 'no se ve' — pasa directo a la pantalla negra.");
+            if (startDistance < impactDistance)
+                Debug.LogWarning($"BigRockCinematic: el Start Point está a menos de {impactDistance}m " +
+                                  "de Nami, por eso la roca 'no se ve' — pasa directo a la pantalla negra.");
 
-            while (Vector3.Distance(bigRockObject.position, namiRigidbody.position) > 1f)
+            while (Vector3.Distance(bigRockObject.position, namiRigidbody.position) > impactDistance)
             {
                 bigRockObject.position = Vector3.MoveTowards(
                     bigRockObject.position, namiRigidbody.position, bigRockSpeed * Time.deltaTime);
@@ -128,6 +172,11 @@ public class BigRockCinematic : MonoBehaviour
 
         if (blackout != null)
             yield return blackout.FadeToBlack();
+
+        // Ya está todo negro: devolvemos la prioridad de la cámara de primer plano a
+        // como estaba, para que no se quede "pegada" cuando reaparezca la imagen.
+        if (closeUpCamera != null)
+            closeUpCamera.Priority = closeUpOriginalPriority;
 
         // 3) Mientras está en negro: O cargamos la escena nueva y ubicamos a Nami en su
         //    punto de despertar, O (comportamiento viejo) la teletransportamos dentro de
@@ -163,6 +212,16 @@ public class BigRockCinematic : MonoBehaviour
             depthOfField.focusDistance.value = blurredFocusDistance;
         }
 
+        // Nami aparece ACOSTADA en el lugar nuevo. Reafirmamos el valor cada frame
+        // (en vez de ponerlo una sola vez) porque en el Acto I detectamos que algo más
+        // pisaba 'AnimationState' si no se insistía constantemente — sigue sin saberse
+        // la causa raíz exacta, así que lo forzamos igual acá por seguridad.
+        if (wakeUpLyingDown && namiAnimator != null)
+        {
+            forcingLyingPose = true;
+            StartCoroutine(ForceAnimationStateWhile(() => forcingLyingPose, 4));
+        }
+
         // 4) Volvemos de negro ya en el nuevo lugar (todavía borroso).
         if (blackout != null)
             yield return blackout.FadeFromBlack();
@@ -171,11 +230,21 @@ public class BigRockCinematic : MonoBehaviour
         if (depthOfField != null)
             yield return ClearBlur();
 
-        // 6) Diálogo: "¿Dónde está mamá?"
+        // 6) Diálogo: "¿Dónde está mamá?" — Nami se queda acostada durante TODO este diálogo.
         if (ThoughtUI.Instance != null && !string.IsNullOrEmpty(wakeUpDialogueId))
         {
             ThoughtUI.Instance.ShowById(wakeUpDialogueId);
+            // Primero esperamos a que REALMENTE aparezca (si no, el WaitUntil de abajo
+            // puede resolverse de inmediato si el fade-in todavía no arrancó).
+            yield return new WaitUntil(() => ThoughtUI.Instance.IsShowing);
             yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
+        }
+
+        // Apenas termina el diálogo (o de una, si no había diálogo asignado): pasa a Idle.
+        if (wakeUpLyingDown && namiAnimator != null)
+        {
+            forcingLyingPose = false;
+            namiAnimator.SetInteger("AnimationState", 0);
         }
 
         // 7) Nami recupera el control, sola. Mara retoma su camino por su cuenta.
@@ -209,5 +278,17 @@ public class BigRockCinematic : MonoBehaviour
 
         depthOfField.aperture.value = clearAperture;
         depthOfField.focusDistance.value = normalFocusDistance;
+    }
+
+    // Reafirma 'AnimationState' en el Animator TODOS los frames mientras 'condition'
+    // sea true. Mismo patrón que OpeningCinematicAct1: evita que la pose se rompa si
+    // algún otro sistema sigue tocando el parámetro por su cuenta.
+    private IEnumerator ForceAnimationStateWhile(System.Func<bool> condition, int state)
+    {
+        while (condition())
+        {
+            namiAnimator.SetInteger("AnimationState", state);
+            yield return null;
+        }
     }
 }
