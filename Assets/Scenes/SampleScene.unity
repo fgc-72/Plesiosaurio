@@ -346,6 +346,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 63725673}
   m_CullTransparentMesh: 1
+--- !u!1 &90203584
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 90203585}
+  m_Layer: 0
+  m_Name: GameObject (5)
+  m_TagString: Untagged
+  m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &90203585
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 90203584}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -228.8, y: 0.1, z: 700.9}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 972635743}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &101504883
 GameObject:
   m_ObjectHideFlags: 0
@@ -2637,7 +2668,7 @@ Transform:
   m_GameObject: {fileID: 544714159}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -34.7, y: 4.3, z: 107.2}
+  m_LocalPosition: {x: 5.3, y: 4.3, z: 169.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3311,6 +3342,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScriptedEvent
   playerTag: Player
   triggerOnce: 1
+  requireMaraNearby: 0
+  maraTransform: {fileID: 0}
+  maxMaraDistance: 15
+  tetherToRelease: {fileID: 0}
   movementMode: 1
   pushDirection: {x: 0, y: 0, z: 0}
   pushSpeed: 1
@@ -3777,8 +3812,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 9.865341, y: 3.4679208, z: 21.338943}
-  m_Center: {x: -0.3032151, y: 3.070072, z: 0.31070712}
+  m_Size: {x: 5.537584, y: 4.441141, z: 17.570251}
+  m_Center: {x: -0.3407269, y: 3.5565317, z: 0.30185995}
 --- !u!114 &647012139
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3797,6 +3832,25 @@ MonoBehaviour:
   lungeForce: 5
   hitboxActiveDuration: 1
   cooldown: 1
+--- !u!114 &647012140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 647012129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46fd5b054603a7e4a9974b75ea554407, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MaraTether
+  mara: {fileID: 1809590202}
+  maraTag: Mara
+  searchInterval: 1
+  softRadius: 35
+  hardRadius: 40
+  warningDialogueId: nami_limite
+  warningCooldown: 20
 --- !u!1 &650566557
 GameObject:
   m_ObjectHideFlags: 0
@@ -5147,7 +5201,7 @@ GameObject:
   - component: {fileID: 826206004}
   m_Layer: 15
   m_Name: mara_pruebas
-  m_TagString: Player
+  m_TagString: Mara
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6006,6 +6060,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 647012139}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 647012140}
   m_SourcePrefab: {fileID: 100100000, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
 --- !u!1 &852145309
 GameObject:
@@ -6416,7 +6473,7 @@ Transform:
   m_GameObject: {fileID: 961825526}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -228.8, y: 0.1, z: 707.2}
+  m_LocalPosition: {x: -321.6, y: 0.1, z: 547.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6603,6 +6660,8 @@ Transform:
   - {fileID: 1662642012}
   - {fileID: 1438135898}
   - {fileID: 961825527}
+  - {fileID: 90203585}
+  - {fileID: 1732759251}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 46.981, z: 0}
 --- !u!1 &979418120
@@ -9072,7 +9131,7 @@ Transform:
   m_GameObject: {fileID: 1342992958}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -42.6, y: 0.7, z: 253.7}
+  m_LocalPosition: {x: -50.2, y: 0.7, z: 338.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9673,7 +9732,7 @@ Transform:
   m_GameObject: {fileID: 1438135897}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -239, y: 0.1, z: 501.8}
+  m_LocalPosition: {x: -220.1, y: 0.1, z: 534}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10529,7 +10588,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1564302285
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -11176,7 +11235,7 @@ Transform:
   m_GameObject: {fileID: 1662642011}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -123.6, y: 0.1, z: 403.7}
+  m_LocalPosition: {x: -147.1, y: 0.1, z: 444.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11546,7 +11605,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1688960652
 Transform:
   m_ObjectHideFlags: 0
@@ -11883,6 +11942,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1716306477}
   m_CullTransparentMesh: 1
+--- !u!1 &1732759250
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1732759251}
+  m_Layer: 0
+  m_Name: GameObject (6)
+  m_TagString: Untagged
+  m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1732759251
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1732759250}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 183.4, y: 0.1, z: 700.9}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 972635743}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1734736824
 GameObject:
   m_ObjectHideFlags: 0
@@ -12329,7 +12419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1762068961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12576,6 +12666,8 @@ MonoBehaviour:
   - {fileID: 1662642012}
   - {fileID: 1438135898}
   - {fileID: 961825527}
+  - {fileID: 90203585}
+  - {fileID: 1732759251}
   moveSpeed: 15
   rotationSpeed: 4
   waypointThreshold: 0.5
@@ -12603,8 +12695,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10.495346, y: 6.05352, z: 21.542114}
-  m_Center: {x: 1.065773, y: 2.52676, z: 0.96224976}
+  m_Size: {x: 3.3259687, y: 5.4666023, z: 19.604626}
+  m_Center: {x: 0.051001042, y: 2.820219, z: 1.209634}
 --- !u!4 &1809590202 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
@@ -13478,15 +13570,15 @@ MonoBehaviour:
   playerControls: {fileID: 647012134}
   playerAnimation: {fileID: 647012132}
   namiRigidbody: {fileID: 647012135}
-  namiAnimator: {fileID: 0}
+  namiAnimator: {fileID: 647012131}
   wakeUpLyingDown: 1
   maraGuide: {fileID: 1809590200}
   closeUpCamera: {fileID: 1048190192}
   closeUpCameraPriority: 20
   bigRockObject: {fileID: 1812914065}
   bigRockStartPoint: {fileID: 1812914065}
-  bigRockSpeed: 50
-  impactDistance: 2
+  bigRockSpeed: 45
+  impactDistance: 15
   blackout: {fileID: 1838350339}
   wakeUpVolume: {fileID: 832575518}
   blurredAperture: 2
@@ -13515,7 +13607,7 @@ MonoBehaviour:
   spawner: {fileID: 1838350342}
   playerControls: {fileID: 647012134}
   bigRockCinematic: {fileID: 1838350340}
-  hitSlowMultiplier: 0.5
+  hitSlowMultiplier: 1
   hitSlowDuration: 1.5
   warningDialogueId: cuidado
 --- !u!114 &1838350342
@@ -13545,8 +13637,8 @@ MonoBehaviour:
   namiTarget: {fileID: 647012130}
   maraTarget: {fileID: 1809590202}
   maraTargetChance: 0.117
-  minInterval: 1.3
-  maxInterval: 6.82
+  minInterval: 0.05
+  maxInterval: 1.35
   spawnHeight: 50
   horizontalSpawnRadius: 25
   ambientRockPrefabs:
@@ -13571,8 +13663,8 @@ MonoBehaviour:
   - {fileID: 1057628215}
   ambientSpawnRadius: 68.4
   ambientSpawnHeight: 40
-  ambientMinInterval: 0.82
-  ambientMaxInterval: 1.11
+  ambientMinInterval: 0.05
+  ambientMaxInterval: 1.08
   sequenceManager: {fileID: 1838350341}
 --- !u!4 &1838350343
 Transform:
@@ -15186,6 +15278,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
       propertyPath: m_Layer
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
+      propertyPath: m_TagString
+      value: Mara
       objectReference: {fileID: 0}
     - target: {fileID: 1041190682579340626, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
       propertyPath: m_Layer

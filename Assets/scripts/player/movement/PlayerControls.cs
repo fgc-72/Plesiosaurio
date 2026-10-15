@@ -209,6 +209,10 @@ public class PlayerControls : MonoBehaviour
     // se está aplicando físicamente, la animación y la rotación quedan siempre sincronizadas.
     public float GetCurrentPitch() => currentPitch;
 
+    // Para que otros sistemas (ej. MaraTether) sepan si el jugador manda ahora mismo,
+    // y no se metan mientras una cinemática mueve a Nami por su cuenta.
+    public bool IsControlEnabled => controlEnabled;
+
     // Llamado por ScriptedEvent para quitar/devolver el control al jugador.
     public void SetControlEnabled(bool isEnabled)
     {

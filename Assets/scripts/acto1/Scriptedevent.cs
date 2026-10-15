@@ -19,6 +19,18 @@ public class ScriptedEvent : MonoBehaviour
     [Tooltip("Si es true, el evento solo puede dispararse una vez.")]
     [SerializeField] private bool triggerOnce = true;
 
+    [Header("Condición: Mara cerca (opcional)")]
+    [Tooltip("Si es true, el evento NO se activa hasta que Mara esté cerca de Nami. Si Nami " +
+             "llega sola, no pasa nada; apenas Mara llega (y Nami sigue dentro del trigger), " +
+             "el evento arranca. Actívalo solo en el evento que depende de ir con Mara.")]
+    [SerializeField] private bool requireMaraNearby = false;
+    [SerializeField] private Transform maraTransform;
+    [Tooltip("Distancia máxima entre Mara y Nami para considerar que 'vienen juntas'.")]
+    [SerializeField] private float maxMaraDistance = 15f;
+    [Tooltip("Opcional: la correa de Nami (MaraTether) se apaga cuando este evento arranca, " +
+             "porque desde aquí ya no se necesita.")]
+    [SerializeField] private MaraTether tetherToRelease;
+
     [Header("Movimiento forzado (opcional)")]
     [SerializeField] private ForcedMovementMode movementMode = ForcedMovementMode.Ninguno;
     [Tooltip("Dirección LOCAL del empuje (relativa a este objeto). Solo para 'Empuje En Dirección'.")]
@@ -73,18 +85,45 @@ public class ScriptedEvent : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        TryActivate(other);
+    }
+
+    // Mientras Nami siga dentro del trigger reintentamos: si llegó sin Mara y Mara
+    // llega después, el evento arranca en ese momento (OnTriggerEnter solo corre una vez).
+    private void OnTriggerStay(Collider other)
+    {
+        if (requireMaraNearby)
+            TryActivate(other);
+    }
+
+    private void TryActivate(Collider other)
+    {
         if (hasTriggered && triggerOnce)
             return;
 
         if (!other.CompareTag(playerTag))
             return;
 
+        if (requireMaraNearby && !IsMaraNearby(other.transform))
+            return;
+
         hasTriggered = true;
+
+        if (tetherToRelease != null)
+            tetherToRelease.enabled = false;
 
         PlayerControls playerControls = other.GetComponent<PlayerControls>();
         Rigidbody rb = other.GetComponent<Rigidbody>();
 
         StartCoroutine(RunEvent(playerControls, rb));
+    }
+
+    private bool IsMaraNearby(Transform player)
+    {
+        if (maraTransform == null || !maraTransform.gameObject.activeInHierarchy)
+            return false; // sin Mara asignada/activa, la condición no se cumple
+
+        return Vector3.Distance(maraTransform.position, player.position) <= maxMaraDistance;
     }
 
     // Dispara el evento directamente por CÓDIGO, sin esperar a que el jugador pise

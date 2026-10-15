@@ -84,8 +84,21 @@ public class BigRockCinematic : MonoBehaviour
 
     private void Awake()
     {
+        // GetComponent (sin 'InChildren') solo busca en el MISMO GameObject que el
+        // Rigidbody. Si el Animator de Nami vive en un hijo (el modelo/mesh, que es
+        // lo normal), eso da null en silencio — por eso probamos primero ahí y
+        // recién si falla probamos en los hijos.
         if (namiAnimator == null && namiRigidbody != null)
+        {
             namiAnimator = namiRigidbody.GetComponent<Animator>();
+            if (namiAnimator == null)
+                namiAnimator = namiRigidbody.GetComponentInChildren<Animator>();
+        }
+
+        if (wakeUpLyingDown && namiAnimator == null)
+            Debug.LogWarning("BigRockCinematic: 'Wake Up Lying Down' está activado pero no " +
+                              "encontré ningún Animator (ni en Nami Rigidbody ni en sus hijos). " +
+                              "Asigna 'Nami Animator' a mano en el Inspector.");
     }
 
     public void Play()
@@ -103,6 +116,12 @@ public class BigRockCinematic : MonoBehaviour
         if (maraGuide != null)
             maraGuide.enabled = false; // Mara se queda quieta donde esté (y, si cambiamos de
                                         // escena, se queda ahí para siempre: no persiste)
+
+        // Limpiamos las rocas normales que todavía estén en el aire (el spawner ya dejó
+        // de crear nuevas, pero las existentes siguen cayendo solas) para que no se
+        // crucen visualmente con la roca grande durante la cinemática.
+        foreach (FallingRock rock in FindObjectsByType<FallingRock>(FindObjectsSortMode.None))
+            Destroy(rock.gameObject);
 
         // Primer plano de la caída: apenas se activa la roca grande, esta cámara toma el
         // control (prioridad alta) hasta que se termine de ir a negro, más abajo.
