@@ -7,6 +7,10 @@ public class SharkCompanion : MonoBehaviour
     [SerializeField] Transform target;
     [SerializeField] Animator animator;
 
+    [Header("Hide")]
+    [SerializeField] PlayerHiding playerHiding;
+    Vector3 lastSeenPos;
+
     [Header("Movimiento")]
     [SerializeField] float maxSpeed = 4f;
     [SerializeField] float acceleration = 3f;
@@ -28,9 +32,14 @@ public class SharkCompanion : MonoBehaviour
     float speed;
     bool isFollowing;
 
+    void Start() => lastSeenPos = target.position;
+
     void Update()
     {
         float dt = Time.deltaTime;
+        
+        bool hidden = playerHiding != null && playerHiding.IsHidden;
+        if (!hidden) lastSeenPos = target.position;
 
         // 0. ¿Sigue o no al jugador?
         float distToPlayer = Vector3.Distance(transform.position, target.position);
@@ -39,9 +48,9 @@ public class SharkCompanion : MonoBehaviour
         else if (!isFollowing && distToPlayer < resumeRange) isFollowing = true;
 
         // 1. Punto meta
-        Vector3 flatOffset = transform.position - target.position;
+        Vector3 flatOffset = transform.position - lastSeenPos;
         flatOffset.y = 0f;
-        Vector3 goal = target.position
+        Vector3 goal = lastSeenPos
                      + flatOffset.normalized * followDistance
                      + Vector3.up * heightOffset;
 
