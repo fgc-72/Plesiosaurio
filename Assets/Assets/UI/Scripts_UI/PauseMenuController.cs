@@ -106,11 +106,11 @@ public class PauseMenuController : MonoBehaviour
 
     private void OnPausePerformed(InputAction.CallbackContext ctx)
     {
-        if (!IsPaused)                        Pause();
-        else if (settingsTransition.IsBusy)   return;
-        else if (settingsTransition.IsOpen)   settingsTransition.Close();
-        else if (pending != Pending.None)     CancelConfirm();
-        else                                  Resume();
+        if (!IsPaused)                      Pause();
+        else if (settingsTransition.IsBusy) return;
+        else if (settingsTransition.IsOpen) { UISfx.PlayBack(); settingsTransition.Close(); }
+        else if (pending != Pending.None)   { UISfx.PlayBack(); CancelConfirm(); }
+        else                                { UISfx.PlayBack(); Resume(); }
     }
     // ---------- Pausa / Reanudar ----------
 

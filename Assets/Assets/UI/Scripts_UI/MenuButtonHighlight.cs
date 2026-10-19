@@ -9,6 +9,9 @@ public class MenuButtonHighlight : MonoBehaviour,
     [Header("Referencias")]
     [SerializeField] private TMP_Text label;
 
+    [Header("Sonido")]
+    [SerializeField] private bool isBackButton; // true: suena "back"; false: suena "select"
+
     [Header("Flecha")]
     [SerializeField] private bool showArrow = true;
     public bool ShowArrow => showArrow;
@@ -43,6 +46,9 @@ public class MenuButtonHighlight : MonoBehaviour,
 
     private void Awake()
     {
+        var btn = GetComponent<Button>();
+        if (btn != null) btn.onClick.AddListener(OnClickSound);
+        
         if (label == null) label = GetComponentInChildren<TMP_Text>(true);
         if (IconIsValid) iconBaseScale = icon.localScale;
         if (label != null) labelBaseScale = label.rectTransform.localScale;
@@ -81,6 +87,12 @@ public class MenuButtonHighlight : MonoBehaviour,
     {
         locked = value;
         ApplyVisuals();
+    }
+
+    private void OnClickSound()
+    {
+        if (isBackButton) UISfx.PlayBack();
+        else UISfx.PlaySelect();
     }
 
     public void OnPointerEnter(PointerEventData eventData)

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class MainMenuSettingsBack : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class MainMenuSettingsBack : MonoBehaviour
     [SerializeField] private GameObject panelPrincipal;
     [SerializeField] private Button backButton;
     [SerializeField] private GameObject firstSelected; // ButtonPlay, o el botón que quieras enfocar al volver
+
+    private int openedFrame = -1;
 
     private void Awake()
     {
@@ -24,14 +27,27 @@ public class MainMenuSettingsBack : MonoBehaviour
     }
 
     private void Update()
-{
-    if (!panelSettings.activeInHierarchy) return;
+    {
+        if (!panelSettings.activeInHierarchy)
+        {
+            openedFrame = -1;
+            return;
+        }
 
-    var kb = UnityEngine.InputSystem.Keyboard.current;
-    var gp = UnityEngine.InputSystem.Gamepad.current;
+        // Ignora el input del frame en que se abrió el panel
+        if (openedFrame < 0) openedFrame = Time.frameCount;
+        if (Time.frameCount <= openedFrame + 1) return;
 
-    if ((kb != null && kb.escapeKey.wasPressedThisFrame) ||
-        (gp != null && gp.buttonEast.wasPressedThisFrame))
-        GoBack();
-}
+        var kb = Keyboard.current;
+        var gp = Gamepad.current;
+
+        bool cancel = (kb != null && kb.escapeKey.wasPressedThisFrame) ||
+                      (gp != null && gp.buttonEast.wasPressedThisFrame);
+
+        if (cancel)
+        {
+            UISfx.PlayBack();
+            GoBack();
+        }
+    }
 }

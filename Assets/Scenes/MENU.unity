@@ -730,6 +730,7 @@ GameObject:
   m_Component:
   - component: {fileID: 314822004}
   - component: {fileID: 314822003}
+  - component: {fileID: 314822005}
   m_Layer: 0
   m_Name: MenuManager
   m_TagString: Untagged
@@ -768,6 +769,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &314822005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 314822002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 930a63cb6625bd9418695fd6eb1bb199, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISfx
+  move: {fileID: 8300000, guid: 142507f94459db844b18a5d22efa77cc, type: 3}
+  select: {fileID: 8300000, guid: 807e0fcf70a26c548a04361605fd741b, type: 3}
+  back: {fileID: 8300000, guid: 7df818a83568f6b419306d43294903a9, type: 3}
+  volume: 1
 --- !u!1 &382551310
 GameObject:
   m_ObjectHideFlags: 0
@@ -896,6 +913,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 1
   showArrow: 0
   icon: {fileID: 432375483}
   selectedIconScale: 1.2
@@ -1267,6 +1285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 134665437}
+  isBackButton: 0
   showArrow: 1
   icon: {fileID: 0}
   selectedIconScale: 1.2
@@ -3409,6 +3428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 1858829212}
+  isBackButton: 0
   showArrow: 1
   icon: {fileID: 0}
   selectedIconScale: 1.2
@@ -3975,6 +3995,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 0
   showArrow: 0
   icon: {fileID: 570746103}
   selectedIconScale: 1.2
@@ -4388,6 +4409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 1972434976}
+  isBackButton: 1
   showArrow: 1
   icon: {fileID: 0}
   selectedIconScale: 1.2
@@ -6453,6 +6475,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 1858829212}
+  isBackButton: 0
   showArrow: 1
   icon: {fileID: 0}
   selectedIconScale: 1.2

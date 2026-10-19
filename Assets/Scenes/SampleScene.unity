@@ -680,6 +680,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 1
   showArrow: 0
   icon: {fileID: 156291076}
   selectedIconScale: 1.2
@@ -1372,6 +1373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 0
   showArrow: 0
   icon: {fileID: 369219869}
   selectedIconScale: 1.2
@@ -3119,6 +3121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 872217037}
+  isBackButton: 0
   showArrow: 1
   icon: {fileID: 0}
   selectedIconScale: 1.2
@@ -4564,6 +4567,54 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &746827228
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 746827230}
+  - component: {fileID: 746827229}
+  m_Layer: 0
+  m_Name: MusicManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &746827229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746827228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 930a63cb6625bd9418695fd6eb1bb199, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UISfx
+  move: {fileID: 8300000, guid: 142507f94459db844b18a5d22efa77cc, type: 3}
+  select: {fileID: 8300000, guid: 807e0fcf70a26c548a04361605fd741b, type: 3}
+  back: {fileID: 8300000, guid: 7df818a83568f6b419306d43294903a9, type: 3}
+  volume: 1
+--- !u!4 &746827230
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746827228}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &750309934
 GameObject:
   m_ObjectHideFlags: 0
@@ -4774,6 +4825,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 1812123734}
+  isBackButton: 1
   showArrow: 1
   icon: {fileID: 0}
   selectedIconScale: 1.2
@@ -10078,6 +10130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 1
   showArrow: 0
   icon: {fileID: 1455671767}
   selectedIconScale: 1.2
@@ -10296,6 +10349,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 0
   showArrow: 1
   icon: {fileID: 0}
   selectedIconScale: 1.2
@@ -11506,6 +11560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 0
   showArrow: 0
   icon: {fileID: 1679841428}
   selectedIconScale: 1.2
@@ -11855,6 +11910,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 0
   showArrow: 1
   icon: {fileID: 0}
   selectedIconScale: 1.2
@@ -13641,6 +13697,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 0
   showArrow: 0
   icon: {fileID: 1838303707}
   selectedIconScale: 1.2
@@ -14377,6 +14434,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
   label: {fileID: 0}
+  isBackButton: 0
   showArrow: 0
   icon: {fileID: 1858998349}
   selectedIconScale: 1.2
@@ -15589,3 +15647,4 @@ SceneRoots:
   - {fileID: 897168521}
   - {fileID: 402879964}
   - {fileID: 683737712}
+  - {fileID: 746827230}
