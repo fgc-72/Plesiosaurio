@@ -21,7 +21,11 @@ public class UISfx : MonoBehaviour
 
 private void Awake()
 {
-    if (instance != null && instance != this) { Destroy(gameObject); return; }
+    if (instance != null && instance != this)
+    {
+        Destroy(this);   // solo el componente, no el GameObject entero
+        return;
+    }
     instance = this;
 
     source = GetComponent<AudioSource>();
@@ -29,8 +33,7 @@ private void Awake()
     source.playOnAwake = false;
     source.spatialBlend = 0f;
     if (uiMixerGroup != null) source.outputAudioMixerGroup = uiMixerGroup;
-}
-    private void OnDestroy()
+}    private void OnDestroy()
     {
         if (instance == this) instance = null;
     }

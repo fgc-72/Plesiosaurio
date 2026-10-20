@@ -11,7 +11,15 @@ public class MainMenuSettingsBack : MonoBehaviour
     [SerializeField] private GameObject firstSelected;
 
     private int openedFrame = -1;
+private void OnEnable()
+{
+    Debug.LogWarning("MainMenuSettingsBack ACTIVADO", this);
+}
 
+private void OnDisable()
+{
+    Debug.LogWarning("MainMenuSettingsBack DESACTIVADO", this);
+}
     private void Awake()
     {
         if (backButton != null) backButton.onClick.AddListener(GoBack);
