@@ -728,7 +728,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnderwaterFX.WaterRainController
   raining: 0
-  transitionTime: 1
+  transitionTime: 2
   maxIntensity: 1
   sun: {fileID: 410087040}
   sunIntensityWhenRaining: 0.45
@@ -1621,6 +1621,7 @@ GameObject:
   m_Component:
   - component: {fileID: 402879964}
   - component: {fileID: 402879963}
+  - component: {fileID: 402879965}
   m_Layer: 0
   m_Name: FishSchoolManager
   m_TagString: Untagged
@@ -1651,16 +1652,16 @@ MonoBehaviour:
   - name: Pez
     mesh: {fileID: 7572643392844072498, guid: 35e05b5a96f91d348b79427c79e66f1d, type: 3}
     material: {fileID: 2100000, guid: ac70740c7a81fdf439efbfdd7b32dc3d, type: 2}
-    count: 99
+    count: 130
     size: 1
     spawnPoint: {fileID: 0}
     spawnRadius: 8
     spawnOnSurface: 0
-    target: {fileID: 0}
+    target: {fileID: 679064773}
     targetWeight: 0.6
     wanderSpeed: 0.06
-    cohesionWeight: 1
-    alignmentWeight: 1
+    cohesionWeight: 0.43
+    alignmentWeight: 2.3
     separationWeight: 1.5
     perceptionRadius: 3
     separationRadius: 1
@@ -1684,12 +1685,34 @@ Transform:
   m_GameObject: {fileID: 402879962}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 150.85542, y: 21.15859, z: 249.786}
+  m_LocalPosition: {x: 183.99, y: 21.15859, z: 249.786}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &402879965
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 402879962}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 82cc6d9b460566a4f9ae839fbc910635, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -3932,6 +3955,60 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &679064772
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 679064773}
+  - component: {fileID: 679064774}
+  m_Layer: 0
+  m_Name: FishSchoolE1
+  m_TagString: Untagged
+  m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &679064773
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679064772}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 160.7392, y: 16.93834, z: 239.3285}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &679064774
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 679064772}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f5ac39eb679c6494899351df8c8b8355, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &680278351
 GameObject:
   m_ObjectHideFlags: 0
@@ -9060,9 +9137,6 @@ MonoBehaviour:
   titleLabel: {fileID: 1259035243}
   descriptionLabel: {fileID: 1473700697}
   hintLabel: {fileID: 1815930891}
-  pointer1: {fileID: 1737571587}
-  pointer2: {fileID: 2030070633}
-  pointer3: {fileID: 1646490978}
 --- !u!1 &1338229959
 GameObject:
   m_ObjectHideFlags: 0
@@ -15680,5 +15754,6 @@ SceneRoots:
   - {fileID: 1187349550}
   - {fileID: 897168521}
   - {fileID: 402879964}
+  - {fileID: 679064773}
   - {fileID: 683737712}
   - {fileID: 8450123803661292721}

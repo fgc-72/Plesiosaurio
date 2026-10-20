@@ -25,6 +25,10 @@ public class RockSequenceManager : MonoBehaviour
     private bool sequenceFinished;
     private bool hasWarnedPlayer; // true después de la PRIMERA vez que Mara avisa "cuidado"
 
+    public event System.Action<int, int> BreakCountChanged; // (actual, requerido)
+    public int BrokenCount => brokenByPlayerCount;
+    public int RequiredBreaks => requiredBreaks;
+
     // Llamado desde FallingRock (vía DestructibleRock.BrokenByPlayer) cada vez
     // que el jugador rompe una roca a cabezazos.
     public void RegisterPlayerBreak()
@@ -33,6 +37,8 @@ public class RockSequenceManager : MonoBehaviour
 
         brokenByPlayerCount++;
         Debug.Log($"Rocas rotas por el jugador: {brokenByPlayerCount}/{requiredBreaks}");
+
+        BreakCountChanged?.Invoke(brokenByPlayerCount, requiredBreaks); // ANTES de TriggerBigRock
 
         if (brokenByPlayerCount >= requiredBreaks)
             TriggerBigRock();
