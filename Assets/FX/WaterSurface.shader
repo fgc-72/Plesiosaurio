@@ -16,6 +16,7 @@ Shader "UnderwaterFX/WaterSurface"
         _WaveSpeed ("Wave Speed", Float) = 0.6
         _WaveStrength ("Wave Strength", Range(0, 1.5)) = 0.35
         _IOR ("Refraction Index", Range(1.01, 2)) = 1.333
+        _RainDropScale ("Tamano de las gotas de lluvia", Range(0.3, 8)) = 1
     }
 
     SubShader
@@ -46,6 +47,7 @@ Shader "UnderwaterFX/WaterSurface"
                 float _WaveSpeed;
                 float _WaveStrength;
                 float _IOR;
+                float _RainDropScale;
             CBUFFER_END
 
             float _RainIntensity; // global, lo escribe WaterRainController (0 = seco, 1 = lluvia)
@@ -88,7 +90,8 @@ Shader "UnderwaterFX/WaterSurface"
                 [unroll]
                 for (int layer = 0; layer < 2; layer++)
                 {
-                    float cellSize = (layer == 0) ? 1.3 : 0.85;
+                    float baseCell = (layer == 0) ? 1.3 : 0.85;
+                    float cellSize = baseCell * _RainDropScale; // mas escala = anillos mas grandes (y menos gotas por metro)
                     float2 q = p / cellSize + layer * 7.3;
                     float2 cell = floor(q);
                     float2 f = frac(q) - 0.5;
@@ -104,7 +107,7 @@ Shader "UnderwaterFX/WaterSurface"
                     float x = (r - ringR) / w;
                     float dH = -2.0 * x / w * exp(-x * x); // derivada radial del anillo
 
-                    g += (d / r) * dH * (1.0 - phase) * gate * 0.03 / cellSize;
+                    g += (d / r) * dH * (1.0 - phase) * gate * 0.03 / baseCell; // la fuerza no baja al agrandar las gotas
                 }
                 return g;
             }
