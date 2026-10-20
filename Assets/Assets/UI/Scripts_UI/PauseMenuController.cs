@@ -87,7 +87,12 @@ public class PauseMenuController : MonoBehaviour
     private void Update()
     {
         if (!IsPaused) return;
-
+        var gp = Gamepad.current;
+        if (gp != null && gp.buttonEast.wasPressedThisFrame)
+        {
+            HandleBack();
+            return;
+        }
         if (settingsTransition.IsOpen || settingsTransition.IsBusy) return; // el panel de ajustes maneja su propia selección
 
         var es = EventSystem.current;
@@ -106,11 +111,20 @@ public class PauseMenuController : MonoBehaviour
 
     private void OnPausePerformed(InputAction.CallbackContext ctx)
     {
-        if (!IsPaused)                      Pause();
-        else if (settingsTransition.IsBusy) return;
-        else if (settingsTransition.IsOpen) { UISfx.PlayBack(); settingsTransition.Close(); }
-        else if (pending != Pending.None)   { UISfx.PlayBack(); CancelConfirm(); }
-        else                                { UISfx.PlayBack(); Resume(); }
+        if (!IsPaused) Pause();
+        else HandleBack();
+    }
+
+    // Esc, Start y Círculo comparten esta lógica cuando la pausa está abierta
+    private void HandleBack()
+    {
+        if (settingsTransition.IsBusy) return;
+
+        UISfx.PlayBack();
+
+        if (settingsTransition.IsOpen) settingsTransition.Close();
+        else if (pending != Pending.None) CancelConfirm();
+        else Resume();
     }
     // ---------- Pausa / Reanudar ----------
 
@@ -183,6 +197,7 @@ public class PauseMenuController : MonoBehaviour
         {
             case Pending.MainMenu:
                 MusicManager.Instance.ExitPause();
+                MusicManager.Instance.Play("MenuMusic", 0f);
                 Time.timeScale = 1f;
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;

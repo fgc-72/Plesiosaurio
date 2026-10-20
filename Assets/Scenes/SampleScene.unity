@@ -529,6 +529,7 @@ Terrain:
   m_AllowAutoConnect: 1
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
+  m_EnableHeightmapLODFrustumCulling: 1
   m_TreeMotionVectorModeOverride: 3
 --- !u!4 &131011574
 Transform:
@@ -4288,6 +4289,7 @@ GameObject:
   - component: {fileID: 685946365}
   - component: {fileID: 685946366}
   - component: {fileID: 685946367}
+  - component: {fileID: 685946368}
   m_Layer: 5
   m_Name: Slider_Entorno
   m_TagString: Untagged
@@ -4402,6 +4404,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderBinder
   channel: 2
+--- !u!114 &685946368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 685946363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fddd76b0b49f124b9e974787e947f6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderHandlePulse
+  pulseAmount: 0.15
+  pulseSpeed: 1.6
+  blendSpeed: 12
 --- !u!1 &701266673
 GameObject:
   m_ObjectHideFlags: 0
@@ -4989,135 +5006,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &800207362
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 800207363}
-  - component: {fileID: 800207364}
-  m_Layer: 15
-  m_Name: Audio Source
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &800207363
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 800207362}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 826206004}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &800207364
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 800207362}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 1
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!1 &809303658
 GameObject:
   m_ObjectHideFlags: 0
@@ -5375,7 +5263,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1809590202}
-  - {fileID: 800207363}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 46.981, z: 0}
 --- !u!1 &832575517
@@ -6687,7 +6574,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Scrollbar
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -7577,6 +7464,7 @@ GameObject:
   - component: {fileID: 1046751892}
   - component: {fileID: 1046751893}
   - component: {fileID: 1046751894}
+  - component: {fileID: 1046751895}
   m_Layer: 5
   m_Name: PauseMenuManager
   m_TagString: Untagged
@@ -7676,6 +7564,22 @@ MonoBehaviour:
     position: {x: 90, y: -65.9}
     scale: {x: 0.8, y: 0.8, z: 0.8}
   settingsHighlight: {fileID: 1995672483}
+--- !u!114 &1046751895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046751891}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 656a8e3a7aa0db24fbfd3d11f55ca04c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingsPanelSelection
+  items: []
+  restrictToPanel: 0
+  setupNavigation: 0
+  ignoredSelectables: []
 --- !u!1 &1048190190
 GameObject:
   m_ObjectHideFlags: 0
@@ -8612,6 +8516,7 @@ GameObject:
   - component: {fileID: 1288993254}
   - component: {fileID: 1288993255}
   - component: {fileID: 1288993256}
+  - component: {fileID: 1288993257}
   m_Layer: 5
   m_Name: Slider_Musica
   m_TagString: Untagged
@@ -8726,6 +8631,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderBinder
   channel: 0
+--- !u!114 &1288993257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1288993252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fddd76b0b49f124b9e974787e947f6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderHandlePulse
+  pulseAmount: 0.15
+  pulseSpeed: 1.6
+  blendSpeed: 12
 --- !u!1 &1307455370
 GameObject:
   m_ObjectHideFlags: 0
@@ -9360,6 +9280,7 @@ GameObject:
   - component: {fileID: 1407563609}
   - component: {fileID: 1407563611}
   - component: {fileID: 1407563612}
+  - component: {fileID: 1407563613}
   m_Layer: 5
   m_Name: SettingsPanel
   m_TagString: Untagged
@@ -9470,6 +9391,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
   m_Padding: {x: 0, y: 22, z: -24, w: 0}
   m_Softness: {x: 0, y: 18}
+--- !u!114 &1407563613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407563607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb3e1204547895d448c4cc05e7b0f3a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScrollRectAutoScroll
+  padding: 24
+  speed: 14
+  mouseIgnoreTime: 0.15
+  rightStickScroll: 1
+  stickSpeed: 1200
+  stickDeadzone: 0.2
 --- !u!1 &1411305959
 GameObject:
   m_ObjectHideFlags: 0
@@ -14114,6 +14053,7 @@ GameObject:
   - component: {fileID: 1947413661}
   - component: {fileID: 1947413662}
   - component: {fileID: 1947413663}
+  - component: {fileID: 1947413664}
   m_Layer: 5
   m_Name: Slider_Sensibilidad
   m_TagString: Untagged
@@ -14215,6 +14155,21 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &1947413664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1947413660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fddd76b0b49f124b9e974787e947f6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderHandlePulse
+  pulseAmount: 0.15
+  pulseSpeed: 1.6
+  blendSpeed: 12
 --- !u!1 &1964330894
 GameObject:
   m_ObjectHideFlags: 0
@@ -14577,6 +14532,7 @@ GameObject:
   - component: {fileID: 2011695227}
   - component: {fileID: 2011695228}
   - component: {fileID: 2011695229}
+  - component: {fileID: 2011695230}
   m_Layer: 5
   m_Name: Slider_Voces
   m_TagString: Untagged
@@ -14691,6 +14647,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderBinder
   channel: 1
+--- !u!114 &2011695230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011695225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fddd76b0b49f124b9e974787e947f6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderHandlePulse
+  pulseAmount: 0.15
+  pulseSpeed: 1.6
+  blendSpeed: 12
 --- !u!1001 &2023565443
 PrefabInstance:
   m_ObjectHideFlags: 0
