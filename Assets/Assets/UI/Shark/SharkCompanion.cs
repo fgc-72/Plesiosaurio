@@ -29,30 +29,92 @@ public class SharkCompanion : MonoBehaviour
     [SerializeField] float groundClearance = 3f;
     [SerializeField] float groundLookAhead = 8f;
 
+    // ── NUEVO: aproximación guiada (la usa SharkListenEvent) ──────────────
+    [Header("Aproximación guiada (evento)")]
+    [Tooltip("A qué distancia del punto se considera que 'llegó' y se suelta a seguir por rango.")]
+    [SerializeField] float arriveDistance = 2f;
+    [Tooltip("Seguro: si en este tiempo no llega al punto (por ejemplo, el espacio personal " +
+             "lo empuja hacia afuera), se suelta igual para no quedarse trabado.")]
+    [SerializeField] float approachTimeout = 40f;
+
     float speed;
     bool isFollowing;
 
-    void Start() => lastSeenPos = target.position;
+    Transform approachPoint;
+    float approachTimer;
+    System.Action onApproachArrived;
+
+    // Hace que el tiburón vaya hacia 'point' IGNORANDO el rango. Al llegar, vuelve
+    // solo al seguimiento normal por rango (followEnabled = true) y avisa con 'onArrived'.
+    public void ApproachPoint(Transform point, System.Action onArrived = null)
+    {
+        approachPoint = point;
+        onApproachArrived = onArrived;
+        approachTimer = 0f;
+    }
+
+    void FinishApproach()
+    {
+        approachPoint = null;
+        followEnabled = true; // desde aquí manda el rango, como siempre
+
+        var callback = onApproachArrived;
+        onApproachArrived = null;
+        callback?.Invoke();
+    }
+    // ──────────────────────────────────────────────────────────────────────
+
+    void Start()
+    {
+        // NUEVO: si Nami viene de otra escena (DontDestroyOnLoad), no se puede arrastrar
+        // en el Inspector de esta escena: la buscamos por tag.
+        if (target == null)
+        {
+            GameObject player = GameObject.FindWithTag("Player");
+            if (player != null)
+            {
+                target = player.transform;
+                if (playerHiding == null)
+                    playerHiding = player.GetComponent<PlayerHiding>();
+            }
+        }
+
+        if (target != null)
+            lastSeenPos = target.position;
+    }
 
     void Update()
     {
+        if (target == null) return; // NUEVO: sin Nami en la escena, el tiburón no hace nada
+
         float dt = Time.deltaTime;
-        
+
         bool hidden = playerHiding != null && playerHiding.IsHidden;
         if (!hidden) lastSeenPos = target.position;
 
+        bool approaching = approachPoint != null;
+
         // 0. ¿Sigue o no al jugador?
         float distToPlayer = Vector3.Distance(transform.position, target.position);
-        if (!followEnabled) isFollowing = false;
+        if (approaching) isFollowing = true; // NUEVO: yendo al punto, el rango no cuenta
+        else if (!followEnabled) isFollowing = false;
         else if (isFollowing && distToPlayer > followRange) isFollowing = false;
         else if (!isFollowing && distToPlayer < resumeRange) isFollowing = true;
 
         // 1. Punto meta
-        Vector3 flatOffset = transform.position - lastSeenPos;
-        flatOffset.y = 0f;
-        Vector3 goal = lastSeenPos
-                     + flatOffset.normalized * followDistance
-                     + Vector3.up * heightOffset;
+        Vector3 goal;
+        if (approaching)
+        {
+            goal = approachPoint.position; // NUEVO
+        }
+        else
+        {
+            Vector3 flatOffset = transform.position - lastSeenPos;
+            flatOffset.y = 0f;
+            goal = lastSeenPos
+                 + flatOffset.normalized * followDistance
+                 + Vector3.up * heightOffset;
+        }
 
         // El punto meta nunca queda bajo tierra
         float goalFloor = GroundHeight(goal) + groundClearance;
@@ -61,6 +123,15 @@ public class SharkCompanion : MonoBehaviour
         // 2. Velocidad
         Vector3 toGoal = goal - transform.position;
         float dist = toGoal.magnitude;
+
+        // NUEVO: ¿ya llegó al punto (o se acabó el tiempo)? Se suelta a seguir por rango.
+        if (approaching)
+        {
+            approachTimer += dt;
+            if (dist <= arriveDistance || approachTimer >= approachTimeout)
+                FinishApproach();
+        }
+
         float desired = isFollowing ? maxSpeed * Mathf.Clamp01(dist / slowRadius) : 0f;
         speed = Mathf.MoveTowards(speed, desired, acceleration * dt);
 
