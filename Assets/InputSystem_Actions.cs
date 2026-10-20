@@ -221,6 +221,16 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""ModoEscucha"",
+                    ""type"": ""Button"",
+                    ""id"": ""b81725ff-5ee2-4548-a9d6-bbca4d17e743"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -672,6 +682,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Headbutt"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9c0b2174-cc5c-47b3-9abe-dce3fcbbaf11"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ModoEscucha"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1322,6 +1343,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_LT = m_Player.FindAction("LT", throwIfNotFound: true);
         m_Player_RT = m_Player.FindAction("RT", throwIfNotFound: true);
         m_Player_Headbutt = m_Player.FindAction("Headbutt", throwIfNotFound: true);
+        m_Player_ModoEscucha = m_Player.FindAction("ModoEscucha", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1432,6 +1454,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_LT;
     private readonly InputAction m_Player_RT;
     private readonly InputAction m_Player_Headbutt;
+    private readonly InputAction m_Player_ModoEscucha;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1495,6 +1518,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Headbutt".
         /// </summary>
         public InputAction @Headbutt => m_Wrapper.m_Player_Headbutt;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ModoEscucha".
+        /// </summary>
+        public InputAction @ModoEscucha => m_Wrapper.m_Player_ModoEscucha;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1560,6 +1587,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Headbutt.started += instance.OnHeadbutt;
             @Headbutt.performed += instance.OnHeadbutt;
             @Headbutt.canceled += instance.OnHeadbutt;
+            @ModoEscucha.started += instance.OnModoEscucha;
+            @ModoEscucha.performed += instance.OnModoEscucha;
+            @ModoEscucha.canceled += instance.OnModoEscucha;
         }
 
         /// <summary>
@@ -1610,6 +1640,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Headbutt.started -= instance.OnHeadbutt;
             @Headbutt.performed -= instance.OnHeadbutt;
             @Headbutt.canceled -= instance.OnHeadbutt;
+            @ModoEscucha.started -= instance.OnModoEscucha;
+            @ModoEscucha.performed -= instance.OnModoEscucha;
+            @ModoEscucha.canceled -= instance.OnModoEscucha;
         }
 
         /// <summary>
@@ -2097,6 +2130,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnHeadbutt(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ModoEscucha" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnModoEscucha(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

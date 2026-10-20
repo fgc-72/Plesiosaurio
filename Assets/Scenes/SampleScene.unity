@@ -2506,6 +2506,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HoverGlow
   glow: {fileID: 456907315}
+  activarConHover: 1
+  combos: []
 --- !u!1 &510578063
 GameObject:
   m_ObjectHideFlags: 0
@@ -4139,6 +4141,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HoverGlow
   glow: {fileID: 31161600}
+  activarConHover: 1
+  combos:
+  - nombre: ModoEscucha
+    inputs:
+    - {fileID: 0}
 --- !u!1 &683737707
 GameObject:
   m_ObjectHideFlags: 0
@@ -4280,6 +4287,7 @@ GameObject:
   - component: {fileID: 685946364}
   - component: {fileID: 685946365}
   - component: {fileID: 685946366}
+  - component: {fileID: 685946367}
   m_Layer: 5
   m_Name: Slider_Entorno
   m_TagString: Untagged
@@ -4381,6 +4389,19 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &685946367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 685946363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a8a12b25a0ab67408ff65433da27df0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderBinder
+  channel: 2
 --- !u!1 &701266673
 GameObject:
   m_ObjectHideFlags: 0
@@ -4567,54 +4588,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &746827228
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 746827230}
-  - component: {fileID: 746827229}
-  m_Layer: 0
-  m_Name: MusicManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &746827229
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 746827228}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 930a63cb6625bd9418695fd6eb1bb199, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UISfx
-  move: {fileID: 8300000, guid: 142507f94459db844b18a5d22efa77cc, type: 3}
-  select: {fileID: 8300000, guid: 807e0fcf70a26c548a04361605fd741b, type: 3}
-  back: {fileID: 8300000, guid: 7df818a83568f6b419306d43294903a9, type: 3}
-  volume: 1
---- !u!4 &746827230
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 746827228}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &750309934
 GameObject:
   m_ObjectHideFlags: 0
@@ -7513,6 +7486,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HoverGlow
   glow: {fileID: 979418120}
+  activarConHover: 1
+  combos:
+  - nombre: Headbutt
+    inputs:
+    - {fileID: -6338663804522254085, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &1044596891
 GameObject:
   m_ObjectHideFlags: 0
@@ -8633,6 +8611,7 @@ GameObject:
   - component: {fileID: 1288993253}
   - component: {fileID: 1288993254}
   - component: {fileID: 1288993255}
+  - component: {fileID: 1288993256}
   m_Layer: 5
   m_Name: Slider_Musica
   m_TagString: Untagged
@@ -8734,6 +8713,19 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &1288993256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1288993252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a8a12b25a0ab67408ff65433da27df0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderBinder
+  channel: 0
 --- !u!1 &1307455370
 GameObject:
   m_ObjectHideFlags: 0
@@ -12717,7 +12709,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Voces
+  m_text: UI
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 73b27dc538f79014299474e25ac38bd7, type: 2}
   m_sharedMaterial: {fileID: 4719678988309657287, guid: 73b27dc538f79014299474e25ac38bd7, type: 2}
@@ -14584,6 +14576,7 @@ GameObject:
   - component: {fileID: 2011695226}
   - component: {fileID: 2011695227}
   - component: {fileID: 2011695228}
+  - component: {fileID: 2011695229}
   m_Layer: 5
   m_Name: Slider_Voces
   m_TagString: Untagged
@@ -14685,6 +14678,19 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &2011695229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2011695225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a8a12b25a0ab67408ff65433da27df0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderBinder
+  channel: 1
 --- !u!1001 &2023565443
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15599,6 +15605,63 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1809590205}
   m_SourcePrefab: {fileID: 100100000, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
+--- !u!1001 &8450123803661292721
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 225304170444897431, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_Name
+      value: MusicManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1542.1093
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 552.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6208758011327303340, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -15647,4 +15710,4 @@ SceneRoots:
   - {fileID: 897168521}
   - {fileID: 402879964}
   - {fileID: 683737712}
-  - {fileID: 746827230}
+  - {fileID: 8450123803661292721}

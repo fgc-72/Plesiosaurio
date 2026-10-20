@@ -135,6 +135,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "ModoEscucha",
+                    "type": "Button",
+                    "id": "b81725ff-5ee2-4548-a9d6-bbca4d17e743",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -586,6 +596,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Headbutt",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9c0b2174-cc5c-47b3-9abe-dce3fcbbaf11",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ModoEscucha",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

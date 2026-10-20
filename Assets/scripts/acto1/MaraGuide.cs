@@ -49,6 +49,7 @@ public class MaraGuide : MonoBehaviour
 
     private void Awake()
     {
+        MusicManager.Instance.Play("Mara's Theme");
         rb = GetComponent<Rigidbody>();
 
         if (animator == null)

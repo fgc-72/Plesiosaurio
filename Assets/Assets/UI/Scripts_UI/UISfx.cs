@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.EventSystems;
 
 public class UISfx : MonoBehaviour
@@ -16,15 +17,19 @@ public class UISfx : MonoBehaviour
     public static void PlaySelect() => instance?.Play(instance.select);
     public static void PlayBack()   => instance?.Play(instance.back);
 
-    private void Awake()
-    {
-        instance = this;
-        source = GetComponent<AudioSource>();
-        if (source == null) source = gameObject.AddComponent<AudioSource>();
-        source.playOnAwake = false;
-        source.spatialBlend = 0f; // 2D
-    }
+[SerializeField] private AudioMixerGroup uiMixerGroup;
 
+private void Awake()
+{
+    if (instance != null && instance != this) { Destroy(gameObject); return; }
+    instance = this;
+
+    source = GetComponent<AudioSource>();
+    if (source == null) source = gameObject.AddComponent<AudioSource>();
+    source.playOnAwake = false;
+    source.spatialBlend = 0f;
+    if (uiMixerGroup != null) source.outputAudioMixerGroup = uiMixerGroup;
+}
     private void OnDestroy()
     {
         if (instance == this) instance = null;

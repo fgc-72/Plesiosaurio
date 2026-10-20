@@ -118,6 +118,7 @@ public class PauseMenuController : MonoBehaviour
     {
         if (IsPaused) return;
         IsPaused = true;
+        MusicManager.Instance.EnterPause();
 
         prevCursorVisible = Cursor.visible;
         prevLockState = Cursor.lockState;
@@ -134,6 +135,7 @@ public class PauseMenuController : MonoBehaviour
         if (!IsPaused) return;
         IsPaused = false;
         pending = Pending.None;
+        MusicManager.Instance.ExitPause();
 
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
@@ -180,6 +182,7 @@ public class PauseMenuController : MonoBehaviour
         switch (pending)
         {
             case Pending.MainMenu:
+                MusicManager.Instance.ExitPause();
                 Time.timeScale = 1f;
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;

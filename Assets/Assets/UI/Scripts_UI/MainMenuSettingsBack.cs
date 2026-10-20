@@ -8,7 +8,7 @@ public class MainMenuSettingsBack : MonoBehaviour
     [SerializeField] private GameObject panelSettings;
     [SerializeField] private GameObject panelPrincipal;
     [SerializeField] private Button backButton;
-    [SerializeField] private GameObject firstSelected; // ButtonPlay, o el botón que quieras enfocar al volver
+    [SerializeField] private GameObject firstSelected;
 
     private int openedFrame = -1;
 
@@ -19,6 +19,7 @@ public class MainMenuSettingsBack : MonoBehaviour
 
     public void GoBack()
     {
+        Debug.Log("GoBack llamado", this);
         panelSettings.SetActive(false);
         panelPrincipal.SetActive(true);
 
@@ -28,12 +29,15 @@ public class MainMenuSettingsBack : MonoBehaviour
 
     private void Update()
     {
+        if (Time.frameCount % 120 == 0) Debug.Log("Update corre", this);
+
         if (!panelSettings.activeInHierarchy)
         {
             openedFrame = -1;
             return;
         }
-
+        if (backButton != null && !backButton.gameObject.activeSelf)
+            backButton.gameObject.SetActive(true);
         // Ignora el input del frame en que se abrió el panel
         if (openedFrame < 0) openedFrame = Time.frameCount;
         if (Time.frameCount <= openedFrame + 1) return;
