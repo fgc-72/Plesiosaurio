@@ -94,3 +94,19 @@ MonoBehaviour:
       text: 'nami, no te vayas lejos puedes perderte '
     - languageCode: en
       text: Huh? What is that? I need to investigate.
+  - id: sonido_tiburon
+    speaker: nami
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: 'escucho algo, deberia activar el modo escucha '
+    - languageCode: en
+      text: Huh? What is that? I need to investigate.
+  - id: advertencia_tiburon
+    speaker: nami
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: el dibalo, viene un tiburon, deberia escapar
+    - languageCode: en
+      text: Huh? What is that? I need to investigate.

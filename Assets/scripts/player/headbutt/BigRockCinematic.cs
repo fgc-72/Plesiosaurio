@@ -23,6 +23,9 @@ public class BigRockCinematic : MonoBehaviour
              "despertar, se queda así mientras sale el diálogo final, y pasa a Idle justo " +
              "cuando el diálogo termina (antes de devolver el control).")]
     [SerializeField] private bool wakeUpLyingDown = true;
+    [Tooltip("Nombre EXACTO del estado de la pose acostada en el Animator (en tu grafo se " +
+             "llama 'Sleeping'). Se reproduce directo, sin depender de la transición.")]
+    [SerializeField] private string lyingStateName = "Sleeping";
 
     [Header("Mara")]
     [Tooltip("Se congela en su sitio durante la cinemática. Al terminar retoma su " +
@@ -78,6 +81,11 @@ public class BigRockCinematic : MonoBehaviour
              "(en paralelo, no bloquea la caída). Déjalo vacío si no quieres ninguno acá.")]
     [SerializeField] private string fallingDialogueId;
 
+    [Header("Misión al terminar (opcional)")]
+    [Tooltip("ID de la misión (MissionDatabase) a mostrar cuando Nami recupera el control " +
+             "en el lugar nuevo, al final de toda la cinemática. Vacío = no activa ninguna.")]
+    [SerializeField] private string missionIdOnFinish;
+
     private DepthOfField depthOfField;
     private bool hasPlayed;
     private bool forcingLyingPose;
@@ -93,6 +101,17 @@ public class BigRockCinematic : MonoBehaviour
             namiAnimator = namiRigidbody.GetComponent<Animator>();
             if (namiAnimator == null)
                 namiAnimator = namiRigidbody.GetComponentInChildren<Animator>();
+        }
+
+        // Mismo blindaje que en OpeningCinematicAct1: usamos SIEMPRE los componentes que
+        // están en el Nami real, por si lo arrastrado en el Inspector apunta a otra copia.
+        if (namiRigidbody != null)
+        {
+            PlayerAnimation realAnimation = namiRigidbody.GetComponent<PlayerAnimation>();
+            if (realAnimation != null) playerAnimation = realAnimation;
+
+            PlayerControls realControls = namiRigidbody.GetComponent<PlayerControls>();
+            if (realControls != null) playerControls = realControls;
         }
 
         if (wakeUpLyingDown && namiAnimator == null)
@@ -115,7 +134,7 @@ public class BigRockCinematic : MonoBehaviour
 
         if (maraGuide != null)
             maraGuide.enabled = false; // Mara se queda quieta donde esté (y, si cambiamos de
-                                        // escena, se queda ahí para siempre: no persiste)
+                                       // escena, se queda ahí para siempre: no persiste)
 
         // Limpiamos las rocas normales que todavía estén en el aire (el spawner ya dejó
         // de crear nuevas, pero las existentes siguen cayendo solas) para que no se
@@ -238,7 +257,19 @@ public class BigRockCinematic : MonoBehaviour
         if (wakeUpLyingDown && namiAnimator != null)
         {
             forcingLyingPose = true;
+
+            // Reproducimos el estado acostado DIRECTO (sin esperar la transición desde
+            // Any State, que depende de condiciones/exit time del grafo). El parámetro
+            // forzado a 4 cada frame evita que 'Sleeping -> Idle' la saque de ahí.
+            int lyingHash = Animator.StringToHash(lyingStateName);
+            if (namiAnimator.HasState(0, lyingHash))
+                namiAnimator.Play(lyingHash, 0, 0f);
+            else
+                Debug.LogWarning($"BigRockCinematic: el Animator de Nami no tiene un estado llamado " +
+                                  $"'{lyingStateName}' en la capa 0. Revisa el nombre en el Inspector.");
+
             StartCoroutine(ForceAnimationStateWhile(() => forcingLyingPose, 4));
+            StartCoroutine(LogLyingPoseStatus());
         }
 
         // 4) Volvemos de negro ya en el nuevo lugar (todavía borroso).
@@ -276,6 +307,16 @@ public class BigRockCinematic : MonoBehaviour
         // su camino normalmente, como antes.
         if (!changingScene && maraGuide != null)
             maraGuide.enabled = true;
+
+        // Nueva misión: ya terminó toda la cinemática y Nami tiene el control.
+        if (!string.IsNullOrEmpty(missionIdOnFinish))
+        {
+            if (MissionUI.Instance != null)
+                MissionUI.Instance.ShowMission(missionIdOnFinish);
+            else
+                Debug.LogWarning($"BigRockCinematic: missionIdOnFinish = '{missionIdOnFinish}' pero " +
+                                  "MissionUI.Instance es null (¿hay un MissionUI en la escena nueva?).");
+        }
     }
 
     private IEnumerator ClearBlur()
@@ -297,6 +338,20 @@ public class BigRockCinematic : MonoBehaviour
 
         depthOfField.aperture.value = clearAperture;
         depthOfField.focusDistance.value = normalFocusDistance;
+    }
+
+    // Diagnóstico temporal: medio segundo después de aparecer, dice en consola qué
+    // está sonando de verdad en el Animator, para saber si la pose se aplicó.
+    private IEnumerator LogLyingPoseStatus()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        if (!forcingLyingPose || namiAnimator == null)
+            yield break;
+
+        bool isLying = namiAnimator.GetCurrentAnimatorStateInfo(0).IsName(lyingStateName);
+        Debug.Log($"🛌 BigRockCinematic: AnimationState = {namiAnimator.GetInteger("AnimationState")}, " +
+                  $"¿está en '{lyingStateName}'? {isLying}, animator enabled = {namiAnimator.enabled}.");
     }
 
     // Reafirma 'AnimationState' en el Animator TODOS los frames mientras 'condition'
