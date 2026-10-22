@@ -15,19 +15,23 @@ public class CameraShake : MonoBehaviour
         if (instance == null)
         {
             Camera cam = Camera.main;
-            if (cam == null) return;
+            if (cam == null)
+            {
+                Debug.LogWarning("CameraShake: no hay Camera.main (¿falta el tag MainCamera?)");
+                return;
+            }
 
-            instance = cam.GetComponent<CameraShake>();
-            if (instance == null)
-                instance = cam.gameObject.AddComponent<CameraShake>();
-        }
+        instance = cam.GetComponent<CameraShake>();
+        if (instance == null)
+            instance = cam.gameObject.AddComponent<CameraShake>();
+    }
 
-        instance.Begin(duration, magnitude);
+    Debug.Log($"CameraShake en '{instance.name}': duración {duration}, intensidad {magnitude}");
+    instance.Begin(duration, magnitude);
     }
 
     private void Begin(float newDuration, float newMagnitude)
     {
-        // Un shake chiquito no debe pisar a uno grande que sigue en curso.
         float remaining = duration <= 0f ? 0f : magnitude * (1f - elapsed / duration);
         if (newMagnitude < remaining) return;
 
@@ -43,7 +47,6 @@ public class CameraShake : MonoBehaviour
 
     private void Update()
     {
-        // Quitamos el offset del frame anterior antes de que la cámara se actualice.
         transform.position -= lastOffset;
         lastOffset = Vector3.zero;
     }

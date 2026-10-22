@@ -13826,6 +13826,7 @@ MonoBehaviour:
   namiRigidbody: {fileID: 647012135}
   namiAnimator: {fileID: 647012131}
   wakeUpLyingDown: 1
+  lyingStateName: Sleeping
   maraGuide: {fileID: 1809590200}
   closeUpCamera: {fileID: 1048190192}
   closeUpCameraPriority: 20
@@ -13845,6 +13846,7 @@ MonoBehaviour:
   wakeUpPointName: WakeUpPoint
   wakeUpDialogueId: donde
   fallingDialogueId: advertencia
+  missionIdOnFinish: 
 --- !u!114 &1838350341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13864,6 +13866,7 @@ MonoBehaviour:
   hitSlowMultiplier: 1
   hitSlowDuration: 1.5
   warningDialogueId: cuidado
+  missionId: mision2
 --- !u!114 &1838350342
 MonoBehaviour:
   m_ObjectHideFlags: 0

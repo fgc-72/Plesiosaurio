@@ -74,23 +74,27 @@ public class DestructibleRock : MonoBehaviour
             BrokenByPlayer?.Invoke();
         }
 
-        ShakeCamera(wasPlayerAction ? playerBreakShake : forcedBreakShake);
+        ShakeCamera(wasPlayerAction ? playerBreakShake : forcedBreakShake, applyDistanceFalloff: !wasPlayerAction);
 
         StartCoroutine(BreakRoutine());
     }
 
-    private void ShakeCamera(float magnitude)
+    private void ShakeCamera(float magnitude, bool applyDistanceFalloff)
     {
         if (magnitude <= 0f) return;
 
         Camera cam = Camera.main;
         if (cam == null) return;
 
-        float distance = Vector3.Distance(cam.transform.position, transform.position);
-        float falloff = 1f - Mathf.Clamp01(distance / shakeMaxDistance);
-        if (falloff <= 0f) return;
+        if (applyDistanceFalloff)
+        {
+            float distance = Vector3.Distance(cam.transform.position, transform.position);
+            float falloff = 1f - Mathf.Clamp01(distance / shakeMaxDistance);
+            if (falloff <= 0f) return;
+            magnitude *= falloff;
+        }
 
-        CameraShake.Shake(shakeDuration, magnitude * falloff);
+        CameraShake.Shake(shakeDuration, magnitude);
     }
 
     private IEnumerator BreakRoutine()

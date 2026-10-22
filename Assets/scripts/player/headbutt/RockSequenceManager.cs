@@ -21,6 +21,33 @@ public class RockSequenceManager : MonoBehaviour
     [Tooltip("ID del diálogo de Mara ('¡cuidado!') en el DialogueDatabase que usa ThoughtUI.")]
     [SerializeField] private string warningDialogueId;
 
+    [Header("Misión")]
+    [Tooltip("ID de la misión de romper rocas en MissionDatabase.")]
+    [SerializeField] private string missionId;
+
+    private void Start()
+    {
+        UpdateMissionCounter();
+    }
+
+    private void UpdateMissionCounter()
+{
+    if (string.IsNullOrEmpty(missionId))
+    {
+        Debug.LogWarning("RockSequenceManager: missionId está vacío en el Inspector.");
+        return;
+    }
+
+    if (MissionUI.Instance == null)
+    {
+        Debug.LogWarning("RockSequenceManager: no hay MissionUI.Instance en la escena.");
+        return;
+    }
+
+    Debug.Log($"Contador de misión → '{missionId}' {brokenByPlayerCount}/{requiredBreaks}");
+    MissionUI.Instance.SetProgress(missionId, brokenByPlayerCount, requiredBreaks);
+}
+
     private int brokenByPlayerCount;
     private bool sequenceFinished;
     private bool hasWarnedPlayer; // true después de la PRIMERA vez que Mara avisa "cuidado"
@@ -39,6 +66,7 @@ public class RockSequenceManager : MonoBehaviour
         Debug.Log($"Rocas rotas por el jugador: {brokenByPlayerCount}/{requiredBreaks}");
 
         BreakCountChanged?.Invoke(brokenByPlayerCount, requiredBreaks); // ANTES de TriggerBigRock
+        UpdateMissionCounter();
 
         if (brokenByPlayerCount >= requiredBreaks)
             TriggerBigRock();

@@ -16,6 +16,10 @@ public class MissionUI : MonoBehaviour
     [SerializeField] private TMP_Text descriptionLabel;
     [SerializeField] private TMP_Text hintLabel;
 
+    private string progressMissionId;
+    private int progressCurrent;
+    private int progressRequired;
+
     private void Awake()
     {
         Instance = this;
@@ -23,9 +27,18 @@ public class MissionUI : MonoBehaviour
 
     private void Start()
     {
-        // Si venimos de otra escena con una misión activa, la volvemos a mostrar
         if (!string.IsNullOrEmpty(MissionState.CurrentMissionId))
             Render(MissionState.CurrentMissionId);
+    }
+
+    public void SetProgress(string missionId, int current, int required)
+    {
+        progressMissionId = missionId;
+        progressCurrent = current;
+        progressRequired = required;
+
+        if (MissionState.CurrentMissionId == missionId)
+        Render(missionId);
     }
 
     private void OnDestroy()
@@ -61,7 +74,11 @@ public class MissionUI : MonoBehaviour
 
         titleLabel.text = localized.title;
         descriptionLabel.text = localized.description;
-        hintLabel.text = localized.hint;
+
+        string hint = localized.hint;
+        if (!string.IsNullOrEmpty(progressMissionId) && id == progressMissionId)
+            hint += $" ({progressCurrent}/{progressRequired})";
+        hintLabel.text = hint;
         return true;
     }
 }
