@@ -6,6 +6,7 @@ using System.Linq;
 public class DetectiveController : MonoBehaviour
 {
     [Header("Referencias")]
+    public static DetectiveController  Instance { get; private set; }
     [SerializeField] private InputManagerBueno inputManager;
     [SerializeField] private Volume grayscaleVolume;
     [SerializeField] private ScriptableRendererData rendererData;
@@ -25,6 +26,19 @@ public class DetectiveController : MonoBehaviour
     private bool isOnCooldown;
     private float cooldownTimer;
 
+    private void Awake()
+    {
+        // Patrón singleton clásico: si ya existe uno (venimos de otra escena), este se destruye.
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+    }
     private void Start()
     {
         if (rendererData != null)
@@ -35,6 +49,8 @@ public class DetectiveController : MonoBehaviour
             if (highlightFeature == null)
                 Debug.LogWarning($"No hay feature '{highlightFeatureName}'.");
         }
+
+        
     }
 
     private void Update()

@@ -1139,12 +1139,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.10208311, y: 0.78650755, z: -0.13519135, w: 0.59389246}
-  m_LocalPosition: {x: 112.8614, y: 30.478905, z: 174.59431}
+  m_LocalRotation: {x: 0.15654795, y: 0.37660155, z: -0.06473334, w: 0.9107545}
+  m_LocalPosition: {x: -15.761768, y: 4.1789055, z: -16.987652}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1585074510}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
@@ -3385,8 +3385,8 @@ MonoBehaviour:
   guidedCameraPriority: 20
   dialogueId: Mara_mitad
   missionIdOnFinish: mision2
-  useVibration: 0
-  vibrationStrength: 0
+  useVibration: 1
+  vibrationStrength: 0.052
   overrideAnimation: 1
   animationStateDuringEvent: 0
   rockSpawner: {fileID: 1838350342}
@@ -5384,12 +5384,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 832575517}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -135.64426, y: 0, z: -192.74713}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1490707350}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &838790297
 PrefabInstance:
@@ -10554,7 +10554,7 @@ GameObject:
   - component: {fileID: 1490707350}
   - component: {fileID: 1490707349}
   m_Layer: 0
-  m_Name: GManager
+  m_Name: DetectiveManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10591,7 +10591,8 @@ Transform:
   m_LocalPosition: {x: 135.64426, y: -0, z: 192.74713}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 832575519}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1497006339
@@ -10902,6 +10903,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 647012130}
+  - {fileID: 330585546}
+  - {fileID: 1600148751}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 60.956, z: 0}
 --- !u!1 &1599249114
@@ -10970,7 +10973,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
   Priority:
     Enabled: 1
-    m_Value: 1
+    m_Value: 10
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -11007,12 +11010,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1600148749}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.10207742, y: 0.7865325, z: -0.13519566, w: 0.5938594}
-  m_LocalPosition: {x: 112.8614, y: 30.478905, z: 174.59431}
+  m_LocalRotation: {x: 0.15654522, y: 0.37663984, z: -0.06473994, w: 0.9107386}
+  m_LocalPosition: {x: -15.761768, y: 4.1789055, z: -16.987652}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1585074510}
   m_LocalEulerAnglesHint: {x: 14.81, y: 0, z: 0}
 --- !u!114 &1600148752
 MonoBehaviour:
@@ -13764,6 +13767,7 @@ MonoBehaviour:
   namiRigidbody: {fileID: 647012135}
   namiAnimator: {fileID: 647012131}
   wakeUpLyingDown: 1
+  lyingStateName: Sleeping
   maraGuide: {fileID: 1809590200}
   closeUpCamera: {fileID: 1048190192}
   closeUpCameraPriority: 20
@@ -13783,6 +13787,7 @@ MonoBehaviour:
   wakeUpPointName: WakeUpPoint
   wakeUpDialogueId: donde
   fallingDialogueId: advertencia
+  missionIdOnFinish: 
 --- !u!114 &1838350341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15711,10 +15716,7 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 330585546}
   - {fileID: 410087041}
-  - {fileID: 832575519}
-  - {fileID: 1600148751}
   - {fileID: 131011574}
   - {fileID: 1265625296}
   - {fileID: 779333567}
