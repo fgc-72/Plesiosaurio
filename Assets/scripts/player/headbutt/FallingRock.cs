@@ -165,10 +165,12 @@ public class FallingRock : MonoBehaviour
         }
         else
         {
+            Debug.Log($"💥 {name} alcanzó a Nami sin que la rompieran");
             // Le llegó a Nami sin que el jugador alcanzara a romperla con Y:
             // avisamos al manager (ralentiza + Mara dice "cuidado") y la rompemos.
             sequenceManager?.OnRockHitPlayer();
             destructibleRock.ForceBreak();
         }
+        
     }
 }

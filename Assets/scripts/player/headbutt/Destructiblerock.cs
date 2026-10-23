@@ -24,9 +24,9 @@ public class DestructibleRock : MonoBehaviour
     [SerializeField] private float debrisSpin = 360f;
 
     [Header("Shake de cámara")]
-    [SerializeField] private float shakeDuration = 0.25f;
+    [SerializeField] private float shakeDuration = 0.4f;
     [Tooltip("Intensidad cuando el jugador la rompe con cabezazo.")]
-    [SerializeField] private float playerBreakShake = 0.15f;
+    [SerializeField] private float playerBreakShake = 0.8f;
     [Tooltip("Intensidad cuando se rompe sola (le llegó a Nami / a Mara). Pon 0 para desactivar.")]
     [SerializeField] private float forcedBreakShake = 0.08f;
     [Tooltip("Más lejos de la cámara que esto, el shake es 0 (así una roca lejana no sacude la pantalla).")]
