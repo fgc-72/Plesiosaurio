@@ -13788,7 +13788,7 @@ MonoBehaviour:
   bigRockObject: {fileID: 1812914065}
   bigRockStartPoint: {fileID: 1812914065}
   bigRockSpeed: 45
-  impactDistance: 15
+  impactDistance: 1.2
   blackout: {fileID: 1838350339}
   wakeUpVolume: {fileID: 832575518}
   blurredAperture: 2
