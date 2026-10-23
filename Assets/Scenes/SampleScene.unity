@@ -13789,6 +13789,10 @@ MonoBehaviour:
   bigRockStartPoint: {fileID: 1812914065}
   bigRockSpeed: 45
   impactDistance: 1.2
+  cameraFallDistance: 3
+  cameraFallPitch: 20
+  cameraFallRoll: 30
+  namiSinkSpeed: 1.5
   blackout: {fileID: 1838350339}
   wakeUpVolume: {fileID: 832575518}
   blurredAperture: 2
@@ -13820,6 +13824,8 @@ MonoBehaviour:
   hitSlowMultiplier: 1
   hitSlowDuration: 1.5
   warningDialogueId: cuidado
+  hitShakeDuration: 0.35
+  hitShakeMagnitude: 0.6
   missionId: mision2
 --- !u!114 &1838350342
 MonoBehaviour:

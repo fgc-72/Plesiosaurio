@@ -45,6 +45,9 @@ public class FallingRock : MonoBehaviour
     private bool inGracePeriod; // ya entró en rango y está "congelada" dando tiempo a reaccionar
     private float proximityThreshold; // calculado en Awake según el tamaño real de ESTA roca
 
+    private void OnTriggerEnter(Collider other) => TryHitByBody(other);
+    private void OnCollisionEnter(Collision collision) => TryHitByBody(collision.collider);
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -82,6 +85,7 @@ public class FallingRock : MonoBehaviour
         // Si esta roca en particular la rompe el JUGADOR a cabezazos (con Y),
         // avisamos al manager para que sume al contador del objetivo.
         destructibleRock.BrokenByPlayer += HandlePlayerBreak;
+        Debug.Log($"{name} apunta a '{(targetTransform != null ? targetTransform.name : "NULL")}' (tipo: {type})", targetTransform);
     }
 
     private void HandlePlayerBreak()
@@ -115,17 +119,10 @@ public class FallingRock : MonoBehaviour
             return;
         }
 
-        // Las ambientales no tienen target (caen sin perseguir a nadie), así que
-        // nunca entran a este chequeo: simplemente caen hasta destroyBelowY.
-        if (target != null && Vector3.Distance(rb.position, target.position) <= proximityThreshold)
+        // Mara es controlada por IA: si la roca llega a su radio de proximidad, se resuelve/rompe sola
+        if (target != null && targetType == RockTarget.Mara && Vector3.Distance(rb.position, target.position) <= proximityThreshold)
         {
-            // Las de Mara se resuelven al toque (ella es IA, no necesita ventana de reacción).
-            // Las de Nami primero dan hitGracePeriod segundos quietas para que el jugador
-            // tenga una oportunidad real de cabecearla antes de que "impacte".
-            if (targetType == RockTarget.Mara || hitGracePeriod <= 0f)
-                ResolveProximity();
-            else
-                StartCoroutine(GracePeriodThenResolve());
+            ResolveProximity();
         }
     }
 
@@ -168,9 +165,39 @@ public class FallingRock : MonoBehaviour
             Debug.Log($"💥 {name} alcanzó a Nami sin que la rompieran");
             // Le llegó a Nami sin que el jugador alcanzara a romperla con Y:
             // avisamos al manager (ralentiza + Mara dice "cuidado") y la rompemos.
+            if (sequenceManager == null)
+                sequenceManager = Object.FindFirstObjectByType<RockSequenceManager>();
+
             sequenceManager?.OnRockHitPlayer();
             destructibleRock.ForceBreak();
         }
-        
+    }
+
+    private void TryHitByBody(Collider other)
+    {
+        Debug.Log($"{name} tocó físicamente a '{other.name}' (capa: {LayerMask.LayerToName(other.gameObject.layer)})");
+
+        if (resolved || destructibleRock.IsBroken) return;
+
+        PlayerControls player = other.GetComponentInParent<PlayerControls>();
+        if (player == null) return;
+
+        // Si Nami está ejecutando un cabezazo activo, dejamos que HeadbuttHitbox se encargue de TakeHit()
+        HeadbuttHitbox hitbox = player.GetComponentInChildren<HeadbuttHitbox>();
+        if (hitbox != null && hitbox.IsActive)
+            return;
+
+        // Nami tocó la roca físicamente con su cuerpo: se rompe inmediatamente y NO cuenta
+        // como que Nami la destruyó (no suma al contador de misión), porque fue golpe a Nami.
+        resolved = true;
+        inGracePeriod = false;
+
+        Debug.Log($"💥 {name} golpeó el cuerpo de Nami (se rompe sin contar para la misión)");
+
+        if (sequenceManager == null)
+            sequenceManager = Object.FindFirstObjectByType<RockSequenceManager>();
+
+        sequenceManager?.OnRockHitPlayer();
+        destructibleRock.ForceBreak();
     }
 }

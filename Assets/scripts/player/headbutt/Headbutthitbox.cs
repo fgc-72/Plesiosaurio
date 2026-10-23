@@ -4,6 +4,7 @@ using UnityEngine;
 public class HeadbuttHitbox : MonoBehaviour
 {
     private bool isActive;
+    public bool IsActive => isActive;
     private float activeTimer;
 
     private void Awake()

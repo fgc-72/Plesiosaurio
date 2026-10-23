@@ -96,3 +96,11 @@ MonoBehaviour:
       text: "Nami, no te alejes demasiado. Podr\xEDas perderte."
     - languageCode: en
       text: Nami, don't wander too far. You might get lost.
+  - id: nami_tiburon
+    speaker: mara
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: "\xBF\xA1Eso es un tibur\xF3n!? \xA1Tengo que escapar!"
+    - languageCode: en
+      text: Is that a shark coming!? I have to get away!
