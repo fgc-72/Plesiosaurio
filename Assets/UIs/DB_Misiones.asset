@@ -16,8 +16,8 @@ MonoBehaviour:
   - id: misiongenericanumerouno
     translations:
     - languageCode: es
-      title: busca a mara
-      description: intenta localizarla
+      title: Busca a Mara
+      description: Intenta localizarla
       hint: presiona[botones] para activar el modo escucha
   - id: mision1
     translations:
@@ -30,4 +30,4 @@ MonoBehaviour:
     - languageCode: es
       title: Sigue a Mara
       description: No te dejes golpear por las rocas
-      hint: Rompe minimo 4
+      hint: "Rompe m\xEDnimo 4"

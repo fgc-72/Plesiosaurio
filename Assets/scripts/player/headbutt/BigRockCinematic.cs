@@ -7,8 +7,8 @@ using System.Collections;
 
 // La roca grande que choca a Nami tras romper las 4 rocas pequeñas:
 // 1. La roca grande desciende a gran velocidad e impacta a Nami.
-// 2. Al recibir el golpe, la cámara reacciona con una sacudida de impacto y la imagen se pone borrosa progresivamente.
-// 3. La pantalla se funde a negro en paralelo.
+// 2. Al recibir el golpe, la cámara tiembla por el impacto y se desploma / cae hacia abajo ladeándose.
+// 3. La imagen se pone borrosa progresivamente y la pantalla se funde a negro a la vez.
 // 4. Se carga la siguiente escena (acto2) donde Nami despierta sola y recupera la nitidez progresivamente.
 public class BigRockCinematic : MonoBehaviour
 {
@@ -46,6 +46,16 @@ public class BigRockCinematic : MonoBehaviour
     [SerializeField] private float bigRockSpeed = 45f;
     [Tooltip("A qué distancia de Nami se considera que impacta visualmente.")]
     [SerializeField] private float impactDistance = 1.2f;
+
+    [Header("Efecto de caída / desplome de la cámara")]
+    [Tooltip("Distancia que se desploma la cámara hacia abajo durante el fundido.")]
+    [SerializeField] private float cameraFallDistance = 3.0f;
+    [Tooltip("Ángulo de cabeceo al caer (inclinación hacia abajo/adelante).")]
+    [SerializeField] private float cameraFallPitch = 20.0f;
+    [Tooltip("Ángulo de inclinación lateral (roll) al perder el equilibrio.")]
+    [SerializeField] private float cameraFallRoll = 30.0f;
+    [Tooltip("Velocidad de hundimiento lento de Nami tras el golpe.")]
+    [SerializeField] private float namiSinkSpeed = 1.5f;
 
     [Header("Pantalla negra + desenfoque")]
     [SerializeField] private ScreenBlackoutEffect blackout;
@@ -181,7 +191,7 @@ public class BigRockCinematic : MonoBehaviour
                 DontDestroyOnLoad(wakeUpVolume.gameObject);
         }
 
-        // 3) Reacción de la cámara al golpe + Desenfoque progresivo + Fundido a negro en paralelo
+        // 3) Reacción de la cámara al golpe + Desplome/Caída + Desenfoque progresivo + Fundido a negro en paralelo
         yield return StartCoroutine(ImpactAndFadeOut());
 
         // Ya está todo negro: devolvemos la prioridad de la cámara
@@ -265,7 +275,7 @@ public class BigRockCinematic : MonoBehaviour
         if (blackout != null)
             blackoutRoutine = blackout.FadeToBlack();
 
-        // Cámara que sacudiremos (la closeUpCamera si está activa, o Camera.main)
+        // Cámara que animaremos (closeUpCamera si está activa, o Camera.main)
         Transform camToShake = (closeUpCamera != null && closeUpCamera.gameObject.activeInHierarchy)
             ? closeUpCamera.transform
             : (Camera.main != null ? Camera.main.transform : null);
@@ -273,7 +283,12 @@ public class BigRockCinematic : MonoBehaviour
         Vector3 camOriginalPos = camToShake != null ? camToShake.localPosition : Vector3.zero;
         Quaternion camOriginalRot = camToShake != null ? camToShake.localRotation : Quaternion.identity;
 
-        float hitShakeDuration = 1.0f; // La sacudida del golpe dura el primer segundo
+        // Dirección "abajo" del mundo proyectada al espacio local del padre (para caer hacia el fondo marino real)
+        Vector3 worldDownLocal = (camToShake != null && camToShake.parent != null)
+            ? camToShake.parent.InverseTransformDirection(Vector3.down)
+            : Vector3.down;
+
+        float hitShakeDuration = 1.0f; // La sacudida brusca del golpe dura el primer segundo
         float elapsed = 0f;
 
         while (elapsed < fadeDuration)
@@ -284,29 +299,43 @@ public class BigRockCinematic : MonoBehaviour
             // A) Desenfoque que aumenta progresivamente con el tiempo
             ApplyBlur(t);
 
-            // B) Movimiento de la cámara como si hubiese sido golpeada
-            if (camToShake != null && elapsed < hitShakeDuration)
+            // B) Caída / desplome progresivo de la cámara hacia abajo y ladeándose
+            float fallProgress = Mathf.Pow(t, 1.25f);
+            Vector3 fallDisplacement = worldDownLocal * (cameraFallDistance * fallProgress);
+            Quaternion fallRotation = Quaternion.Euler(cameraFallPitch * fallProgress, 0f, cameraFallRoll * fallProgress);
+
+            // C) Nami también se hunde suavemente
+            if (namiRigidbody != null)
+            {
+                namiRigidbody.position += Vector3.down * (namiSinkSpeed * (1f - t * 0.5f) * Time.unscaledDeltaTime);
+            }
+
+            // D) Sacudida brusca de impacto (Perlin noise superpuesto sobre la caída)
+            Vector3 shakeOffset = Vector3.zero;
+            Quaternion shakeRotation = Quaternion.identity;
+
+            if (elapsed < hitShakeDuration)
             {
                 float shakeFactor = 1f - Mathf.Clamp01(elapsed / hitShakeDuration);
-                float intensity = shakeFactor * shakeFactor; // decaimiento no lineal rápido
+                float intensity = shakeFactor * shakeFactor; // decaimiento rápido del golpe
 
-                // Desplazamiento brusco (sacudón lateral y retroceso hacia atrás)
                 float offsetX = (Mathf.PerlinNoise(elapsed * 28f, 0f) - 0.5f) * 2f * 0.45f * intensity;
                 float offsetY = (Mathf.PerlinNoise(0f, elapsed * 28f) - 0.5f) * 2f * 0.35f * intensity;
                 float offsetZ = -0.6f * intensity; // retroceso hacia atrás por el golpe
 
-                // Rotación brusca por el impacto (cabeceo, alabeo y guiñada)
                 float rotPitch = (Mathf.PerlinNoise(elapsed * 32f, 15f) - 0.5f) * 9f * intensity;
                 float rotYaw = (Mathf.PerlinNoise(15f, elapsed * 32f) - 0.5f) * 7f * intensity;
                 float rotRoll = (Mathf.PerlinNoise(elapsed * 22f, 25f) - 0.5f) * 12f * intensity;
 
-                camToShake.localPosition = camOriginalPos + new Vector3(offsetX, offsetY, offsetZ);
-                camToShake.localRotation = camOriginalRot * Quaternion.Euler(rotPitch, rotYaw, rotRoll);
+                shakeOffset = new Vector3(offsetX, offsetY, offsetZ);
+                shakeRotation = Quaternion.Euler(rotPitch, rotYaw, rotRoll);
             }
-            else if (camToShake != null && elapsed >= hitShakeDuration)
+
+            // Aplicamos la caída acumulada + el temblor
+            if (camToShake != null)
             {
-                camToShake.localPosition = camOriginalPos;
-                camToShake.localRotation = camOriginalRot;
+                camToShake.localPosition = camOriginalPos + fallDisplacement + shakeOffset;
+                camToShake.localRotation = camOriginalRot * fallRotation * shakeRotation;
             }
 
             yield return null;
