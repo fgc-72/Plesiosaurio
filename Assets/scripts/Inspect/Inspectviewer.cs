@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -17,6 +18,7 @@ public class InspectViewer : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] GameObject promptRoot;     // aviso "Presiona E / X"
+    [SerializeField] GameObject inspectRoot;    // panel oscuro (padre del RawImage); se activa/desactiva entero
     [SerializeField] RawImage inspectImage;     // pantalla completa, muestra la RenderTexture
 
     [Header("Escenario de inspección")]
@@ -31,6 +33,10 @@ public class InspectViewer : MonoBehaviour
 
     [Header("Opciones")]
     [SerializeField] bool pauseTimeWhileOpen = false;
+
+    [Header("Se desactivan mientras el visor está abierto (cámara del jugador, movimiento, Player Input...)")]
+    [SerializeField] Behaviour[] disableWhileOpen;
+    readonly List<Behaviour> disabledByUs = new();
 
     [Header("Eventos (para bloquear movimiento, etc.)")]
     public UnityEvent onOpened;
@@ -88,7 +94,11 @@ public class InspectViewer : MonoBehaviour
         }
 
         promptRoot.SetActive(false);
-        inspectImage.gameObject.SetActive(false);
+        SetViewVisible(false);
+
+        // Fondo transparente: el oscurecido lo da el panel (inspectRoot), no la cámara.
+        inspectCamera.clearFlags = CameraClearFlags.SolidColor;
+        inspectCamera.backgroundColor = Color.clear;
         inspectCamera.enabled = false;
     }
 
@@ -104,6 +114,7 @@ public class InspectViewer : MonoBehaviour
         interact.Disable();
         close.Disable();
         rotate.Disable();
+        if (isOpen) SetBlocked(false);
         if (isOpen && pauseTimeWhileOpen) Time.timeScale = 1f;
     }
 
@@ -164,7 +175,8 @@ public class InspectViewer : MonoBehaviour
         SpawnObject(source);
 
         promptRoot.SetActive(false);
-        inspectImage.gameObject.SetActive(true);
+        SetViewVisible(true);
+        SetBlocked(true);
         isOpen = true;
 
         if (pauseTimeWhileOpen) Time.timeScale = 0f;
@@ -267,6 +279,38 @@ public class InspectViewer : MonoBehaviour
         pivot.Rotate(inspectCamera.transform.right, pitch, Space.World);
     }
 
+    // Activa o desactiva el panel oscuro y el RawImage. El RawImage se activa por separado
+    // para que funcione aunque lo hayas dejado desactivado en el editor.
+    void SetViewVisible(bool visible)
+    {
+        if (inspectRoot != null) inspectRoot.SetActive(visible);
+        inspectImage.gameObject.SetActive(visible);
+    }
+
+    // Apaga (o devuelve) los componentes de la lista disableWhileOpen: cámara, movimiento, etc.
+    // Solo reactiva los que estaban activos antes de abrir.
+    void SetBlocked(bool blocked)
+    {
+        if (blocked)
+        {
+            disabledByUs.Clear();
+            foreach (var b in disableWhileOpen)
+            {
+                if (b != null && b.enabled)
+                {
+                    b.enabled = false;
+                    disabledByUs.Add(b);
+                }
+            }
+        }
+        else
+        {
+            foreach (var b in disabledByUs)
+                if (b != null) b.enabled = true;
+            disabledByUs.Clear();
+        }
+    }
+
     void CloseInspect()
     {
         if (pivot != null) Destroy(pivot.gameObject);
@@ -274,7 +318,7 @@ public class InspectViewer : MonoBehaviour
         inspectCamera.enabled = false;
         inspectCamera.targetTexture = null;
         inspectImage.texture = null;
-        inspectImage.gameObject.SetActive(false);
+        SetViewVisible(false);
 
         if (rt != null)
         {
@@ -283,6 +327,7 @@ public class InspectViewer : MonoBehaviour
             rt = null;
         }
 
+        SetBlocked(false);
         isOpen = false;
         if (pauseTimeWhileOpen) Time.timeScale = 1f;
         onClosed.Invoke();
