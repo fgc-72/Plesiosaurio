@@ -12,6 +12,8 @@ public class ScreenBlackoutEffect : MonoBehaviour
 
     private CanvasGroup canvasGroup;
 
+    public float FadeDuration => fadeDuration;
+
     private void Awake()
     {
         BuildCanvas();
@@ -19,6 +21,8 @@ public class ScreenBlackoutEffect : MonoBehaviour
 
     private void BuildCanvas()
     {
+        if (canvasGroup != null) return;
+
         GameObject canvasObject = new GameObject("BlackoutCanvas");
         canvasObject.transform.SetParent(transform, false);
 
@@ -51,6 +55,7 @@ public class ScreenBlackoutEffect : MonoBehaviour
 
     private IEnumerator Fade(float targetAlpha)
     {
+        if (canvasGroup == null) BuildCanvas();
         float startAlpha = canvasGroup.alpha;
         float elapsed = 0f;
 

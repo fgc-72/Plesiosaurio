@@ -5,10 +5,11 @@ using UnityEngine.SceneManagement;
 using Unity.Cinemachine;
 using System.Collections;
 
-// La roca grande que choca a Nami tras romper las 4 rocas pequeñas: viene
-// directo y sin que se pueda evitar, pantalla a negro + desenfoque (misma
-// idea que el "despertar" del Acto I), y Nami aparece en otra parte del
-// mapa, sola, sin Mara. Dispáralo desde RockSequenceManager.
+// La roca grande que choca a Nami tras romper las 4 rocas pequeñas:
+// 1. La roca grande desciende a gran velocidad e impacta a Nami.
+// 2. Al recibir el golpe, la cámara tiembla por el impacto y se desploma / cae hacia abajo ladeándose.
+// 3. La imagen se pone borrosa progresivamente y la pantalla se funde a negro a la vez.
+// 4. Se carga la siguiente escena (acto2) donde Nami despierta sola y recupera la nitidez progresivamente.
 public class BigRockCinematic : MonoBehaviour
 {
     [Header("Nami")]
@@ -23,9 +24,6 @@ public class BigRockCinematic : MonoBehaviour
              "despertar, se queda así mientras sale el diálogo final, y pasa a Idle justo " +
              "cuando el diálogo termina (antes de devolver el control).")]
     [SerializeField] private bool wakeUpLyingDown = true;
-    [Tooltip("Nombre EXACTO del estado de la pose acostada en el Animator (en tu grafo se " +
-             "llama 'Sleeping'). Se reproduce directo, sin depender de la transición.")]
-    [SerializeField] private string lyingStateName = "Sleeping";
 
     [Header("Mara")]
     [Tooltip("Se congela en su sitio durante la cinemática. Al terminar retoma su " +
@@ -45,19 +43,28 @@ public class BigRockCinematic : MonoBehaviour
     [Tooltip("El GameObject de la roca grande ya puesto en la escena (puede empezar desactivado).")]
     [SerializeField] private Transform bigRockObject;
     [SerializeField] private Transform bigRockStartPoint;
-    [SerializeField] private float bigRockSpeed = 15f;
-    [Tooltip("A qué distancia de Nami se considera que 'ya casi la golpea' y se corta a negro. " +
-             "Súbelo si quieres que el fundido arranque con la roca todavía más lejos.")]
-    [SerializeField] private float impactDistance = 1f;
+    [SerializeField] private float bigRockSpeed = 45f;
+    [Tooltip("A qué distancia de Nami se considera que impacta visualmente.")]
+    [SerializeField] private float impactDistance = 1.2f;
+
+    [Header("Efecto de caída / desplome de la cámara")]
+    [Tooltip("Distancia que se desploma la cámara hacia abajo durante el fundido.")]
+    [SerializeField] private float cameraFallDistance = 3.0f;
+    [Tooltip("Ángulo de cabeceo al caer (inclinación hacia abajo/adelante).")]
+    [SerializeField] private float cameraFallPitch = 20.0f;
+    [Tooltip("Ángulo de inclinación lateral (roll) al perder el equilibrio.")]
+    [SerializeField] private float cameraFallRoll = 30.0f;
+    [Tooltip("Velocidad de hundimiento lento de Nami tras el golpe.")]
+    [SerializeField] private float namiSinkSpeed = 1.5f;
 
     [Header("Pantalla negra + desenfoque")]
     [SerializeField] private ScreenBlackoutEffect blackout;
     [SerializeField] private Volume wakeUpVolume;
     [SerializeField] private float blurredAperture = 1f;
     [SerializeField] private float clearAperture = 16f;
-    [SerializeField] private float blurredFocusDistance = 0.3f;
+    [SerializeField] private float blurredFocusDistance = 0.1f;
     [SerializeField] private float normalFocusDistance = 10f;
-    [SerializeField] private float blurClearDuration = 2f;
+    [SerializeField] private float blurClearDuration = 3f;
 
     [Header("Dónde despierta Nami")]
     [Tooltip("Usado SOLO si 'Scene To Load' está vacío (teletransporte dentro de la misma escena).")]
@@ -81,21 +88,24 @@ public class BigRockCinematic : MonoBehaviour
              "(en paralelo, no bloquea la caída). Déjalo vacío si no quieres ninguno acá.")]
     [SerializeField] private string fallingDialogueId;
 
-    [Header("Misión al terminar (opcional)")]
-    [Tooltip("ID de la misión (MissionDatabase) a mostrar cuando Nami recupera el control " +
-             "en el lugar nuevo, al final de toda la cinemática. Vacío = no activa ninguna.")]
-    [SerializeField] private string missionIdOnFinish;
-
     private DepthOfField depthOfField;
     private bool hasPlayed;
     private bool forcingLyingPose;
 
     private void Awake()
     {
-        // GetComponent (sin 'InChildren') solo busca en el MISMO GameObject que el
-        // Rigidbody. Si el Animator de Nami vive en un hijo (el modelo/mesh, que es
-        // lo normal), eso da null en silencio — por eso probamos primero ahí y
-        // recién si falla probamos en los hijos.
+        // Auto-asignación de referencias si faltan en el Inspector
+        if (playerControls == null)
+            playerControls = FindFirstObjectByType<PlayerControls>();
+
+        if (playerControls != null)
+        {
+            if (namiRigidbody == null)
+                namiRigidbody = playerControls.GetComponent<Rigidbody>();
+            if (playerAnimation == null)
+                playerAnimation = playerControls.GetComponent<PlayerAnimation>();
+        }
+
         if (namiAnimator == null && namiRigidbody != null)
         {
             namiAnimator = namiRigidbody.GetComponent<Animator>();
@@ -103,28 +113,17 @@ public class BigRockCinematic : MonoBehaviour
                 namiAnimator = namiRigidbody.GetComponentInChildren<Animator>();
         }
 
-        // Mismo blindaje que en OpeningCinematicAct1: usamos SIEMPRE los componentes que
-        // están en el Nami real, por si lo arrastrado en el Inspector apunta a otra copia.
-        if (namiRigidbody != null)
-        {
-            PlayerAnimation realAnimation = namiRigidbody.GetComponent<PlayerAnimation>();
-            if (realAnimation != null) playerAnimation = realAnimation;
-
-            PlayerControls realControls = namiRigidbody.GetComponent<PlayerControls>();
-            if (realControls != null) playerControls = realControls;
-        }
-
-        if (wakeUpLyingDown && namiAnimator == null)
-            Debug.LogWarning("BigRockCinematic: 'Wake Up Lying Down' está activado pero no " +
-                              "encontré ningún Animator (ni en Nami Rigidbody ni en sus hijos). " +
-                              "Asigna 'Nami Animator' a mano en el Inspector.");
+        if (blackout == null)
+            blackout = GetComponent<ScreenBlackoutEffect>();
+        if (blackout == null)
+            blackout = FindFirstObjectByType<ScreenBlackoutEffect>();
     }
 
     public void Play()
     {
         if (hasPlayed) return;
         hasPlayed = true;
-        Debug.Log("🪨 BigRockCinematic: arrancó.");
+        Debug.Log("🪨 BigRockCinematic: arrancó la cinemática de la roca grande.");
         StartCoroutine(PlaySequence());
     }
 
@@ -133,17 +132,13 @@ public class BigRockCinematic : MonoBehaviour
         bool changingScene = !string.IsNullOrEmpty(sceneToLoad);
 
         if (maraGuide != null)
-            maraGuide.enabled = false; // Mara se queda quieta donde esté (y, si cambiamos de
-                                       // escena, se queda ahí para siempre: no persiste)
+            maraGuide.enabled = false;
 
-        // Limpiamos las rocas normales que todavía estén en el aire (el spawner ya dejó
-        // de crear nuevas, pero las existentes siguen cayendo solas) para que no se
-        // crucen visualmente con la roca grande durante la cinemática.
+        // Limpiamos las rocas normales que sigan en el aire
         foreach (FallingRock rock in FindObjectsByType<FallingRock>(FindObjectsSortMode.None))
             Destroy(rock.gameObject);
 
-        // Primer plano de la caída: apenas se activa la roca grande, esta cámara toma el
-        // control (prioridad alta) hasta que se termine de ir a negro, más abajo.
+        // Primer plano de la caída
         int closeUpOriginalPriority = 0;
         if (closeUpCamera != null)
         {
@@ -151,18 +146,12 @@ public class BigRockCinematic : MonoBehaviour
             closeUpCamera.Priority = closeUpCameraPriority;
         }
 
-        // 1) La roca grande viene directo a Nami: no hay cabezazo que la detenga.
-        if (bigRockObject == null || bigRockStartPoint == null)
-            Debug.LogWarning("BigRockCinematic: falta asignar 'Big Rock Object' o 'Big Rock Start Point' " +
-                              "en el Inspector, así que se salta la parte de la roca viniendo volando.");
-
+        // 1) La roca grande viene directo a Nami
         if (bigRockObject != null && bigRockStartPoint != null)
         {
             bigRockObject.position = bigRockStartPoint.position;
             bigRockObject.gameObject.SetActive(true);
 
-            // Diálogo en PARALELO a la caída (no usamos yield/WaitUntil acá a propósito:
-            // la roca tiene que seguir viniendo igual, hable Mara/Nami o no).
             if (!string.IsNullOrEmpty(fallingDialogueId) && ThoughtUI.Instance != null)
                 ThoughtUI.Instance.ShowById(fallingDialogueId);
 
@@ -170,37 +159,31 @@ public class BigRockCinematic : MonoBehaviour
             Debug.Log($"🪨 BigRockCinematic: la roca grande arranca a {startDistance:F1}m de Nami " +
                       $"(velocidad {bigRockSpeed}/s → ~{startDistance / bigRockSpeed:F1}s de viaje).");
 
-            // Si esto imprime ~0m o un número de segundos casi nulo, el 'Big Rock Start Point'
-            // está puesto demasiado cerca de Nami: muévelo bien lejos (por ejemplo, a la altura
-            // de la superficie, igual que haces con las rocas chicas) para que de verdad se vea venir.
-            if (startDistance < impactDistance)
-                Debug.LogWarning($"BigRockCinematic: el Start Point está a menos de {impactDistance}m " +
-                                  "de Nami, por eso la roca 'no se ve' — pasa directo a la pantalla negra.");
+            // Aseguramos que la roca llegue hasta Nami (máximo 1.5m para que el golpe sea real)
+            float actualImpactDistance = Mathf.Min(impactDistance, 1.5f);
 
-            while (Vector3.Distance(bigRockObject.position, namiRigidbody.position) > impactDistance)
+            while (namiRigidbody != null && Vector3.Distance(bigRockObject.position, namiRigidbody.position) > actualImpactDistance)
             {
                 bigRockObject.position = Vector3.MoveTowards(
                     bigRockObject.position, namiRigidbody.position, bigRockSpeed * Time.deltaTime);
                 yield return null;
             }
 
+            // ¡Impacto! La roca desaparece al chocar
             bigRockObject.gameObject.SetActive(false);
         }
 
-        // 2) Impacto: se bloquea el control de Nami y empezamos a ir a negro.
-        playerControls.SetControlEnabled(false);
+        // 2) Impacto: se bloquea el control de Nami
+        if (playerControls != null)
+            playerControls.SetControlEnabled(false);
         if (playerAnimation != null)
             playerAnimation.SetAnimationOverride(true);
 
-        // Antes de ir a negro: si vamos a CAMBIAR DE ESCENA, todo lo que necesite seguir
-        // existiendo del otro lado (Nami, la pantalla negra, el volumen de desenfoque y
-        // este mismo script, que sigue corriendo a mitad de la corrutina) tiene que
-        // marcarse para sobrevivir la carga — si no, Unity lo destruye junto con la
-        // escena vieja y todo esto se corta a medias. Mara y el mapa viejo NO se marcan
-        // a propósito: se quedan atrás.
+        // Marcamos persistencia si vamos a cambiar de escena
         if (changingScene)
         {
-            DontDestroyOnLoad(namiRigidbody.transform.root.gameObject);
+            if (namiRigidbody != null)
+                DontDestroyOnLoad(namiRigidbody.transform.root.gameObject);
             DontDestroyOnLoad(gameObject);
             if (blackout != null)
                 DontDestroyOnLoad(blackout.gameObject);
@@ -208,18 +191,14 @@ public class BigRockCinematic : MonoBehaviour
                 DontDestroyOnLoad(wakeUpVolume.gameObject);
         }
 
-        if (blackout != null)
-            yield return blackout.FadeToBlack();
+        // 3) Reacción de la cámara al golpe + Desplome/Caída + Desenfoque progresivo + Fundido a negro en paralelo
+        yield return StartCoroutine(ImpactAndFadeOut());
 
-        // Ya está todo negro: devolvemos la prioridad de la cámara de primer plano a
-        // como estaba, para que no se quede "pegada" cuando reaparezca la imagen.
+        // Ya está todo negro: devolvemos la prioridad de la cámara
         if (closeUpCamera != null)
             closeUpCamera.Priority = closeUpOriginalPriority;
 
-        // 3) Mientras está en negro: O cargamos la escena nueva y ubicamos a Nami en su
-        //    punto de despertar, O (comportamiento viejo) la teletransportamos dentro de
-        //    esta misma escena. Cualquiera de los dos, dejamos el desenfoque preparado
-        //    (bien borroso) para que al volver de negro ya esté listo.
+        // 4) Carga de la siguiente escena
         if (changingScene)
         {
             yield return SceneManager.LoadSceneAsync(sceneToLoad);
@@ -233,9 +212,7 @@ public class BigRockCinematic : MonoBehaviour
             else
             {
                 Debug.LogWarning($"BigRockCinematic: no encontré ningún GameObject llamado " +
-                                  $"'{wakeUpPointName}' en la escena '{sceneToLoad}'. Revisa que " +
-                                  "el nombre esté EXACTO (sensible a mayúsculas) — Nami queda " +
-                                  "donde la haya dejado la carga de escena.");
+                                  $"'{wakeUpPointName}' en la escena '{sceneToLoad}'.");
             }
         }
         else if (wakeUpPoint != null)
@@ -244,119 +221,218 @@ public class BigRockCinematic : MonoBehaviour
             namiRigidbody.rotation = wakeUpPoint.rotation;
         }
 
-        if (wakeUpVolume != null && wakeUpVolume.profile.TryGet(out depthOfField))
-        {
-            depthOfField.aperture.value = blurredAperture;
-            depthOfField.focusDistance.value = blurredFocusDistance;
-        }
+        // Preparamos el desenfoque al despertar (borroso para que aclare poco a poco)
+        InitDepthOfField();
+        ApplyBlur(1f);
 
-        // Nami aparece ACOSTADA en el lugar nuevo. Reafirmamos el valor cada frame
-        // (en vez de ponerlo una sola vez) porque en el Acto I detectamos que algo más
-        // pisaba 'AnimationState' si no se insistía constantemente — sigue sin saberse
-        // la causa raíz exacta, así que lo forzamos igual acá por seguridad.
+        // Nami aparece acostada al despertar
         if (wakeUpLyingDown && namiAnimator != null)
         {
             forcingLyingPose = true;
-
-            // Reproducimos el estado acostado DIRECTO (sin esperar la transición desde
-            // Any State, que depende de condiciones/exit time del grafo). El parámetro
-            // forzado a 4 cada frame evita que 'Sleeping -> Idle' la saque de ahí.
-            int lyingHash = Animator.StringToHash(lyingStateName);
-            if (namiAnimator.HasState(0, lyingHash))
-                namiAnimator.Play(lyingHash, 0, 0f);
-            else
-                Debug.LogWarning($"BigRockCinematic: el Animator de Nami no tiene un estado llamado " +
-                                  $"'{lyingStateName}' en la capa 0. Revisa el nombre en el Inspector.");
-
             StartCoroutine(ForceAnimationStateWhile(() => forcingLyingPose, 4));
-            StartCoroutine(LogLyingPoseStatus());
         }
 
-        // 4) Volvemos de negro ya en el nuevo lugar (todavía borroso).
+        // 5) Volvemos de negro en el nuevo lugar (todavía borroso)
         if (blackout != null)
             yield return blackout.FadeFromBlack();
 
-        // 5) El desenfoque se aclara progresivamente.
-        if (depthOfField != null)
-            yield return ClearBlur();
+        // 6) El desenfoque se aclara progresivamente
+        yield return ClearBlur();
 
-        // 6) Diálogo: "¿Dónde está mamá?" — Nami se queda acostada durante TODO este diálogo.
+        // 7) Diálogo: "¿Dónde está mamá?"
         if (ThoughtUI.Instance != null && !string.IsNullOrEmpty(wakeUpDialogueId))
         {
             ThoughtUI.Instance.ShowById(wakeUpDialogueId);
-            // Primero esperamos a que REALMENTE aparezca (si no, el WaitUntil de abajo
-            // puede resolverse de inmediato si el fade-in todavía no arrancó).
             yield return new WaitUntil(() => ThoughtUI.Instance.IsShowing);
             yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
         }
 
-        // Apenas termina el diálogo (o de una, si no había diálogo asignado): pasa a Idle.
+        // Pasa a Idle
         if (wakeUpLyingDown && namiAnimator != null)
         {
             forcingLyingPose = false;
             namiAnimator.SetInteger("AnimationState", 0);
         }
 
-        // 7) Nami recupera el control, sola. Mara retoma su camino por su cuenta.
+        // 8) Nami recupera el control
         if (playerAnimation != null)
             playerAnimation.SetAnimationOverride(false);
-        playerControls.SetControlEnabled(true);
+        if (playerControls != null)
+            playerControls.SetControlEnabled(true);
 
-        // Si cambiamos de escena, Mara se quedó en la vieja (no persiste): no hay
-        // nada que reactivar. Si fue teletransporte dentro de la misma escena, sigue
-        // su camino normalmente, como antes.
         if (!changingScene && maraGuide != null)
             maraGuide.enabled = true;
+    }
 
-        // Nueva misión: ya terminó toda la cinemática y Nami tiene el control.
-        if (!string.IsNullOrEmpty(missionIdOnFinish))
+    private IEnumerator ImpactAndFadeOut()
+    {
+        InitDepthOfField();
+
+        float fadeDuration = blackout != null ? blackout.FadeDuration : 2.5f;
+
+        // Disparamos el FadeToBlack en paralelo
+        Coroutine blackoutRoutine = null;
+        if (blackout != null)
+            blackoutRoutine = blackout.FadeToBlack();
+
+        // Cámara que animaremos (closeUpCamera si está activa, o Camera.main)
+        Transform camToShake = (closeUpCamera != null && closeUpCamera.gameObject.activeInHierarchy)
+            ? closeUpCamera.transform
+            : (Camera.main != null ? Camera.main.transform : null);
+
+        Vector3 camOriginalPos = camToShake != null ? camToShake.localPosition : Vector3.zero;
+        Quaternion camOriginalRot = camToShake != null ? camToShake.localRotation : Quaternion.identity;
+
+        // Dirección "abajo" del mundo proyectada al espacio local del padre (para caer hacia el fondo marino real)
+        Vector3 worldDownLocal = (camToShake != null && camToShake.parent != null)
+            ? camToShake.parent.InverseTransformDirection(Vector3.down)
+            : Vector3.down;
+
+        float hitShakeDuration = 1.0f; // La sacudida brusca del golpe dura el primer segundo
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
         {
-            if (MissionUI.Instance != null)
-                MissionUI.Instance.ShowMission(missionIdOnFinish);
-            else
-                Debug.LogWarning($"BigRockCinematic: missionIdOnFinish = '{missionIdOnFinish}' pero " +
-                                  "MissionUI.Instance es null (¿hay un MissionUI en la escena nueva?).");
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / fadeDuration);
+
+            // A) Desenfoque que aumenta progresivamente con el tiempo
+            ApplyBlur(t);
+
+            // B) Caída / desplome progresivo de la cámara hacia abajo y ladeándose
+            float fallProgress = Mathf.Pow(t, 1.25f);
+            Vector3 fallDisplacement = worldDownLocal * (cameraFallDistance * fallProgress);
+            Quaternion fallRotation = Quaternion.Euler(cameraFallPitch * fallProgress, 0f, cameraFallRoll * fallProgress);
+
+            // C) Nami también se hunde suavemente
+            if (namiRigidbody != null)
+            {
+                namiRigidbody.position += Vector3.down * (namiSinkSpeed * (1f - t * 0.5f) * Time.unscaledDeltaTime);
+            }
+
+            // D) Sacudida brusca de impacto (Perlin noise superpuesto sobre la caída)
+            Vector3 shakeOffset = Vector3.zero;
+            Quaternion shakeRotation = Quaternion.identity;
+
+            if (elapsed < hitShakeDuration)
+            {
+                float shakeFactor = 1f - Mathf.Clamp01(elapsed / hitShakeDuration);
+                float intensity = shakeFactor * shakeFactor; // decaimiento rápido del golpe
+
+                float offsetX = (Mathf.PerlinNoise(elapsed * 28f, 0f) - 0.5f) * 2f * 0.45f * intensity;
+                float offsetY = (Mathf.PerlinNoise(0f, elapsed * 28f) - 0.5f) * 2f * 0.35f * intensity;
+                float offsetZ = -0.6f * intensity; // retroceso hacia atrás por el golpe
+
+                float rotPitch = (Mathf.PerlinNoise(elapsed * 32f, 15f) - 0.5f) * 9f * intensity;
+                float rotYaw = (Mathf.PerlinNoise(15f, elapsed * 32f) - 0.5f) * 7f * intensity;
+                float rotRoll = (Mathf.PerlinNoise(elapsed * 22f, 25f) - 0.5f) * 12f * intensity;
+
+                shakeOffset = new Vector3(offsetX, offsetY, offsetZ);
+                shakeRotation = Quaternion.Euler(rotPitch, rotYaw, rotRoll);
+            }
+
+            // Aplicamos la caída acumulada + el temblor
+            if (camToShake != null)
+            {
+                camToShake.localPosition = camOriginalPos + fallDisplacement + shakeOffset;
+                camToShake.localRotation = camOriginalRot * fallRotation * shakeRotation;
+            }
+
+            yield return null;
+        }
+
+        // Restauramos el transform de la cámara
+        if (camToShake != null)
+        {
+            camToShake.localPosition = camOriginalPos;
+            camToShake.localRotation = camOriginalRot;
+        }
+
+        // Aseguramos desenfoque completo antes de que cargue la escena
+        ApplyBlur(1f);
+
+        // Esperamos que el fade a negro termine
+        if (blackoutRoutine != null)
+            yield return blackoutRoutine;
+    }
+
+    private void InitDepthOfField()
+    {
+        if (depthOfField != null) return;
+
+        // 1. Probar en wakeUpVolume
+        if (wakeUpVolume != null && wakeUpVolume.profile != null)
+            wakeUpVolume.profile.TryGet(out depthOfField);
+
+        // 2. Probar en Main Camera
+        if (depthOfField == null && Camera.main != null)
+        {
+            Volume camVol = Camera.main.GetComponent<Volume>();
+            if (camVol != null && camVol.profile != null)
+                camVol.profile.TryGet(out depthOfField);
+        }
+
+        // 3. Fallback: buscar en cualquier volumen de la escena
+        if (depthOfField == null)
+        {
+            foreach (Volume vol in FindObjectsByType<Volume>(FindObjectsSortMode.None))
+            {
+                if (vol.profile != null && vol.profile.TryGet(out depthOfField))
+                    break;
+            }
+        }
+
+        if (depthOfField != null)
+        {
+            depthOfField.active = true;
+            depthOfField.mode.overrideState = true;
+            depthOfField.focusDistance.overrideState = true;
+            depthOfField.aperture.overrideState = true;
+            depthOfField.focalLength.overrideState = true;
+            depthOfField.gaussianStart.overrideState = true;
+            depthOfField.gaussianEnd.overrideState = true;
+            depthOfField.gaussianMaxRadius.overrideState = true;
+        }
+    }
+
+    private void ApplyBlur(float t)
+    {
+        if (depthOfField == null) return;
+
+        if (depthOfField.mode.value == DepthOfFieldMode.Bokeh)
+        {
+            // Bokeh: reducimos focusDistance y aumentamos apertura para desenfocar todo el campo visual
+            depthOfField.focusDistance.value = Mathf.Lerp(normalFocusDistance, blurredFocusDistance, t);
+            depthOfField.aperture.value = Mathf.Lerp(clearAperture, blurredAperture, t);
+            depthOfField.focalLength.value = Mathf.Lerp(100f, 150f, t);
+        }
+        else
+        {
+            // Gaussiano: el blur empieza desde la lente hacia el frente
+            depthOfField.gaussianStart.value = Mathf.Lerp(30f, 0f, t);
+            depthOfField.gaussianEnd.value = Mathf.Lerp(80f, 2f, t);
+            depthOfField.gaussianMaxRadius.value = Mathf.Lerp(0.2f, 1.5f, t);
         }
     }
 
     private IEnumerator ClearBlur()
     {
+        if (depthOfField == null) yield break;
+
         float elapsed = 0f;
-        float startAperture = depthOfField.aperture.value;
-        float startFocus = depthOfField.focusDistance.value;
 
         while (elapsed < blurClearDuration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / blurClearDuration;
-
-            depthOfField.aperture.value = Mathf.Lerp(startAperture, clearAperture, t);
-            depthOfField.focusDistance.value = Mathf.Lerp(startFocus, normalFocusDistance, t);
-
+            // 1f - t va de desenfocado (1) a nítido (0)
+            ApplyBlur(1f - t);
             yield return null;
         }
 
-        depthOfField.aperture.value = clearAperture;
-        depthOfField.focusDistance.value = normalFocusDistance;
+        ApplyBlur(0f);
     }
 
-    // Diagnóstico temporal: medio segundo después de aparecer, dice en consola qué
-    // está sonando de verdad en el Animator, para saber si la pose se aplicó.
-    private IEnumerator LogLyingPoseStatus()
-    {
-        yield return new WaitForSeconds(0.5f);
-
-        if (!forcingLyingPose || namiAnimator == null)
-            yield break;
-
-        bool isLying = namiAnimator.GetCurrentAnimatorStateInfo(0).IsName(lyingStateName);
-        Debug.Log($"🛌 BigRockCinematic: AnimationState = {namiAnimator.GetInteger("AnimationState")}, " +
-                  $"¿está en '{lyingStateName}'? {isLying}, animator enabled = {namiAnimator.enabled}.");
-    }
-
-    // Reafirma 'AnimationState' en el Animator TODOS los frames mientras 'condition'
-    // sea true. Mismo patrón que OpeningCinematicAct1: evita que la pose se rompa si
-    // algún otro sistema sigue tocando el parámetro por su cuenta.
     private IEnumerator ForceAnimationStateWhile(System.Func<bool> condition, int state)
     {
         while (condition())

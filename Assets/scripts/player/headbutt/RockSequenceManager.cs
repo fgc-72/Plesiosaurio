@@ -21,6 +21,14 @@ public class RockSequenceManager : MonoBehaviour
     [Tooltip("ID del diálogo de Mara ('¡cuidado!') en el DialogueDatabase que usa ThoughtUI.")]
     [SerializeField] private string warningDialogueId;
 
+    [Header("Shake al recibir un golpe")]
+    [SerializeField] private float hitShakeDuration = 0.35f;
+    [SerializeField] private float hitShakeMagnitude = 0.6f;
+
+    [Header("Misión")]
+    [Tooltip("ID de la misión de romper rocas en MissionDatabase.")]
+    [SerializeField] private string missionId;
+
     private int brokenByPlayerCount;
     private bool sequenceFinished;
     private bool hasWarnedPlayer; // true después de la PRIMERA vez que Mara avisa "cuidado"
@@ -28,6 +36,29 @@ public class RockSequenceManager : MonoBehaviour
     public event System.Action<int, int> BreakCountChanged; // (actual, requerido)
     public int BrokenCount => brokenByPlayerCount;
     public int RequiredBreaks => requiredBreaks;
+
+    private void Start()
+    {
+        UpdateMissionCounter();
+    }
+
+    private void UpdateMissionCounter()
+    {
+        if (string.IsNullOrEmpty(missionId))
+        {
+            Debug.LogWarning("RockSequenceManager: missionId está vacío en el Inspector.");
+            return;
+        }
+
+        if (MissionUI.Instance == null)
+        {
+            Debug.LogWarning("RockSequenceManager: no hay MissionUI.Instance en la escena.");
+            return;
+        }
+
+        Debug.Log($"Contador de misión → '{missionId}' {brokenByPlayerCount}/{requiredBreaks}");
+        MissionUI.Instance.SetProgress(missionId, brokenByPlayerCount, requiredBreaks);
+    }
 
     // Llamado desde FallingRock (vía DestructibleRock.BrokenByPlayer) cada vez
     // que el jugador rompe una roca a cabezazos.
@@ -39,6 +70,7 @@ public class RockSequenceManager : MonoBehaviour
         Debug.Log($"Rocas rotas por el jugador: {brokenByPlayerCount}/{requiredBreaks}");
 
         BreakCountChanged?.Invoke(brokenByPlayerCount, requiredBreaks); // ANTES de TriggerBigRock
+        UpdateMissionCounter();
 
         if (brokenByPlayerCount >= requiredBreaks)
             TriggerBigRock();
@@ -47,7 +79,10 @@ public class RockSequenceManager : MonoBehaviour
     // Llamado desde FallingRock cuando una roca dirigida a Nami la alcanza sin romperse.
     public void OnRockHitPlayer()
     {
+        Debug.Log("RockSequenceManager.OnRockHitPlayer llamado");
         if (sequenceFinished) return;
+
+        CameraShake.Shake(hitShakeDuration, hitShakeMagnitude);
 
         if (playerControls != null)
             playerControls.ApplySlow(hitSlowMultiplier, hitSlowDuration);

@@ -119,29 +119,34 @@ public class RockFallSpawner : MonoBehaviour
     }
 
     private void SpawnDangerRock()
+{
+    if (rockPrefabs == null || rockPrefabs.Length == 0)
+        return;
+
+    bool goesToMara = maraTarget != null && Random.value < maraTargetChance;
+    Transform target = goesToMara ? maraTarget : namiTarget;
+
+    if (target == null)
     {
-        if (rockPrefabs == null || rockPrefabs.Length == 0)
-            return;
-
-        bool goesToMara = maraTarget != null && Random.value < maraTargetChance;
-        Transform target = goesToMara ? maraTarget : namiTarget;
-
-        if (target == null)
-            return;
-
-        Vector2 randomOffset = Random.insideUnitCircle * horizontalSpawnRadius;
-        Vector3 spawnPosition = target.position + new Vector3(randomOffset.x, spawnHeight, randomOffset.y);
-
-        GameObject prefab = rockPrefabs[Random.Range(0, rockPrefabs.Length)];
-        GameObject rockInstance = Instantiate(prefab, spawnPosition, Random.rotation);
-
-        FallingRock fallingRock = rockInstance.GetComponent<FallingRock>();
-        if (fallingRock != null)
-        {
-            FallingRock.RockTarget targetType = goesToMara ? FallingRock.RockTarget.Mara : FallingRock.RockTarget.Nami;
-            fallingRock.Setup(targetType, target, sequenceManager);
-        }
+        Debug.LogWarning("RockFallSpawner: no hay objetivo (¿falta asignar Nami Target?)");
+        return;
     }
+
+    Vector2 randomOffset = Random.insideUnitCircle * horizontalSpawnRadius;
+    Vector3 spawnPosition = target.position + new Vector3(randomOffset.x, spawnHeight, randomOffset.y);
+
+    GameObject prefab = rockPrefabs[Random.Range(0, rockPrefabs.Length)];
+    GameObject rockInstance = Instantiate(prefab, spawnPosition, Random.rotation);
+
+    Debug.Log($"🪨 Roca peligrosa generada hacia {(goesToMara ? "Mara" : "Nami")}");
+
+    FallingRock fallingRock = rockInstance.GetComponent<FallingRock>();
+    if (fallingRock != null)
+    {
+        FallingRock.RockTarget targetType = goesToMara ? FallingRock.RockTarget.Mara : FallingRock.RockTarget.Nami;
+        fallingRock.Setup(targetType, target, sequenceManager);
+    }
+}
 
     private void SpawnAmbientRock()
     {

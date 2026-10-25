@@ -50,63 +50,57 @@ MonoBehaviour:
     duration: 3.5
     translations:
     - languageCode: es
-      text: Nami...hija...despierta,tenemos que irnos, una tormenta se acerca
+      text: Nami... Hija, despierta. Tenemos que irnos. Se acerca una tormenta.
     - languageCode: en
-      text: Huh? What is that? I need to investigate.
+      text: Nami... sweetheart, wake up. We have to go. A storm is coming.
   - id: Mara_mitad
     speaker: Mara
     duration: 3.5
     translations:
     - languageCode: es
-      text: La tormenta esta comenzando, tenemos que apurarnos, todavia hay muchas
-        ruinas por aca que nos pueden caer encima
+      text: "\xA1La tormenta ya est\xE1 aqu\xED! Tenemos que darnos prisa. Estas
+        ruinas podr\xEDan venirse abajo en cualquier momento."
     - languageCode: en
-      text: Huh? What is that? I need to investigate.
+      text: The storm is here! We have to move, now. These ruins could come crashing
+        down on us at any moment.
   - id: cuidado
     speaker: Mara
     duration: 3.5
     translations:
     - languageCode: es
-      text: cuidado, las rocas te reelentizan, romplelas con el boton Y
+      text: "\xA1Cuidado! Las rocas te har\xE1n ir m\xE1s lento. \xA1Pulsa Y para
+        romperlas!"
     - languageCode: en
-      text: Huh? What is that? I need to investigate.
+      text: Watch out! The rocks will slow you down. Press Y to break them!
   - id: donde
     speaker: nami
     duration: 3.5
     translations:
     - languageCode: es
-      text: "donde estoy..Mam\xE1? MAM\xC1...donde estas? "
+      text: "\xBFD\xF3nde estoy...? Mam\xE1... \xBFMAM\xC1? \xA1\xBFD\xF3nde est\xE1s?!"
     - languageCode: en
-      text: Huh? What is that? I need to investigate.
+      text: Where am I...? Mom... MOM?! Where are you?!
   - id: advertencia
     speaker: mara
     duration: 3.5
     translations:
     - languageCode: es
-      text: 'NAMI, CUIDADO ARRIBA '
+      text: "\xA1HIJA, CUIDADO! \xA1MIRA ARRIBA!"
     - languageCode: en
-      text: Huh? What is that? I need to investigate.
+      text: NAMI, WATCH OUT!
   - id: nami_limite
     speaker: mara
     duration: 3.5
     translations:
     - languageCode: es
-      text: 'nami, no te vayas lejos puedes perderte '
+      text: "Nami, no te alejes demasiado. Podr\xEDas perderte."
     - languageCode: en
-      text: Huh? What is that? I need to investigate.
-  - id: sonido_tiburon
-    speaker: nami
+      text: Nami, don't wander too far. You might get lost.
+  - id: nami_tiburon
+    speaker: mara
     duration: 3.5
     translations:
     - languageCode: es
-      text: 'escucho algo, deberia activar el modo escucha '
+      text: "\xBF\xA1Eso es un tibur\xF3n!? \xA1Tengo que escapar!"
     - languageCode: en
-      text: Huh? What is that? I need to investigate.
-  - id: advertencia_tiburon
-    speaker: nami
-    duration: 3.5
-    translations:
-    - languageCode: es
-      text: el dibalo, viene un tiburon, deberia escapar
-    - languageCode: en
-      text: Huh? What is that? I need to investigate.
+      text: Is that a shark coming!? I have to get away!

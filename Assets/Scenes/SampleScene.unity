@@ -1623,7 +1623,7 @@ GameObject:
   - component: {fileID: 402879963}
   - component: {fileID: 402879965}
   m_Layer: 0
-  m_Name: FishSchoolManager
+  m_Name: FishSchoolManager1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1657,16 +1657,16 @@ MonoBehaviour:
     spawnPoint: {fileID: 0}
     spawnRadius: 8
     spawnOnSurface: 0
-    target: {fileID: 679064773}
+    target: {fileID: 0}
     targetWeight: 0.6
     wanderSpeed: 0.06
-    cohesionWeight: 0.43
-    alignmentWeight: 2.3
+    cohesionWeight: 0.35
+    alignmentWeight: 1.2
     separationWeight: 1.5
     perceptionRadius: 3
     separationRadius: 1
-    minSpeed: 3
-    maxSpeed: 7.02
+    minSpeed: 5.5
+    maxSpeed: 11
     maxAccel: 6
     turnRate: 3
     turnBoost: 0.25
@@ -1674,7 +1674,9 @@ MonoBehaviour:
     idleSwim: 0.25
     swimFreqBase: 5
     swimFreqGain: 9
-  obstacles: []
+  obstacles:
+  - transform: {fileID: 131011574}
+    radius: 5
   drawGizmos: 1
 --- !u!4 &402879964
 Transform:
@@ -1685,7 +1687,7 @@ Transform:
   m_GameObject: {fileID: 402879962}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 183.99, y: 21.15859, z: 249.786}
+  m_LocalPosition: {x: 149.06, y: 27.2, z: 238.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3955,60 +3957,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1 &679064772
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 679064773}
-  - component: {fileID: 679064774}
-  m_Layer: 0
-  m_Name: FishSchoolE1
-  m_TagString: Untagged
-  m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &679064773
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 679064772}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 160.7392, y: 16.93834, z: 239.3285}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &679064774
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 679064772}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f5ac39eb679c6494899351df8c8b8355, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &680278351
 GameObject:
   m_ObjectHideFlags: 0
@@ -12455,6 +12403,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -13.914
       objectReference: {fileID: 0}
+    - target: {fileID: 8923792996398026368, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
+      propertyPath: shakeDuration
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8923792996398026368, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
+      propertyPath: playerBreakShake
+      value: 0.8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13774,7 +13730,11 @@ MonoBehaviour:
   bigRockObject: {fileID: 1812914065}
   bigRockStartPoint: {fileID: 1812914065}
   bigRockSpeed: 45
-  impactDistance: 15
+  impactDistance: 1.2
+  cameraFallDistance: 3
+  cameraFallPitch: 20
+  cameraFallRoll: 30
+  namiSinkSpeed: 1.5
   blackout: {fileID: 1838350339}
   wakeUpVolume: {fileID: 832575518}
   blurredAperture: 2
@@ -13807,6 +13767,9 @@ MonoBehaviour:
   hitSlowMultiplier: 1
   hitSlowDuration: 1.5
   warningDialogueId: cuidado
+  hitShakeDuration: 0.35
+  hitShakeMagnitude: 0.6
+  missionId: mision2
 --- !u!114 &1838350342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14813,6 +14776,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -13.914
       objectReference: {fileID: 0}
+    - target: {fileID: 8923792996398026368, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
+      propertyPath: shakeDuration
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8923792996398026368, guid: 7cb1a6b5b01d08b449d57dfddf54dd44, type: 3}
+      propertyPath: playerBreakShake
+      value: 0.8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -15756,6 +15727,5 @@ SceneRoots:
   - {fileID: 1187349550}
   - {fileID: 897168521}
   - {fileID: 402879964}
-  - {fileID: 679064773}
   - {fileID: 683737712}
   - {fileID: 8450123803661292721}
