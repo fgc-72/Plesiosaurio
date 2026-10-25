@@ -5332,11 +5332,11 @@ Transform:
   m_GameObject: {fileID: 832575517}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -135.64426, y: 0, z: -192.74713}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1490707350}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &838790297
 PrefabInstance:
@@ -7200,7 +7200,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1035567542}
   m_Layer: 7
-  m_Name: Approach Point
+  m_Name: SharkApproachPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10557,6 +10557,7 @@ MonoBehaviour:
   grayscaleVolume: {fileID: 779333566}
   rendererData: {fileID: 11400000, guid: f288ae1f4751b564a96ac7587541f7a2, type: 2}
   highlightFeatureName: PlayerOccludedHighlightFeature
+  grayscaleVolumeName: GrayScaleVolume
   fadeSpeed: 5
   maxDuration: 5
   cooldownDuration: 5
@@ -10572,8 +10573,7 @@ Transform:
   m_LocalPosition: {x: 135.64426, y: -0, z: 192.74713}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 832575519}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1497006339
@@ -15722,6 +15722,7 @@ SceneRoots:
   - {fileID: 131011574}
   - {fileID: 1265625296}
   - {fileID: 779333567}
+  - {fileID: 832575519}
   - {fileID: 1490707350}
   - {fileID: 1585074510}
   - {fileID: 826206004}
