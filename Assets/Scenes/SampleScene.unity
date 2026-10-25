@@ -529,7 +529,6 @@ Terrain:
   m_AllowAutoConnect: 1
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
-  m_EnableHeightmapLODFrustumCulling: 1
   m_TreeMotionVectorModeOverride: 3
 --- !u!4 &131011574
 Transform:
@@ -6096,6 +6095,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1048190191}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1035567542}
     - targetCorrespondingSourceObject: {fileID: 3982504166368023673, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2106138196}
@@ -7188,6 +7190,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1031303947}
   m_CullTransparentMesh: 1
+--- !u!1 &1035567541
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1035567542}
+  m_Layer: 7
+  m_Name: Approach Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1035567542
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1035567541}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.23, y: -0, z: 42.94}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 647012130}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1037176739
 GameObject:
   m_ObjectHideFlags: 0
@@ -13723,7 +13756,6 @@ MonoBehaviour:
   namiRigidbody: {fileID: 647012135}
   namiAnimator: {fileID: 647012131}
   wakeUpLyingDown: 1
-  lyingStateName: Sleeping
   maraGuide: {fileID: 1809590200}
   closeUpCamera: {fileID: 1048190192}
   closeUpCameraPriority: 20
@@ -13747,7 +13779,6 @@ MonoBehaviour:
   wakeUpPointName: WakeUpPoint
   wakeUpDialogueId: donde
   fallingDialogueId: advertencia
-  missionIdOnFinish: 
 --- !u!114 &1838350341
 MonoBehaviour:
   m_ObjectHideFlags: 0
