@@ -150,6 +150,7 @@ public class OpeningCinematicAct1 : MonoBehaviour
 
         // 1) Mara nada hacia Nami.
         SetSwimmingAnim(maraAnimator, true);
+        
         yield return SwimTo(maraRigidbody, maraApproachPoint.position);
         SetSwimmingAnim(maraAnimator, false);
 
@@ -168,7 +169,7 @@ public class OpeningCinematicAct1 : MonoBehaviour
             // porque nunca llegó a ser true — como si el diálogo nunca hubiera
             // empezado. Por eso se veía a Nami "levantarse" antes de que acabara el texto.
             yield return new WaitUntil(() => ThoughtUI.Instance.IsShowing);
-
+            EnvironmentSfx.Play("Mara_Voice1");
             // Y ahora sí, esperamos a que termine de verdad (toda la cola de líneas).
             yield return new WaitUntil(() => !ThoughtUI.Instance.IsShowing);
             missionUI.ShowMission(id);

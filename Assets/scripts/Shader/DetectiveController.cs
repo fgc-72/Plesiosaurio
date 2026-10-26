@@ -174,4 +174,7 @@ public class DetectiveController : MonoBehaviour
 
     public float GetCooldownProgress() => isOnCooldown ? 1f - (cooldownTimer / cooldownDuration) : 1f;
     public bool IsOnCooldown => isOnCooldown;
+
+    public bool IsActive => isActive;
+    public float GetActiveRemainingNormalized() => isActive ? 1f - (activeTimer / maxDuration) : 1f;
 }

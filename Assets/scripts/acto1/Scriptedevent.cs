@@ -135,6 +135,7 @@ public class ScriptedEvent : MonoBehaviour
             return;
 
         hasTriggered = true;
+        
         StartCoroutine(RunEvent(playerControls, rb));
     }
 
@@ -162,6 +163,7 @@ public class ScriptedEvent : MonoBehaviour
 
         if (useVibration)
             StartCoroutine(Vibrate(forcedDuration, vibrationStrength));
+            
 
         switch (movementMode)
         {
@@ -204,7 +206,7 @@ public class ScriptedEvent : MonoBehaviour
                     float duration = ThoughtUI.Instance.GetDurationById(dialogueId);
                     StartCoroutine(BeginRocksPartwayThroughDialogue(duration * 0.5f));
                 }
-
+                EnvironmentSfx.Play("Thunder");
                 ThoughtUI.Instance.ShowById(dialogueId);
                 // Primero esperamos a que REALMENTE aparezca (evita que el segundo
                 // WaitUntil se resuelva de inmediato si el fade-in todavía no arrancó).
