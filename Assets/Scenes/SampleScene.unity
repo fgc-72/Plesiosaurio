@@ -6453,9 +6453,9 @@ MonoBehaviour:
   fillSmoothSpeed: 10
   arcAmount: 1
   activeColor: {r: 0.4, g: 0.8, b: 1, a: 1}
-  cooldownColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  readyColor: {r: 1, g: 1, b: 1, a: 1}
-  hideWhenReady: 1
+  cooldownColor: {r: 1, g: 1, b: 1, a: 1}
+  readyColor: {r: 1, g: 1, b: 1, a: 0.32941177}
+  hideWhenReady: 0
   fadeSpeed: 4
 --- !u!1 &852145309
 GameObject:

@@ -48,6 +48,7 @@ public class SharkListenEvent : MonoBehaviour
     private void Awake()
     {
         GetComponent<Collider>().isTrigger = true;
+        MusicManager.Instance.Play("Nami_Theme");
     }
 
     private void OnTriggerEnter(Collider other)

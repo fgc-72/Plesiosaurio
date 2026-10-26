@@ -3840,22 +3840,38 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1234271652662585776, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
       propertyPath: tracks.Array.size
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1234271652662585776, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
       propertyPath: tracks.Array.data[3].id
       value: "Persecusi\xF3n"
       objectReference: {fileID: 0}
     - target: {fileID: 1234271652662585776, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: tracks.Array.data[4].id
+      value: Nami_Theme
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234271652662585776, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
       propertyPath: tracks.Array.data[3].loop
       value: 
       objectReference: {fileID: 8300000, guid: 6bb4e2d78e233c04d8c8bdd32f2eaff5, type: 3}
+    - target: {fileID: 1234271652662585776, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: tracks.Array.data[4].loop
+      value: 
+      objectReference: {fileID: 8300000, guid: 7d5e6fb97d292304aa47a911daef91a9, type: 3}
     - target: {fileID: 1234271652662585776, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
       propertyPath: tracks.Array.data[3].intro
       value: 
       objectReference: {fileID: 8300000, guid: fcda368724fcfe640b1dc81469c981d1, type: 3}
     - target: {fileID: 1234271652662585776, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: tracks.Array.data[4].intro
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234271652662585776, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
       propertyPath: tracks.Array.data[3].volume
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234271652662585776, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
+      propertyPath: tracks.Array.data[4].volume
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1796652896245011064, guid: a318de099ed901c4ca19894510ccad3d, type: 3}
