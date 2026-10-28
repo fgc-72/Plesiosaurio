@@ -6410,7 +6410,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 839709841}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.03, y: 1.47, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6421,7 +6421,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -227.03, y: 165.3}
+  m_AnchoredPosition: {x: -227.03003, y: 165.30002}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &839709843
@@ -9442,6 +9442,9 @@ MonoBehaviour:
   titleLabel: {fileID: 1259035243}
   descriptionLabel: {fileID: 1473700697}
   hintLabel: {fileID: 1815930891}
+  button1: {fileID: 1737571587}
+  button2: {fileID: 2030070633}
+  button3: {fileID: 1646490978}
 --- !u!1 &1338229959
 GameObject:
   m_ObjectHideFlags: 0
@@ -12068,6 +12071,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ThoughtUI
   database: {fileID: 11400000, guid: 3a1b77dbdf08a794083f10af6cc2cab7, type: 2}
   canvasGroup: {fileID: 599148499}
+  canvasGroupStamina: {fileID: 839709841}
   textLabel: {fileID: 1338229960}
   button1: {fileID: 682386098}
   button2: {fileID: 1043445487}
@@ -15562,8 +15566,8 @@ RectTransform:
   - {fileID: 779289997}
   - {fileID: 2005075824}
   - {fileID: 1475362313}
-  - {fileID: 486686078}
   - {fileID: 839709842}
+  - {fileID: 486686078}
   m_Father: {fileID: 1742798280}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

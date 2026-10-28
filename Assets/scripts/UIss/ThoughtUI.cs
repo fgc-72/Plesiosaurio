@@ -10,6 +10,7 @@ public class ThoughtUI : MonoBehaviour
 
     [SerializeField] private DialogueDatabase database;
     [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private GameObject canvasGroupStamina;
     [SerializeField] private TMP_Text textLabel;
     [SerializeField] private Button button1;
     [SerializeField] private Button button2;
@@ -59,11 +60,13 @@ public class ThoughtUI : MonoBehaviour
 
             button1.gameObject.SetActive(false);
             button2.gameObject.SetActive(false);
+            canvasGroupStamina.SetActive(false);
             yield return Fade(1f);
             yield return new WaitForSeconds(line.duration);
             yield return Fade(0f);
             button1.gameObject.SetActive(true);
             button2.gameObject.SetActive(true);
+            canvasGroupStamina.SetActive(true);
         }
 
         isShowing = false;

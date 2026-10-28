@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Muestra la misión activa (título, descripción y pista).
@@ -15,7 +16,9 @@ public class MissionUI : MonoBehaviour
     [SerializeField] private TMP_Text titleLabel;
     [SerializeField] private TMP_Text descriptionLabel;
     [SerializeField] private TMP_Text hintLabel;
-
+    [SerializeField] private Image button1;
+    [SerializeField] private Image button2;
+    [SerializeField] private Image button3;
     private string progressMissionId;
     private int progressCurrent;
     private int progressRequired;
@@ -53,6 +56,19 @@ public class MissionUI : MonoBehaviour
         // Solo la guardamos como activa si realmente se pudo mostrar
         if (Render(id))
             MissionState.CurrentMissionId = id;
+        
+        if (titleLabel.text == "")
+            button1.enabled = false;
+        else
+            button1.enabled = true;
+        if (descriptionLabel.text == "")
+            button2.enabled = false;
+        else
+            button2.enabled = true;
+        if (hintLabel.text == "")
+            button3.enabled = false;
+        else
+            button3.enabled = true;
     }
 
     public void Hide()
@@ -61,6 +77,9 @@ public class MissionUI : MonoBehaviour
         titleLabel.text = "";
         descriptionLabel.text = "";
         hintLabel.text = "";
+        button1.enabled = false;
+        button2.enabled = false;
+        button3.enabled = false;
     }
 
     private bool Render(string id)
