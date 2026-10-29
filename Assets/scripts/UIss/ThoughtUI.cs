@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class ThoughtUI : MonoBehaviour
@@ -16,6 +17,11 @@ public class ThoughtUI : MonoBehaviour
     [SerializeField] private Button button2;
     [SerializeField] private float fadeSpeed = 4f;
 
+    [Header("Búsqueda automática al cargar una escena")]
+    [Tooltip("Nombre EXACTO del GameObject de la stamina. Si la referencia se pierde al cambiar " +
+             "de escena, se busca por este nombre (también lo encuentra si está desactivado).")]
+    [SerializeField] private string staminaObjectName = "Stamina";
+
     private readonly Queue<DialogueLine> queue = new();
     private bool isShowing;
 
@@ -27,6 +33,56 @@ public class ThoughtUI : MonoBehaviour
     {
         Instance = this;
         canvasGroup.alpha = 0f;
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void Start()
+    {
+        ResolveStamina();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ResolveStamina();
+    }
+
+    // Si la referencia se perdió (el objeto de la escena anterior se destruyó), la busca
+    // por nombre. Usa includeInactive porque la stamina se apaga mientras sale un diálogo
+    // y GameObject.Find no encuentra objetos desactivados.
+    private void ResolveStamina()
+    {
+        if (canvasGroupStamina != null || string.IsNullOrEmpty(staminaObjectName))
+            return;
+
+        foreach (Transform t in FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (t.name == staminaObjectName)
+            {
+                canvasGroupStamina = t.gameObject;
+                return;
+            }
+        }
+
+        Debug.LogWarning($"ThoughtUI: no encontré un objeto llamado '{staminaObjectName}' en esta escena. " +
+                          "Los diálogos funcionan, pero no se ocultará la stamina.");
+    }
+
+    private void SetStaminaActive(bool active)
+    {
+        if (canvasGroupStamina == null)
+            ResolveStamina(); // por si se perdió a mitad de la partida
+
+        if (canvasGroupStamina != null)
+            canvasGroupStamina.SetActive(active);
     }
 
     // Permite a otros scripts (ej. ScriptedEvent) saber cuánto va a durar una línea
@@ -58,15 +114,15 @@ public class ThoughtUI : MonoBehaviour
             string lang = LocalizationManager.Instance != null ? LocalizationManager.Instance.CurrentLanguage : "es";
             textLabel.text = line.GetText(lang);
 
-            button1.gameObject.SetActive(false);
-            button2.gameObject.SetActive(false);
-            canvasGroupStamina.SetActive(false);
+            if (button1 != null) button1.gameObject.SetActive(false);
+            if (button2 != null) button2.gameObject.SetActive(false);
+            SetStaminaActive(false);
             yield return Fade(1f);
             yield return new WaitForSeconds(line.duration);
             yield return Fade(0f);
-            button1.gameObject.SetActive(true);
-            button2.gameObject.SetActive(true);
-            canvasGroupStamina.SetActive(true);
+            if (button1 != null) button1.gameObject.SetActive(true);
+            if (button2 != null) button2.gameObject.SetActive(true);
+            SetStaminaActive(true);
         }
 
         isShowing = false;
