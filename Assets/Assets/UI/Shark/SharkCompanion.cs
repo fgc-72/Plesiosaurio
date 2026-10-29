@@ -37,6 +37,27 @@ public class SharkCompanion : MonoBehaviour
              "lo empuja hacia afuera), se suelta igual para no quedarse trabado.")]
     [SerializeField] float approachTimeout = 40f;
 
+    // ── Deambular: nunca se queda quieto ──────────────────────────────────
+    [Header("Deambular (cuando no sigue a Nami o ya está cerca de ella)")]
+    [Tooltip("Cerca de Nami: nada por ahí dentro de este radio alrededor de ella, sin quedarse quieto.")]
+    [SerializeField] float nearWanderRadius = 14f;
+    [Tooltip("Lejos de Nami (fuera del rango): nada por ahí dentro de este radio alrededor de su zona.")]
+    [SerializeField] float farWanderRadius = 25f;
+    [Tooltip("Qué tan rápido nada mientras deambula (0.5 = la mitad de maxSpeed).")]
+    [SerializeField] float wanderSpeedFactor = 0.5f;
+    [Tooltip("A qué distancia de su punto de paseo se considera que llegó y elige otro.")]
+    [SerializeField] float wanderPointReach = 2f;
+    [Tooltip("Si en este tiempo no llega a su punto, elige otro (para no dar vueltas atascado).")]
+    [SerializeField] float wanderPointTimeout = 15f;
+    [Tooltip("Variación de altura de los puntos de paseo (arriba/abajo).")]
+    [SerializeField] float wanderHeightRange = 3f;
+
+    Vector3 homePos;
+    Vector3 wanderPoint;
+    bool hasWanderPoint;
+    float wanderTimer;
+    bool wasFollowing;
+
     float speed;
     bool isFollowing;
 
@@ -62,6 +83,17 @@ public class SharkCompanion : MonoBehaviour
         onApproachArrived = null;
         callback?.Invoke();
     }
+
+    // NUEVO: control externo (lo usa SharkCaptureSequence para que el tiburón le dé
+    // vueltas a Nami). Mientras sea true, este script NO mueve ni rota al tiburón:
+    // quien lo controla lo hace por su cuenta, y usa SetSwimAnimation para la animación.
+    public bool ExternalControl { get; set; }
+
+    public void SetSwimAnimation(float normalizedSpeed, float dt)
+    {
+        animator.SetFloat("Speed", normalizedSpeed * 0.4f, 0.1f, dt);
+        animator.speed = Mathf.Lerp(0.15f, 0.4f, normalizedSpeed);
+    }
     // ──────────────────────────────────────────────────────────────────────
 
     void Start()
@@ -79,13 +111,37 @@ public class SharkCompanion : MonoBehaviour
             }
         }
 
+        homePos = transform.position; // su "zona" mientras Nami esté lejos
+
         if (target != null)
             lastSeenPos = target.position;
+    }
+
+    // Elige un punto al azar alrededor de 'center'. Si está cerca de Nami, evita
+    // el espacio personal (minDistance) para que no se pegue a ella.
+    void PickWanderPoint(Vector3 center, float radius, bool avoidTarget)
+    {
+        float minR = avoidTarget ? Mathf.Min(minDistance + 1f, radius * 0.8f) : 0f;
+        float angle = Random.Range(0f, Mathf.PI * 2f);
+        float r = Random.Range(minR, radius);
+
+        wanderPoint = center
+                    + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * r
+                    + Vector3.up * Random.Range(-wanderHeightRange, wanderHeightRange);
+
+        hasWanderPoint = true;
+        wanderTimer = 0f;
     }
 
     void Update()
     {
         if (target == null) return; // NUEVO: sin Nami en la escena, el tiburón no hace nada
+
+        if (ExternalControl)
+        {
+            speed = 0f; // al soltarlo, arranca desde cero en vez de pegar un salto de velocidad
+            return;
+        }
 
         float dt = Time.deltaTime;
 
@@ -101,11 +157,50 @@ public class SharkCompanion : MonoBehaviour
         else if (isFollowing && distToPlayer > followRange) isFollowing = false;
         else if (!isFollowing && distToPlayer < resumeRange) isFollowing = true;
 
+        // Si acaba de dejar de seguir, su "zona" es donde está ahora.
+        if (wasFollowing && !isFollowing)
+        {
+            homePos = transform.position;
+            hasWanderPoint = false;
+        }
+        wasFollowing = isFollowing;
+
+        // ¿Deambula? Sí cuando no sigue a Nami, o cuando ya está cerca de ella.
+        bool wandering = false;
+        Vector3 wanderCenter = homePos;
+        float wanderRadius = farWanderRadius;
+
+        if (!approaching)
+        {
+            if (!isFollowing)
+            {
+                wandering = true;
+            }
+            else if (Vector3.Distance(transform.position, lastSeenPos) <= nearWanderRadius)
+            {
+                wandering = true;
+                wanderCenter = lastSeenPos;
+                wanderRadius = nearWanderRadius;
+            }
+        }
+
         // 1. Punto meta
         Vector3 goal;
         if (approaching)
         {
             goal = approachPoint.position; // NUEVO
+        }
+        else if (wandering)
+        {
+            wanderTimer += dt;
+            if (!hasWanderPoint
+                || wanderTimer >= wanderPointTimeout
+                || Vector3.Distance(transform.position, wanderPoint) <= wanderPointReach
+                || Vector3.Distance(wanderPoint, wanderCenter) > wanderRadius * 1.1f)
+            {
+                PickWanderPoint(wanderCenter, wanderRadius, isFollowing);
+            }
+            goal = wanderPoint;
         }
         else
         {
@@ -132,11 +227,13 @@ public class SharkCompanion : MonoBehaviour
                 FinishApproach();
         }
 
-        float desired = isFollowing ? maxSpeed * Mathf.Clamp01(dist / slowRadius) : 0f;
+        float desired = wandering
+            ? maxSpeed * wanderSpeedFactor                       // pasea a velocidad constante, sin frenar
+            : maxSpeed * Mathf.Clamp01(dist / slowRadius);       // yendo a Nami / al punto: frena al llegar
         speed = Mathf.MoveTowards(speed, desired, acceleration * dt);
 
         // 3. Giro limitado
-        if (isFollowing && dist > 0.05f)
+        if (dist > 0.05f)
         {
             Quaternion look = Quaternion.LookRotation(toGoal);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, look, turnSpeed * dt);
@@ -179,5 +276,8 @@ public class SharkCompanion : MonoBehaviour
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, followRange);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, nearWanderRadius);
+        if (hasWanderPoint) Gizmos.DrawLine(transform.position, wanderPoint);
     }
 }
