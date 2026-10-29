@@ -37,7 +37,7 @@ private void OnDisable()
 
     private void Update()
     {
-        if (Time.frameCount % 120 == 0)
+        if (Time.frameCount % 120 == 0) Debug.Log("Update corre", this);
 
         if (!panelSettings.activeInHierarchy)
         {

@@ -52,7 +52,7 @@ public class HeadbuttController : MonoBehaviour
 
     private void PerformHeadbutt()
     {
-      
+        Debug.Log("🦕 CABEZAZO ejecutado"); // TEMPORAL: borrar cuando tengas la animación
 
         rb.AddForce(transform.forward * lungeForce, ForceMode.Impulse);
 
