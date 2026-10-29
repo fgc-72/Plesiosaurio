@@ -138,7 +138,7 @@ public class RockFallSpawner : MonoBehaviour
     GameObject prefab = rockPrefabs[Random.Range(0, rockPrefabs.Length)];
     GameObject rockInstance = Instantiate(prefab, spawnPosition, Random.rotation);
 
-
+    Debug.Log($"🪨 Roca peligrosa generada hacia {(goesToMara ? "Mara" : "Nami")}");
 
     FallingRock fallingRock = rockInstance.GetComponent<FallingRock>();
     if (fallingRock != null)

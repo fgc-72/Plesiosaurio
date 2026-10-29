@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 // Coloca uno de estos en cualquier punto del nivel donde quieras que se
 // guarde el progreso. Cada vez que el jugador lo toca, sobreescribe el
@@ -8,16 +7,14 @@ using UnityEngine.SceneManagement;
 public class CheckpointTrigger : MonoBehaviour
 {
     [SerializeField] private string playerTag = "Player";
-
-    [Tooltip("Si es true (recomendado), guarda el checkpoint con el nombre REAL de la escena " +
-             "activa, así nunca hay un desajuste de nombres. Si es false usa 'Scene Name'.")]
-    [SerializeField] private bool useActiveSceneName = true;
-    [Tooltip("Solo se usa si 'Use Active Scene Name' está desactivado.")]
+    [Tooltip("Nombre EXACTO de esta escena (debe coincidir con el que usa OpeningCinematicAct1).")]
     [SerializeField] private string sceneName = "Acto1";
     [Tooltip("Referencia al Transform de Mara, para guardar también su posición al pasar por este checkpoint.")]
     [SerializeField] private Transform maraTransform;
 
-    [Tooltip("Si es true, solo guarda la primera vez que se toca.")]
+    [Tooltip("Si es true, solo guarda la primera vez que se toca (ej. para evitar " +
+             "guardar de nuevo si el jugador pasa por aquí varias veces). Normalmente " +
+             "puedes dejarlo en false sin problema: sobreescribir con la misma zona no hace daño.")]
     [SerializeField] private bool saveOnlyOnce = false;
 
     private bool hasSaved;
@@ -32,20 +29,13 @@ public class CheckpointTrigger : MonoBehaviour
         if (saveOnlyOnce && hasSaved)
             return;
 
-        // Nami puede tener el collider en un hijo: miramos también el objeto del Rigidbody.
-        GameObject player = other.attachedRigidbody != null ? other.attachedRigidbody.gameObject : other.gameObject;
-        if (!player.CompareTag(playerTag) && !other.CompareTag(playerTag))
+        if (!other.CompareTag(playerTag))
             return;
 
-        // Si no hay CheckpointManager en la escena, lo creamos (antes fallaba en silencio).
         if (CheckpointManager.Instance == null)
-        {
-            Debug.LogWarning("CheckpointTrigger: no había CheckpointManager en la escena, creo uno automáticamente. " +
-                             "Mejor ponlo tú en un GameObject vacío.");
-            new GameObject("CheckpointManager").AddComponent<CheckpointManager>();
-        }
+            return;
 
-        InputManagerBueno inputManager = player.GetComponent<InputManagerBueno>();
+        InputManagerBueno inputManager = other.GetComponent<InputManagerBueno>();
         CheckpointUnlocks unlocks = inputManager != null
             ? new CheckpointUnlocks
             {
@@ -56,11 +46,11 @@ public class CheckpointTrigger : MonoBehaviour
             }
             : default;
 
-        Vector3 position = player.transform.position;
-        Vector3 maraPosition = maraTransform != null ? maraTransform.position : position;
-        string savedScene = useActiveSceneName ? SceneManager.GetActiveScene().name : sceneName;
+        // Si no asignaste a Mara en el Inspector, guardamos su propia posición
+        // actual como respaldo (mejor que romper el checkpoint por completo).
+        Vector3 maraPosition = maraTransform != null ? maraTransform.position : other.transform.position;
 
-        CheckpointManager.Instance.SaveCheckpoint(savedScene, position, maraPosition, unlocks);
+        CheckpointManager.Instance.SaveCheckpoint(sceneName, other.transform.position, maraPosition, unlocks);
         hasSaved = true;
     }
 }
