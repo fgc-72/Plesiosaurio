@@ -132,6 +132,7 @@ MonoBehaviour:
   occludedFill: 0.2
   pulseAmount: 0.15
   pulseSpeed: 2.5
+  infiniteRange: 1
   maxRange: 80
   fadeDistance: 10
   depthBias: 0.08

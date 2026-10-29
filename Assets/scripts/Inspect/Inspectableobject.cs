@@ -29,7 +29,13 @@ public class InspectableObject : MonoBehaviour
     void OnEnable()  => All.Add(this);
     void OnDisable() => All.Remove(this);
 
-    // Muestra el rango en la Scene view al seleccionar el objeto.
+    // Muestra el rango en la Scene view siempre (en tenue) y en amarillo al seleccionarlo.
+    void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(0.2f, 0.8f, 1f, 0.25f);
+        Gizmos.DrawWireSphere(transform.position, range);
+    }
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

@@ -79,10 +79,9 @@ public class PlayerControls : MonoBehaviour
 
     public void HandleMovement()
     {
-        // Durante un evento scriptado (cinemática, movimiento forzado) no procesamos
-        // el input del jugador en absoluto, dejando el Rigidbody libre para que
-        // ScriptedEvent lo controle directamente.
-        if (!controlEnabled)
+        // Durante un evento scriptado o cuando el visor de inspección está abierto no
+        // procesamos el input del jugador.
+        if (!controlEnabled || InspectViewer.IsOpen)
             return;
 
         // Si Nami sobrevivió un cambio de escena (ej. BigRockCinematic cargando el

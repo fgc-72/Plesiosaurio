@@ -36,6 +36,9 @@ public class HeadbuttController : MonoBehaviour
 
     public void HandleHeadbutt()
     {
+        if (!enabled || InspectViewer.IsOpen)
+            return;
+
         if (cooldownTimer > 0f)
             cooldownTimer -= Time.deltaTime;
 

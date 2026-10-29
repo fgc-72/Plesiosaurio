@@ -51,9 +51,12 @@ public class InspectViewer : MonoBehaviour
     InputAction close;
     InputAction rotate;
 
+    public static bool IsOpen { get; private set; }
+
     Transform pivot;
     RenderTexture rt;
     bool isOpen;
+    InspectableObject lastReported;
 
     void Awake()
     {
@@ -88,10 +91,7 @@ public class InspectViewer : MonoBehaviour
         }
 
         if (player == null)
-        {
-            var go = GameObject.FindGameObjectWithTag("Player");
-            if (go != null) player = go.transform;
-        }
+            ResolvePlayer();
 
         promptRoot.SetActive(false);
         SetViewVisible(false);
@@ -116,13 +116,15 @@ public class InspectViewer : MonoBehaviour
         rotate.Disable();
         if (isOpen) SetBlocked(false);
         if (isOpen && pauseTimeWhileOpen) Time.timeScale = 1f;
+        isOpen = false;
+        IsOpen = false;
     }
 
     void Update()
     {
         if (isOpen)
         {
-            if (interact.WasPressedThisFrame() || close.WasPressedThisFrame())
+            if (WasInteractOrClosePressed())
             {
                 CloseInspect();
                 return;
@@ -132,22 +134,121 @@ public class InspectViewer : MonoBehaviour
         }
 
         InspectableObject current = FindClosestInRange();
-        promptRoot.SetActive(current != null);
+        if (promptRoot != null) promptRoot.SetActive(current != null);
 
-        if (current != null && interact.WasPressedThisFrame())
+        if (current != lastReported)
+        {
+            if (current != null)
+            {
+                Transform pTransform = ResolvePlayer();
+                float dist = pTransform != null ? Vector3.Distance(pTransform.position, current.transform.position) : 0f;
+                Debug.Log($"[InspectViewer] Objeto en rango: {current.name} (distancia: {dist:F1}m, rango: {current.range}m)");
+            }
+            lastReported = current;
+        }
+
+        if (current != null && WasInteractPressed())
             OpenInspect(current);
+    }
+
+    bool WasInteractPressed()
+    {
+        if (interact != null && interact.WasPressedThisFrame()) return true;
+        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame) return true;
+        if (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame) return true;
+        return false;
+    }
+
+    bool WasInteractOrClosePressed()
+    {
+        if (interact != null && interact.WasPressedThisFrame()) return true;
+        if (close != null && close.WasPressedThisFrame()) return true;
+        if (Keyboard.current != null && (Keyboard.current.escapeKey.wasPressedThisFrame || Keyboard.current.eKey.wasPressedThisFrame)) return true;
+        if (Gamepad.current != null && (Gamepad.current.buttonEast.wasPressedThisFrame || Gamepad.current.buttonSouth.wasPressedThisFrame)) return true;
+        return false;
+    }
+
+    Transform ResolvePlayer()
+    {
+        // 1. Si player ya fue asignado y sigue activo, aseguramos apuntar al objeto con PlayerControls o Rigidbody
+        if (player != null && player.gameObject.activeInHierarchy)
+        {
+            var pc = player.GetComponentInChildren<PlayerControls>();
+            if (pc != null) return pc.transform;
+
+            var rb = player.GetComponentInChildren<Rigidbody>();
+            if (rb != null) return rb.transform;
+
+            return player;
+        }
+
+        // 2. Buscar por PlayerControls en la escena (es el componente que procesa el movimiento real de Nami)
+        var controls = FindFirstObjectByType<PlayerControls>();
+        if (controls != null)
+        {
+            player = controls.transform;
+            return player;
+        }
+
+        // 3. Buscar por GameObject con tag "Player" y tomar su Rigidbody o hijo con controles
+        var go = GameObject.FindGameObjectWithTag("Player");
+        if (go != null)
+        {
+            var pc = go.GetComponentInChildren<PlayerControls>();
+            if (pc != null)
+            {
+                player = pc.transform;
+                return player;
+            }
+
+            var rb = go.GetComponentInChildren<Rigidbody>();
+            if (rb != null)
+            {
+                player = rb.transform;
+                return player;
+            }
+
+            player = go.transform;
+            return player;
+        }
+
+        // 4. Fallback a la cámara principal
+        if (Camera.main != null)
+            return Camera.main.transform;
+
+        return null;
     }
 
     InspectableObject FindClosestInRange()
     {
-        if (player == null) return null;
+        Transform pTransform = ResolvePlayer();
+        if (pTransform == null) return null;
+
+        // Fallback si la lista estática quedó vacía tras cambio de escena o recarga
+        if (InspectableObject.All.Count == 0)
+        {
+            var found = FindObjectsByType<InspectableObject>(FindObjectsSortMode.None);
+            foreach (var o in found)
+            {
+                if (o != null && o.isActiveAndEnabled && !InspectableObject.All.Contains(o))
+                    InspectableObject.All.Add(o);
+            }
+        }
 
         InspectableObject best = null;
         float bestSqr = float.MaxValue;
-        Vector3 p = player.position;
+        Vector3 p = pTransform.position;
 
-        foreach (var o in InspectableObject.All)
+        for (int i = InspectableObject.All.Count - 1; i >= 0; i--)
         {
+            var o = InspectableObject.All[i];
+            if (o == null)
+            {
+                InspectableObject.All.RemoveAt(i);
+                continue;
+            }
+            if (!o.isActiveAndEnabled) continue;
+
             float sqr = (o.transform.position - p).sqrMagnitude;
             if (sqr <= o.range * o.range && sqr < bestSqr)
             {
@@ -178,6 +279,7 @@ public class InspectViewer : MonoBehaviour
         SetViewVisible(true);
         SetBlocked(true);
         isOpen = true;
+        IsOpen = true;
 
         if (pauseTimeWhileOpen) Time.timeScale = 0f;
         onOpened.Invoke();
@@ -201,7 +303,6 @@ public class InspectViewer : MonoBehaviour
             instance.transform.position += pivot.position - b.center;
 
             float maxDim = Mathf.Max(b.size.x, b.size.y, b.size.z);
-            Debug.Log($"[InspectViewer] tamaño medido del modelo: {b.size} (lado mayor: {maxDim})"); // borrar cuando funcione
             if (maxDim > 0.0001f)
                 scale *= targetSize / maxDim;
         }
@@ -291,15 +392,59 @@ public class InspectViewer : MonoBehaviour
     // Solo reactiva los que estaban activos antes de abrir.
     void SetBlocked(bool blocked)
     {
+        IsOpen = blocked;
+
         if (blocked)
         {
             disabledByUs.Clear();
-            foreach (var b in disableWhileOpen)
+            if (disableWhileOpen != null)
             {
-                if (b != null && b.enabled)
+                foreach (var b in disableWhileOpen)
                 {
-                    b.enabled = false;
-                    disabledByUs.Add(b);
+                    if (b != null && b.enabled)
+                    {
+                        b.enabled = false;
+                        disabledByUs.Add(b);
+                    }
+                }
+            }
+
+            // Desactivar controles de Nami (movimiento, cabezazo, manager)
+            Transform p = ResolvePlayer();
+            if (p != null)
+            {
+                var rb = p.GetComponent<Rigidbody>() ?? p.GetComponentInParent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
+
+                var root = p.root;
+                foreach (var b in root.GetComponentsInChildren<Behaviour>())
+                {
+                    if (b != null && b.enabled && !disabledByUs.Contains(b))
+                    {
+                        string n = b.GetType().Name;
+                        if (n == "PlayerControls" || n == "HeadbuttController" || n == "PlayerManager")
+                        {
+                            b.enabled = false;
+                            disabledByUs.Add(b);
+                        }
+                    }
+                }
+            }
+
+            // Desactivar control de rotación de la cámara Cinemachine
+            foreach (var b in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (b != null && b.enabled && b.GetType().Name == "CinemachineInputAxisController")
+                {
+                    if (!disabledByUs.Contains(b))
+                    {
+                        b.enabled = false;
+                        disabledByUs.Add(b);
+                    }
                 }
             }
         }
@@ -329,6 +474,7 @@ public class InspectViewer : MonoBehaviour
 
         SetBlocked(false);
         isOpen = false;
+        IsOpen = false;
         if (pauseTimeWhileOpen) Time.timeScale = 1f;
         onClosed.Invoke();
     }

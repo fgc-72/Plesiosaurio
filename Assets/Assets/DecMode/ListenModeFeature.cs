@@ -29,6 +29,8 @@ namespace ListenMode
         [Header("Objetivos")]
         [Tooltip("Capas que reciben el aura (por ejemplo Highlightable).")]
         public LayerMask layerMask = 0;
+        [Tooltip("Capas de objetos inspeccionables que reciben un aura de otro color (por defecto capa 16 Inspectable).")]
+        public LayerMask inspectLayerMask = 1 << 16;
         [Tooltip("Capas que NO deben recibir aura encima, normalmente el jugador. Usa una capa propia (por ejemplo Player), no Default.")]
         public LayerMask blockerLayerMask = 0;
 
@@ -41,7 +43,7 @@ namespace ListenMode
         [Tooltip("Diagnostico: Mask muestra en pantalla lo que se dibuja de los objetos marcados; Blur muestra el desenfoque.")]
         public DebugView debugView = DebugView.Off;
 
-        [Header("Aura")]
+        [Header("Aura Principal (Destacables / Laboratorio)")]
         [ColorUsage(false, true)] public Color auraColor = new Color(2.0f, 1.45f, 0.45f, 1f);
         [Tooltip("Color del borde interno del halo (mas blanco da el brillo tipo TLOU).")]
         [ColorUsage(false, true)] public Color coreColor = new Color(3.0f, 2.8f, 2.2f, 1f);
@@ -56,7 +58,16 @@ namespace ListenMode
         [Range(0f, 0.6f)] public float pulseAmount = 0.15f;
         [Min(0f)] public float pulseSpeed = 2.5f;
 
+        [Header("Aura de Objetos Inspeccionables (Otro Color)")]
+        public bool highlightInspectables = true;
+        [ColorUsage(false, true)] public Color inspectAuraColor = new Color(0.15f, 1.85f, 2.5f, 1f);
+        [ColorUsage(false, true)] public Color inspectCoreColor = new Color(1.8f, 2.95f, 3.0f, 1f);
+        [Range(0.1f, 10f)] public float inspectIntensity = 2.6f;
+        [Range(0f, 1f)] public float inspectOccludedFill = 0.45f;
+
         [Header("Alcance")]
+        [Tooltip("Si está activo, el aura destaca objetos a cualquier distancia sin límite.")]
+        public bool infiniteRange = true;
         [Min(1f)] public float maxRange = 40f;
         [Min(0.1f)] public float fadeDistance = 10f;
         [Tooltip("Tolerancia al decidir si una parte del objeto esta tapada.")]
@@ -65,6 +76,7 @@ namespace ListenMode
         [SerializeField, HideInInspector] Shader shader;
 
         Material material;
+        Material inspectMaterial;
         ListenPass pass;
         bool failed;
         bool wasActive;
@@ -82,8 +94,10 @@ namespace ListenMode
             }
 
             CoreUtils.Destroy(material);
+            CoreUtils.Destroy(inspectMaterial);
             material = CoreUtils.CreateEngineMaterial(shader);
-            pass = new ListenPass(this, material)
+            inspectMaterial = CoreUtils.CreateEngineMaterial(shader);
+            pass = new ListenPass(this, material, inspectMaterial)
             {
                 // Antes del post-proceso: asi el Bloom (si lo tienes) realza el brillo del aura.
                 renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing
@@ -92,7 +106,7 @@ namespace ListenMode
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if (pass == null || material == null || failed) return;
+            if (pass == null || material == null || inspectMaterial == null || failed) return;
 
             CameraType type = renderingData.cameraData.cameraType;
             if (type == CameraType.Preview || type == CameraType.Reflection) return;
@@ -103,7 +117,7 @@ namespace ListenMode
             if (active && !wasActive) LogTargets();
             wasActive = active;
 
-            if (!active || layerMask.value == 0) return;
+            if (!active || (layerMask.value == 0 && (!highlightInspectables || inspectLayerMask.value == 0))) return;
 
             pass.ConfigureInput(ScriptableRenderPassInput.Depth);
             renderer.EnqueuePass(pass);
@@ -129,19 +143,27 @@ namespace ListenMode
 
             int total = 0;
             int meshes = 0;
+            int inspectMeshes = 0;
             Renderer[] all = Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
             foreach (Renderer r in all)
             {
-                if ((layerMask.value & (1 << r.gameObject.layer)) == 0) continue;
                 if (!r.enabled || !r.gameObject.activeInHierarchy) continue;
-                total++;
-                if (r is MeshRenderer || r is SkinnedMeshRenderer) meshes++;
+                int bit = 1 << r.gameObject.layer;
+                if ((layerMask.value & bit) != 0)
+                {
+                    total++;
+                    if (r is MeshRenderer || r is SkinnedMeshRenderer) meshes++;
+                }
+                if (highlightInspectables && (inspectLayerMask.value & bit) != 0)
+                {
+                    if (r is MeshRenderer || r is SkinnedMeshRenderer) inspectMeshes++;
+                }
             }
 
-            if (meshes == 0)
+            if (meshes == 0 && inspectMeshes == 0)
                 Debug.LogWarning("[ListenMode] Ningun MeshRenderer/SkinnedMeshRenderer activo esta en la capa elegida. Ojo: la capa se aplica por objeto; la MALLA (normalmente un hijo del personaje) tambien debe tener la capa.");
             else
-                Debug.Log("[ListenMode] Modo escucha activado. Renderers de malla en la capa elegida: " + meshes);
+                Debug.Log($"[ListenMode] Modo escucha activado. Renderers Highlightable: {meshes}, Inspectable: {inspectMeshes}");
         }
 
         void Fail(System.Exception e)
@@ -153,7 +175,9 @@ namespace ListenMode
         protected override void Dispose(bool disposing)
         {
             CoreUtils.Destroy(material);
+            CoreUtils.Destroy(inspectMaterial);
             material = null;
+            inspectMaterial = null;
             pass = null;
         }
 
@@ -175,6 +199,7 @@ namespace ListenMode
 
             readonly ListenModeFeature owner;
             readonly Material material;
+            readonly Material inspectMaterial;
 
             class MaskData
             {
@@ -197,10 +222,11 @@ namespace ListenMode
                 public TextureHandle blur;
             }
 
-            public ListenPass(ListenModeFeature owner, Material material)
+            public ListenPass(ListenModeFeature owner, Material material, Material inspectMaterial)
             {
                 this.owner = owner;
                 this.material = material;
+                this.inspectMaterial = inspectMaterial;
             }
 
             public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
@@ -215,6 +241,21 @@ namespace ListenMode
                 }
             }
 
+            void ConfigureMaterial(Material mat, ListenModeFeature f, Color aura, Color core, float intensityVal, float occludedVal, float smooth)
+            {
+                mat.SetFloat("_MaxRange", f.infiniteRange ? 0f : f.maxRange);
+                mat.SetFloat("_FadeDistance", f.fadeDistance);
+                mat.SetFloat("_DepthBias", f.depthBias);
+                mat.SetVector("_AuraColor", new Vector4(aura.r, aura.g, aura.b, 1f));
+                mat.SetVector("_CoreColor", new Vector4(core.r, core.g, core.b, 1f));
+                mat.SetFloat("_AuraIntensity", intensityVal * smooth);
+                mat.SetFloat("_AuraFalloff", f.falloff);
+                mat.SetFloat("_OccludedFill", occludedVal);
+                mat.SetFloat("_PulseAmount", f.pulseAmount);
+                mat.SetFloat("_PulseSpeed", f.pulseSpeed);
+                mat.SetFloat("_DebugView", (float)f.debugView);
+            }
+
             void Record(RenderGraph renderGraph, ContextContainer frameData)
             {
                 UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
@@ -223,25 +264,32 @@ namespace ListenMode
                 UniversalLightData lightData = frameData.Get<UniversalLightData>();
 
                 ListenModeFeature f = owner;
-
-                // Parametros del efecto (se leen al ejecutar los pases).
-                material.SetFloat("_MaxRange", f.maxRange);
-                material.SetFloat("_FadeDistance", f.fadeDistance);
-                material.SetFloat("_DepthBias", f.depthBias);
-
-                Color a = f.auraColor;
-                Color c = f.coreColor;
                 float smooth = Mathf.SmoothStep(0f, 1f, s_Intensity);
-                material.SetVector("_AuraColor", new Vector4(a.r, a.g, a.b, 1f));
-                material.SetVector("_CoreColor", new Vector4(c.r, c.g, c.b, 1f));
-                material.SetFloat("_AuraIntensity", f.intensity * smooth);
-                material.SetFloat("_AuraFalloff", f.falloff);
-                material.SetFloat("_OccludedFill", f.occludedFill);
-                material.SetFloat("_PulseAmount", f.pulseAmount);
-                material.SetFloat("_PulseSpeed", f.pulseSpeed);
-                material.SetFloat("_DebugView", (float)f.debugView);
 
-                // Texturas temporales: mascara a resolucion completa y dos de resolucion media para el desenfoque.
+                if (f.layerMask.value != 0)
+                {
+                    ConfigureMaterial(material, f, f.auraColor, f.coreColor, f.intensity, f.occludedFill, smooth);
+                    RecordAuraPass(renderGraph, resourceData, cameraData, renderingData, lightData, f, material, f.layerMask, "Listen");
+                }
+
+                if (f.highlightInspectables && f.inspectLayerMask.value != 0)
+                {
+                    ConfigureMaterial(inspectMaterial, f, f.inspectAuraColor, f.inspectCoreColor, f.inspectIntensity, f.inspectOccludedFill, smooth);
+                    RecordAuraPass(renderGraph, resourceData, cameraData, renderingData, lightData, f, inspectMaterial, f.inspectLayerMask, "ListenInspect");
+                }
+            }
+
+            void RecordAuraPass(
+                RenderGraph renderGraph,
+                UniversalResourceData resourceData,
+                UniversalCameraData cameraData,
+                UniversalRenderingData renderingData,
+                UniversalLightData lightData,
+                ListenModeFeature f,
+                Material passMat,
+                LayerMask targetMask,
+                string passPrefix)
+            {
                 RenderTextureDescriptor desc = cameraData.cameraTargetDescriptor;
                 desc.msaaSamples = 1;
                 desc.depthBufferBits = 0;
@@ -252,7 +300,7 @@ namespace ListenMode
 
                 var maskDesc = new TextureDesc(desc.width, desc.height)
                 {
-                    name = "_ListenMask",
+                    name = $"_{passPrefix}Mask",
                     colorFormat = GraphicsFormat.R8G8B8A8_UNorm,
                     clearBuffer = true,
                     clearColor = Color.clear,
@@ -263,18 +311,18 @@ namespace ListenMode
                 RenderTextureDescriptor half = desc;
                 half.width = Mathf.Max(1, desc.width / 2);
                 half.height = Mathf.Max(1, desc.height / 2);
-                TextureHandle blurA = UniversalRenderer.CreateRenderGraphTexture(renderGraph, half, "_ListenBlurA", false, FilterMode.Bilinear);
-                TextureHandle blurB = UniversalRenderer.CreateRenderGraphTexture(renderGraph, half, "_ListenBlurB", false, FilterMode.Bilinear);
+                TextureHandle blurA = UniversalRenderer.CreateRenderGraphTexture(renderGraph, half, $"_{passPrefix}BlurA", false, FilterMode.Bilinear);
+                TextureHandle blurB = UniversalRenderer.CreateRenderGraphTexture(renderGraph, half, $"_{passPrefix}BlurB", false, FilterMode.Bilinear);
 
                 // 1) Mascara: todo lo que este en la capa, sin test de profundidad (se ve a traves de paredes).
-                using (var builder = renderGraph.AddRasterRenderPass<MaskData>("Listen Mask", out MaskData data))
+                using (var builder = renderGraph.AddRasterRenderPass<MaskData>($"{passPrefix} Mask", out MaskData data))
                 {
                     DrawingSettings drawSettings = RenderingUtils.CreateDrawingSettings(
                         ShaderTags, renderingData, cameraData, lightData, SortingCriteria.CommonOpaque);
-                    drawSettings.overrideMaterial = material;
+                    drawSettings.overrideMaterial = passMat;
                     drawSettings.overrideMaterialPassIndex = 0;
 
-                    var filtering = new FilteringSettings(RenderQueueRange.all, f.layerMask);
+                    var filtering = new FilteringSettings(RenderQueueRange.all, targetMask);
                     var listParams = new RendererListParams(renderingData.cullResults, drawSettings, filtering);
                     data.rendererList = renderGraph.CreateRendererList(listParams);
                     builder.UseRendererList(data.rendererList);
@@ -285,7 +333,7 @@ namespace ListenMode
                     {
                         DrawingSettings blockSettings = RenderingUtils.CreateDrawingSettings(
                             ShaderTags, renderingData, cameraData, lightData, SortingCriteria.CommonOpaque);
-                        blockSettings.overrideMaterial = material;
+                        blockSettings.overrideMaterial = passMat;
                         blockSettings.overrideMaterialPassIndex = 3;
 
                         var blockFiltering = new FilteringSettings(RenderQueueRange.all, f.blockerLayerMask);
@@ -314,15 +362,15 @@ namespace ListenMode
                 TextureHandle src = mask;
                 for (int it = 0; it < iterations; it++)
                 {
-                    AddBlur(renderGraph, "Listen Blur H", src, blurA, new Vector4(step / half.width, 0f, 0f, 0f));
-                    AddBlur(renderGraph, "Listen Blur V", blurA, blurB, new Vector4(0f, step / half.height, 0f, 0f));
+                    AddBlur(renderGraph, $"{passPrefix} Blur H", passMat, src, blurA, new Vector4(step / half.width, 0f, 0f, 0f));
+                    AddBlur(renderGraph, $"{passPrefix} Blur V", passMat, blurA, blurB, new Vector4(0f, step / half.height, 0f, 0f));
                     src = blurB;
                 }
 
                 // 3) Composicion: suma el halo al color de la camara.
-                using (var builder = renderGraph.AddRasterRenderPass<CompositeData>("Listen Composite", out CompositeData data))
+                using (var builder = renderGraph.AddRasterRenderPass<CompositeData>($"{passPrefix} Composite", out CompositeData data))
                 {
-                    data.material = material;
+                    data.material = passMat;
                     data.mask = mask;
                     data.blur = blurB;
 
@@ -341,11 +389,11 @@ namespace ListenMode
                 }
             }
 
-            void AddBlur(RenderGraph renderGraph, string name, TextureHandle src, TextureHandle dst, Vector4 dir)
+            void AddBlur(RenderGraph renderGraph, string name, Material passMat, TextureHandle src, TextureHandle dst, Vector4 dir)
             {
                 using (var builder = renderGraph.AddRasterRenderPass<BlurData>(name, out BlurData data))
                 {
-                    data.material = material;
+                    data.material = passMat;
                     data.src = src;
                     data.dir = dir;
 

@@ -74,10 +74,13 @@ Shader "Custom/XRayHighlight"
 
             float4 MaskFrag(MaskVaryings i) : SV_Target
             {
-                float dist = distance(i.positionWS, _WorldSpaceCameraPos);
-                if (dist > _MaxRange) discard;
-
-                float fade = 1.0 - saturate((dist - (_MaxRange - _FadeDistance)) / max(_FadeDistance, 1e-3));
+                float fade = 1.0;
+                if (_MaxRange > 0.0)
+                {
+                    float dist = distance(i.positionWS, _WorldSpaceCameraPos);
+                    if (dist > _MaxRange) discard;
+                    fade = 1.0 - saturate((dist - (_MaxRange - _FadeDistance)) / max(_FadeDistance, 1e-3));
+                }
 
                 float2 uv = GetNormalizedScreenSpaceUV(i.positionCS);
                 float sceneEye = LinearEyeDepth(SampleSceneDepth(uv), _ZBufferParams);
