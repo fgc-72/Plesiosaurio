@@ -6391,6 +6391,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
   playerTag: Player
+  useActiveSceneName: 1
   sceneName: Acto2
   maraTransform: {fileID: 0}
   saveOnlyOnce: 1
@@ -9289,6 +9290,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
   playerTag: Player
+  useActiveSceneName: 1
   sceneName: Acto1-mitad
   maraTransform: {fileID: 0}
   saveOnlyOnce: 1
@@ -10416,6 +10418,73 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1679992492}
   m_CullTransparentMesh: 1
+--- !u!1001 &1685582040
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -294.1403
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 148.6949
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -135.83844
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7023974396876390944, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 14369ccc2cc54d94ca644a43b9acdf2b, type: 2}
+    - target: {fileID: 919132149155446097, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: m_Name
+      value: Lab_try14
+      objectReference: {fileID: 0}
+    - target: {fileID: 5853168983117980776, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 3d04c16692d00cc4e88e68fa0e3afc1a, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects:
+    - {fileID: 2359407630926609535, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+    - {fileID: -4960584510277547667, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4339feb0c41adbf4982e7af1d2548c1c, type: 3}
 --- !u!1 &1687128713
 GameObject:
   m_ObjectHideFlags: 0
@@ -13833,3 +13902,4 @@ SceneRoots:
   - {fileID: 1911929384}
   - {fileID: 975699983}
   - {fileID: 1825626255}
+  - {fileID: 1685582040}
