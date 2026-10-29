@@ -117,6 +117,9 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 32768
+  inspectLayerMask:
+    serializedVersion: 2
+    m_Bits: 65536
   blockerLayerMask:
     serializedVersion: 2
     m_Bits: 128
@@ -132,6 +135,11 @@ MonoBehaviour:
   occludedFill: 0.2
   pulseAmount: 0.15
   pulseSpeed: 2.5
+  highlightInspectables: 1
+  inspectAuraColor: {r: 0.15, g: 1.85, b: 2.5, a: 1}
+  inspectCoreColor: {r: 1.8, g: 2.95, b: 3, a: 1}
+  inspectIntensity: 2.6
+  inspectOccludedFill: 0.45
   infiniteRange: 1
   maxRange: 80
   fadeDistance: 10

@@ -85,6 +85,11 @@ namespace ListenMode
         public override void Create()
         {
             failed = false;
+            if (inspectLayerMask.value == 0)
+            {
+                int inspectLayer = LayerMask.NameToLayer("Inspectable");
+                if (inspectLayer != -1) inspectLayerMask = 1 << inspectLayer;
+            }
 
             if (shader == null) shader = Shader.Find("Custom/XRayHighlight");
             if (shader == null)
@@ -114,6 +119,11 @@ namespace ListenMode
             UpdateFade();
 
             bool active = s_Intensity > 0.001f;
+            if (inspectLayerMask.value == 0)
+            {
+                int inspectLayer = LayerMask.NameToLayer("Inspectable");
+                if (inspectLayer != -1) inspectLayerMask = 1 << inspectLayer;
+            }
             if (active && !wasActive) LogTargets();
             wasActive = active;
 

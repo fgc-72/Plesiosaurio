@@ -26,6 +26,27 @@ public class InspectableObject : MonoBehaviour
     // Registro estático: InspectViewer recorre esta lista para saber qué hay cerca.
     public static readonly List<InspectableObject> All = new();
 
+    void Awake()
+    {
+        EnsureInspectableLayer();
+    }
+
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        EnsureInspectableLayer();
+    }
+#endif
+
+    void EnsureInspectableLayer()
+    {
+        int inspectLayer = LayerMask.NameToLayer("Inspectable");
+        if (inspectLayer != -1 && gameObject.layer == 0)
+        {
+            gameObject.layer = inspectLayer;
+        }
+    }
+
     void OnEnable()  => All.Add(this);
     void OnDisable() => All.Remove(this);
 

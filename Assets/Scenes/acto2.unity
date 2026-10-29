@@ -455,7 +455,7 @@ GameObject:
   - component: {fileID: 144407541}
   - component: {fileID: 144407540}
   - component: {fileID: 144407539}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -474,7 +474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82eba9422e2eb73448bc9bd443ab01c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InspectableObject
-  inspectPrefab: {fileID: 0}
+  inspectPrefab: {fileID: 919132149155446097, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
   startRotation: {x: 0, y: 0, z: 0}
   autoFit: 1
   inspectScale: 1
@@ -789,7 +789,7 @@ GameObject:
   - component: {fileID: 212670140}
   - component: {fileID: 212670139}
   - component: {fileID: 212670138}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -808,7 +808,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82eba9422e2eb73448bc9bd443ab01c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InspectableObject
-  inspectPrefab: {fileID: 0}
+  inspectPrefab: {fileID: 919132149155446097, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
   startRotation: {x: 0, y: 0, z: 0}
   autoFit: 1
   inspectScale: 1
@@ -4613,28 +4613,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 8.341238, y: 13.194387, z: 1.157032}
   m_Center: {x: -26.64177, y: 7.2285213, z: 23.889963}
---- !u!1 &760623403 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-  m_PrefabInstance: {fileID: 975699983}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &760623404
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 760623403}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82eba9422e2eb73448bc9bd443ab01c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InspectableObject
-  inspectPrefab: {fileID: 919132149155446097, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-  startRotation: {x: 0, y: 0, z: 0}
-  autoFit: 1
-  inspectScale: 1.5
-  range: 20
 --- !u!1 &779289993
 GameObject:
   m_ObjectHideFlags: 0
@@ -5929,66 +5907,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!1001 &975699983
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 163.77913
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 50.23
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 113.128685
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      propertyPath: m_Name
-      value: cazador
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 760623404}
-  m_SourcePrefab: {fileID: 100100000, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
 --- !u!1 &979418120
 GameObject:
   m_ObjectHideFlags: 0
@@ -7687,7 +7605,7 @@ GameObject:
   - component: {fileID: 1238868463}
   - component: {fileID: 1238868462}
   - component: {fileID: 1238868461}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Cube (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7706,7 +7624,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82eba9422e2eb73448bc9bd443ab01c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InspectableObject
-  inspectPrefab: {fileID: 0}
+  inspectPrefab: {fileID: 919132149155446097, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
   startRotation: {x: 0, y: 0, z: 0}
   autoFit: 1
   inspectScale: 1
@@ -11022,7 +10940,7 @@ GameObject:
   - component: {fileID: 1575564528}
   - component: {fileID: 1575564527}
   - component: {fileID: 1575564526}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Cube (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11041,7 +10959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82eba9422e2eb73448bc9bd443ab01c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InspectableObject
-  inspectPrefab: {fileID: 0}
+  inspectPrefab: {fileID: 919132149155446097, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
   startRotation: {x: 0, y: 0, z: 0}
   autoFit: 1
   inspectScale: 1
@@ -17154,7 +17072,7 @@ GameObject:
   - component: {fileID: 2092399948}
   - component: {fileID: 2092399947}
   - component: {fileID: 2092399946}
-  m_Layer: 0
+  m_Layer: 16
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17173,7 +17091,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82eba9422e2eb73448bc9bd443ab01c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InspectableObject
-  inspectPrefab: {fileID: 0}
+  inspectPrefab: {fileID: 919132149155446097, guid: 33cebe43df820874fb176059c0f12f7f, type: 3}
   startRotation: {x: 0, y: 0, z: 0}
   autoFit: 1
   inspectScale: 1
@@ -17395,7 +17313,6 @@ SceneRoots:
   - {fileID: 1323443189}
   - {fileID: 1490288335}
   - {fileID: 1911929384}
-  - {fileID: 975699983}
   - {fileID: 1825626255}
   - {fileID: 1685582040}
   - {fileID: 144407543}
