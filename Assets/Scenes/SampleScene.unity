@@ -1651,7 +1651,7 @@ MonoBehaviour:
   - name: Pez
     mesh: {fileID: 7572643392844072498, guid: 35e05b5a96f91d348b79427c79e66f1d, type: 3}
     material: {fileID: 2100000, guid: ac70740c7a81fdf439efbfdd7b32dc3d, type: 2}
-    count: 130
+    count: 1000
     size: 1
     spawnPoint: {fileID: 0}
     spawnRadius: 8
@@ -1662,8 +1662,8 @@ MonoBehaviour:
     cohesionWeight: 0.35
     alignmentWeight: 1.2
     separationWeight: 1.5
-    perceptionRadius: 3
-    separationRadius: 1
+    perceptionRadius: 6
+    separationRadius: 3
     minSpeed: 5.5
     maxSpeed: 11
     maxAccel: 6
@@ -1676,6 +1676,10 @@ MonoBehaviour:
   obstacles:
   - transform: {fileID: 131011574}
     radius: 5
+  - transform: {fileID: 826206004}
+    radius: 20
+  - transform: {fileID: 1585074510}
+    radius: 15
   drawGizmos: 1
 --- !u!4 &402879964
 Transform:
@@ -2396,6 +2400,114 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 465422516}
   m_CullTransparentMesh: 1
+--- !u!1 &475034937
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 475034940}
+  - component: {fileID: 475034939}
+  - component: {fileID: 475034938}
+  m_Layer: 0
+  m_Name: FishSchoolManager2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!95 &475034938
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 475034937}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f5ac39eb679c6494899351df8c8b8355, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &475034939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 475034937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d520766dafea8b4ca2b1e71da7b067c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FishSchool.FishSchoolManager
+  compute: {fileID: 7200000, guid: d23d6dd1afdb82f48851a6d0cba42909, type: 3}
+  boundsSize: {x: 92.6, y: 45.4, z: 146.7}
+  cellSize: 3.5
+  maxPerCell: 96
+  boundsWeight: 3
+  obstacleMargin: 4
+  maxDeltaTime: 0.05
+  species:
+  - name: Pez
+    mesh: {fileID: 7572643392844072498, guid: 35e05b5a96f91d348b79427c79e66f1d, type: 3}
+    material: {fileID: 2100000, guid: ac70740c7a81fdf439efbfdd7b32dc3d, type: 2}
+    count: 1000
+    size: 1
+    spawnPoint: {fileID: 1640963176}
+    spawnRadius: 8
+    spawnOnSurface: 0
+    target: {fileID: 0}
+    targetWeight: 0.6
+    wanderSpeed: 0.06
+    cohesionWeight: 0.35
+    alignmentWeight: 1.2
+    separationWeight: 1.5
+    perceptionRadius: 6
+    separationRadius: 3
+    minSpeed: 5.5
+    maxSpeed: 11
+    maxAccel: 6
+    turnRate: 3
+    turnBoost: 0.25
+    avoidWeight: 8
+    idleSwim: 0.25
+    swimFreqBase: 5
+    swimFreqGain: 9
+  obstacles:
+  - transform: {fileID: 131011574}
+    radius: 5
+  - transform: {fileID: 826206004}
+    radius: 20
+  - transform: {fileID: 1585074510}
+    radius: 15
+  drawGizmos: 1
+--- !u!4 &475034940
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 475034937}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 541.94, y: 62.68, z: 244.07}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &475072240
 GameObject:
   m_ObjectHideFlags: 0
@@ -11498,6 +11610,37 @@ MonoBehaviour:
     NearLimit: 5
     FarLimit: 30
     MaxQualityBoost: 0.2
+--- !u!1 &1640963175
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1640963176}
+  m_Layer: 0
+  m_Name: FSM2Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: -1412012063857583412, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1640963176
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1640963175}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 570.57, y: 46.93, z: 230.03}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1646490976
 GameObject:
   m_ObjectHideFlags: 0
@@ -12076,6 +12219,7 @@ MonoBehaviour:
   button1: {fileID: 682386098}
   button2: {fileID: 1043445487}
   fadeSpeed: 4
+  staminaObjectName: Stamina
 --- !u!4 &1687128715
 Transform:
   m_ObjectHideFlags: 0
@@ -16255,5 +16399,7 @@ SceneRoots:
   - {fileID: 1187349550}
   - {fileID: 897168521}
   - {fileID: 402879964}
+  - {fileID: 475034940}
+  - {fileID: 1640963176}
   - {fileID: 683737712}
   - {fileID: 8450123803661292721}
