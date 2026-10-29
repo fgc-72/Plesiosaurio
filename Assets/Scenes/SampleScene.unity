@@ -12076,6 +12076,7 @@ MonoBehaviour:
   button1: {fileID: 682386098}
   button2: {fileID: 1043445487}
   fadeSpeed: 4
+  staminaObjectName: Stamina
 --- !u!4 &1687128715
 Transform:
   m_ObjectHideFlags: 0
