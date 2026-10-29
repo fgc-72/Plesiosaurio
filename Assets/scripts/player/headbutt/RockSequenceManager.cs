@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 // El "director" de la secuencia de rocas cayendo: cuenta cuántas rompió el
@@ -25,12 +26,21 @@ public class RockSequenceManager : MonoBehaviour
     [SerializeField] private float hitShakeDuration = 0.35f;
     [SerializeField] private float hitShakeMagnitude = 0.6f;
 
+    [Header("Fallar: demasiados golpes")]
+    [Tooltip("Si Nami recibe esta cantidad de golpes (rocas que NO alcanzó a romper), vuelve " +
+             "al último checkpoint. 0 = nunca falla por golpes.")]
+    [SerializeField] private int maxHitsBeforeRespawn = 4;
+    [Tooltip("Quien devuelve a Nami al checkpoint (fundido a negro + teletransporte).")]
+    [SerializeField] private CheckpointRespawner respawner;
+
     [Header("Misión")]
     [Tooltip("ID de la misión de romper rocas en MissionDatabase.")]
     [SerializeField] private string missionId;
 
     private int brokenByPlayerCount;
+    private int hitCount;
     private bool sequenceFinished;
+    private bool isRespawning;
     private bool hasWarnedPlayer; // true después de la PRIMERA vez que Mara avisa "cuidado"
 
     public event System.Action<int, int> BreakCountChanged; // (actual, requerido)
@@ -64,7 +74,7 @@ public class RockSequenceManager : MonoBehaviour
     // que el jugador rompe una roca a cabezazos.
     public void RegisterPlayerBreak()
     {
-        if (sequenceFinished) return;
+        if (sequenceFinished || isRespawning) return;
 
         brokenByPlayerCount++;
         Debug.Log($"Rocas rotas por el jugador: {brokenByPlayerCount}/{requiredBreaks}");
@@ -80,7 +90,7 @@ public class RockSequenceManager : MonoBehaviour
     public void OnRockHitPlayer()
     {
         Debug.Log("RockSequenceManager.OnRockHitPlayer llamado");
-        if (sequenceFinished) return;
+        if (sequenceFinished || isRespawning) return;
 
         CameraShake.Shake(hitShakeDuration, hitShakeMagnitude);
 
@@ -94,6 +104,47 @@ public class RockSequenceManager : MonoBehaviour
             ThoughtUI.Instance.ShowById(warningDialogueId);
             hasWarnedPlayer = true;
         }
+
+        // Demasiados golpes sin romper: vuelve al último checkpoint.
+        hitCount++;
+        Debug.Log($"Golpes recibidos: {hitCount}/{maxHitsBeforeRespawn}");
+
+        if (maxHitsBeforeRespawn > 0 && hitCount >= maxHitsBeforeRespawn)
+        {
+            if (respawner != null)
+                StartCoroutine(FailAndRespawn());
+            else
+                Debug.LogWarning("RockSequenceManager: llegó al máximo de golpes pero falta asignar " +
+                                  "'Respawner' en el Inspector.");
+        }
+    }
+
+    private IEnumerator FailAndRespawn()
+    {
+        isRespawning = true;
+
+        // Paramos las rocas y limpiamos las que sigan en el aire mientras dura el fundido.
+        if (spawner != null)
+            spawner.SetActive(false);
+
+        foreach (FallingRock rock in FindObjectsByType<FallingRock>(FindObjectsSortMode.None))
+            Destroy(rock.gameObject);
+
+        GameObject player = playerControls != null ? playerControls.gameObject : null;
+        Coroutine respawn = respawner.Respawn(player);
+        if (respawn != null)
+            yield return respawn;
+
+        // Reintento limpio: se reinician los contadores (golpes Y rocas rotas) y vuelven a caer rocas.
+        hitCount = 0;
+        brokenByPlayerCount = 0;
+        BreakCountChanged?.Invoke(brokenByPlayerCount, requiredBreaks);
+        UpdateMissionCounter();
+
+        if (spawner != null)
+            spawner.SetActive(true);
+
+        isRespawning = false;
     }
 
     private void TriggerBigRock()

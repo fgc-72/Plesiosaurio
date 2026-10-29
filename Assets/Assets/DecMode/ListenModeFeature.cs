@@ -140,8 +140,7 @@ namespace ListenMode
 
             if (meshes == 0)
                 Debug.LogWarning("[ListenMode] Ningun MeshRenderer/SkinnedMeshRenderer activo esta en la capa elegida. Ojo: la capa se aplica por objeto; la MALLA (normalmente un hijo del personaje) tambien debe tener la capa.");
-            else
-                Debug.Log("[ListenMode] Modo escucha activado. Renderers de malla en la capa elegida: " + meshes);
+            
         }
 
         void Fail(System.Exception e)

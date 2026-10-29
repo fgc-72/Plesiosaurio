@@ -3528,6 +3528,7 @@ GameObject:
   - component: {fileID: 615570592}
   - component: {fileID: 615570591}
   - component: {fileID: 615570594}
+  - component: {fileID: 615570595}
   m_Layer: 0
   m_Name: triggerScene1
   m_TagString: Untagged
@@ -3625,6 +3626,29 @@ MonoBehaviour:
   normalFocusDistance: 8
   clearDuration: 1.5
   delayBeforeClear: 1.1
+--- !u!114 &615570595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 615570590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5e01a373ca1f5b43bf0212598fabcd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CheckpointRespawner
+  useCheckpointIfAvailable: 1
+  fallbackSpawnPoint: {fileID: 0}
+  mara: {fileID: 1809590202}
+  blackHoldSeconds: 0.5
+  blackScreenDialogueId: 
+  blackout: {fileID: 1838350339}
+  blurredAperture: 1
+  clearAperture: 16
+  blurredFocusDistance: 0.3
+  normalFocusDistance: 10
+  blurClearDuration: 2
 --- !u!1 &619811142
 GameObject:
   m_ObjectHideFlags: 0
@@ -8158,7 +8182,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
   playerTag: Player
-  sceneName: Acto1
+  useActiveSceneName: 1
+  sceneName: SampleScene
   maraTransform: {fileID: 1809590202}
   saveOnlyOnce: 1
 --- !u!65 &1078355831
@@ -8764,6 +8789,7 @@ GameObject:
   - component: {fileID: 1277163323}
   - component: {fileID: 1277163322}
   - component: {fileID: 1277163325}
+  - component: {fileID: 1277163326}
   m_Layer: 0
   m_Name: desbloqueo1
   m_TagString: Untagged
@@ -8834,9 +8860,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
   playerTag: Player
-  sceneName: Acto1-mitad
+  useActiveSceneName: 1
+  sceneName: SampleScene
   maraTransform: {fileID: 1809590202}
   saveOnlyOnce: 1
+--- !u!114 &1277163326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277163321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5e01a373ca1f5b43bf0212598fabcd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CheckpointRespawner
+  useCheckpointIfAvailable: 1
+  fallbackSpawnPoint: {fileID: 0}
+  mara: {fileID: 1809590202}
+  blackHoldSeconds: 0.5
+  blackScreenDialogueId: 
+  blackout: {fileID: 1838350339}
+  blurredAperture: 1
+  clearAperture: 16
+  blurredFocusDistance: 0.3
+  normalFocusDistance: 10
+  blurClearDuration: 2
 --- !u!1 &1282899378
 GameObject:
   m_ObjectHideFlags: 0
@@ -10994,30 +11044,13 @@ GameObject:
   - component: {fileID: 1523219634}
   - component: {fileID: 1523219633}
   - component: {fileID: 1523219632}
-  - component: {fileID: 1523219631}
   m_Layer: 0
   m_Name: desbloqueo1 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1523219631
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1523219630}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01fd2f9a862357e46adaa05cf019ec70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
-  playerTag: Player
-  sceneName: Acto1-mitad
-  maraTransform: {fileID: 0}
-  saveOnlyOnce: 1
+  m_IsActive: 0
 --- !u!114 &1523219632
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14203,6 +14236,8 @@ MonoBehaviour:
   warningDialogueId: cuidado
   hitShakeDuration: 0.35
   hitShakeMagnitude: 0.6
+  maxHitsBeforeRespawn: 4
+  respawner: {fileID: 0}
   missionId: mision2
 --- !u!114 &1838350342
 MonoBehaviour:

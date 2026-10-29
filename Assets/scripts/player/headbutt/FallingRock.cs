@@ -85,7 +85,7 @@ public class FallingRock : MonoBehaviour
         // Si esta roca en particular la rompe el JUGADOR a cabezazos (con Y),
         // avisamos al manager para que sume al contador del objetivo.
         destructibleRock.BrokenByPlayer += HandlePlayerBreak;
-        Debug.Log($"{name} apunta a '{(targetTransform != null ? targetTransform.name : "NULL")}' (tipo: {type})", targetTransform);
+     
     }
 
     private void HandlePlayerBreak()
@@ -175,7 +175,7 @@ public class FallingRock : MonoBehaviour
 
     private void TryHitByBody(Collider other)
     {
-        Debug.Log($"{name} tocó físicamente a '{other.name}' (capa: {LayerMask.LayerToName(other.gameObject.layer)})");
+    
 
         if (resolved || destructibleRock.IsBroken) return;
 
