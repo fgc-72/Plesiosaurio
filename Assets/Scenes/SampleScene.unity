@@ -5653,6 +5653,57 @@ Transform:
   - {fileID: 1809590202}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 46.981, z: 0}
+--- !u!1 &831595920
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 831595922}
+  - component: {fileID: 831595921}
+  m_Layer: 0
+  m_Name: WaterSurfaceBarrier
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &831595921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 831595920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd5b687a76cf4f843ac795c0c5baa136, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterSurfaceBarrier
+  surfacePlane: {fileID: 1564302288}
+  defaultSurfaceY: 143.7
+  barrierDepth: 6
+  pushDownSpeed: 5
+  dialogueId: nami_superficie
+  dialogueCooldown: 25
+  playerTag: Player
+--- !u!4 &831595922
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 831595920}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -22.73283, y: 143.69997, z: 211.45695}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -8946,7 +8997,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
   playerTag: Player
-  sceneName: Acto1-mitad
+  sceneName: Acto1
   maraTransform: {fileID: 1809590202}
   saveOnlyOnce: 1
 --- !u!1 &1282899378
@@ -11127,7 +11178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
   playerTag: Player
-  sceneName: Acto1-mitad
+  sceneName: Acto1
   maraTransform: {fileID: 0}
   saveOnlyOnce: 1
 --- !u!114 &1523219632
@@ -16403,3 +16454,4 @@ SceneRoots:
   - {fileID: 1640963176}
   - {fileID: 683737712}
   - {fileID: 8450123803661292721}
+  - {fileID: 831595922}

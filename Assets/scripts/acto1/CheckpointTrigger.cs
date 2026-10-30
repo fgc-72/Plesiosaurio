@@ -29,28 +29,41 @@ public class CheckpointTrigger : MonoBehaviour
         if (saveOnlyOnce && hasSaved)
             return;
 
-        if (!other.CompareTag(playerTag))
+        // Comprueba si el objeto o su raíz tienen el tag de Player
+        if (!other.CompareTag(playerTag) && !other.transform.root.CompareTag(playerTag))
             return;
 
-        if (CheckpointManager.Instance == null)
-            return;
-
-        InputManagerBueno inputManager = other.GetComponent<InputManagerBueno>();
-        CheckpointUnlocks unlocks = inputManager != null
-            ? new CheckpointUnlocks
+        // 1. Guardar a través del SaveSystem JSON
+        SaveData data = SaveSystem.CreateSaveDataFromCurrentScene(gameObject.name);
+        if (data != null)
+        {
+            if (maraTransform != null)
             {
-                canMoveVertical = inputManager.canMoveVertical,
-                canSprint = inputManager.canSprint,
-                canHeadbutt = inputManager.canHeadbutt,
-                canListen = inputManager.canListen
+                data.hasMara = true;
+                data.maraPosition = maraTransform.position;
+                data.maraEulerAngles = maraTransform.eulerAngles;
             }
-            : default;
+            SaveSystem.Save(data);
+        }
 
-        // Si no asignaste a Mara en el Inspector, guardamos su propia posición
-        // actual como respaldo (mejor que romper el checkpoint por completo).
-        Vector3 maraPosition = maraTransform != null ? maraTransform.position : other.transform.position;
+        // 2. Compatibilidad con CheckpointManager
+        if (CheckpointManager.Instance != null)
+        {
+            InputManagerBueno inputManager = other.GetComponent<InputManagerBueno>() ?? other.GetComponentInParent<InputManagerBueno>();
+            CheckpointUnlocks unlocks = inputManager != null
+                ? new CheckpointUnlocks
+                {
+                    canMoveVertical = inputManager.canMoveVertical,
+                    canSprint = inputManager.canSprint,
+                    canHeadbutt = inputManager.canHeadbutt,
+                    canListen = inputManager.canListen
+                }
+                : default;
 
-        CheckpointManager.Instance.SaveCheckpoint(sceneName, other.transform.position, maraPosition, unlocks);
+            Vector3 maraPosition = maraTransform != null ? maraTransform.position : other.transform.position;
+            CheckpointManager.Instance.SaveCheckpoint(sceneName, other.transform.position, maraPosition, unlocks);
+        }
+
         hasSaved = true;
     }
 }

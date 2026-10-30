@@ -1,14 +1,8 @@
 using UnityEngine;
 
-// Singleton persistente (igual patrón que SceneFader/LocalizationManager).
-// Guarda la ÚLTIMA posición de checkpoint en PlayerPrefs, así si el jugador
-// cierra el juego y vuelve, no tiene que repetir todo desde el principio.
-//
-// NOTA: esto es un sistema de checkpoints simple (posición + escena), NO un
-// sistema de guardado completo. Cuando armen el guardado real más adelante,
-// esto puede seguir usándose como la parte que recuerda "dónde continuar".
-// Agrupa las habilidades desbloqueadas del tutorial, para no tener que pasar
-// 4 bools sueltos por todos lados.
+// Singleton persistente compatible con el nuevo SaveSystem.
+// Si existe SaveSystem, delega en él para guardar en JSON con persistencia real.
+// Mantiene también PlayerPrefs como respaldo secundario para no romper llamadas existentes.
 [System.Serializable]
 public struct CheckpointUnlocks
 {
@@ -39,17 +33,38 @@ public class CheckpointManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            // Solo destruye el componente duplicado, NO el GameObject entero
+            // (evita destruir WakeUpPoint u otros GameObjects en Acto 2)
+            Destroy(this);
             return;
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
-        ClearCheckpoint(); // Limpia el checkpoint al iniciar el juego, para pruebas desde cero
+        // Solo aplicar DontDestroyOnLoad si no es hijo de otro objeto
+        if (transform.parent == null)
+        {
+            DontDestroyOnLoad(gameObject);
+        }
+        // NOTA: Se eliminó el ClearCheckpoint() automático que formateaba la partida cada vez que arrancaba el juego.
     }
 
     public void SaveCheckpoint(string sceneName, Vector3 position, Vector3 maraPosition, CheckpointUnlocks unlocks)
     {
+        // 1. Guardar en SaveSystem JSON
+        SaveData data = SaveSystem.CreateSaveDataFromCurrentScene(sceneName);
+        if (data != null)
+        {
+            data.sceneName = SaveSystem.NormalizeSceneName(sceneName);
+            data.namiPosition = position;
+            data.maraPosition = maraPosition;
+            data.canMoveVertical = unlocks.canMoveVertical;
+            data.canSprint = unlocks.canSprint;
+            data.canHeadbutt = unlocks.canHeadbutt;
+            data.canListen = unlocks.canListen;
+            SaveSystem.Save(data);
+        }
+
+        // 2. Respaldo secundario en PlayerPrefs
         PlayerPrefs.SetInt(HasCheckpointKey, 1);
         PlayerPrefs.SetString(SceneKey, sceneName);
         PlayerPrefs.SetFloat(PosXKey, position.x);
@@ -69,12 +84,25 @@ public class CheckpointManager : MonoBehaviour
 
     public bool HasCheckpointFor(string sceneName)
     {
+        if (SaveSystem.HasSaveFile())
+        {
+            SaveData data = SaveSystem.Load();
+            if (data != null && SaveSystem.IsSceneMatch(data.sceneName, sceneName))
+                return true;
+        }
+
         return PlayerPrefs.GetInt(HasCheckpointKey, 0) == 1 &&
-               PlayerPrefs.GetString(SceneKey, "") == sceneName;
+               SaveSystem.IsSceneMatch(PlayerPrefs.GetString(SceneKey, ""), sceneName);
     }
 
     public Vector3 GetCheckpointPosition()
     {
+        if (SaveSystem.HasSaveFile())
+        {
+            SaveData data = SaveSystem.Load();
+            if (data != null) return data.namiPosition;
+        }
+
         return new Vector3(
             PlayerPrefs.GetFloat(PosXKey, 0f),
             PlayerPrefs.GetFloat(PosYKey, 0f),
@@ -84,6 +112,12 @@ public class CheckpointManager : MonoBehaviour
 
     public Vector3 GetCheckpointMaraPosition()
     {
+        if (SaveSystem.HasSaveFile())
+        {
+            SaveData data = SaveSystem.Load();
+            if (data != null) return data.maraPosition;
+        }
+
         return new Vector3(
             PlayerPrefs.GetFloat(MaraXKey, 0f),
             PlayerPrefs.GetFloat(MaraYKey, 0f),
@@ -93,6 +127,21 @@ public class CheckpointManager : MonoBehaviour
 
     public CheckpointUnlocks GetCheckpointUnlocks()
     {
+        if (SaveSystem.HasSaveFile())
+        {
+            SaveData data = SaveSystem.Load();
+            if (data != null)
+            {
+                return new CheckpointUnlocks
+                {
+                    canMoveVertical = data.canMoveVertical,
+                    canSprint = data.canSprint,
+                    canHeadbutt = data.canHeadbutt,
+                    canListen = data.canListen,
+                };
+            }
+        }
+
         return new CheckpointUnlocks
         {
             canMoveVertical = PlayerPrefs.GetInt(UnlockVerticalKey, 0) == 1,
@@ -102,9 +151,10 @@ public class CheckpointManager : MonoBehaviour
         };
     }
 
-    // Útil para probar el juego desde cero sin borrar PlayerPrefs a mano.
+    // Útil para reiniciar el juego desde cero
     public void ClearCheckpoint()
     {
+        SaveSystem.DeleteSave();
         PlayerPrefs.SetInt(HasCheckpointKey, 0);
         PlayerPrefs.Save();
     }

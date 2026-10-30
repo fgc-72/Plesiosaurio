@@ -2869,6 +2869,57 @@ MonoBehaviour:
   glow: {fileID: 456907315}
   activarConHover: 1
   combos: []
+--- !u!1 &497936539
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 497936541}
+  - component: {fileID: 497936540}
+  m_Layer: 0
+  m_Name: WaterSurfaceBarrier
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &497936540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497936539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd5b687a76cf4f843ac795c0c5baa136, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterSurfaceBarrier
+  surfacePlane: {fileID: 1564302288}
+  defaultSurfaceY: 143.7
+  barrierDepth: 10
+  pushDownSpeed: 5
+  dialogueId: nami_superficie
+  dialogueCooldown: 25
+  playerTag: Player
+--- !u!4 &497936541
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497936539}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 127, y: 143.7, z: 130.03125}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &510578063
 GameObject:
   m_ObjectHideFlags: 0
@@ -10503,7 +10554,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CheckpointTrigger
   playerTag: Player
-  sceneName: Acto1-mitad
+  sceneName: Acto2
   maraTransform: {fileID: 0}
   saveOnlyOnce: 1
 --- !u!114 &1523219632
@@ -13672,15 +13723,15 @@ MonoBehaviour:
   receiveShadows: 1
   underwaterFog: 1
   absorption: {x: 0.45, y: 0.07, z: 0.03}
-  fogDensity: 0.46
-  fogColor: {r: 0.5896226, g: 0.6847677, b: 1, a: 1}
+  fogDensity: 0.58
+  fogColor: {r: 0.34100214, g: 0.36833987, b: 0.9150943, a: 1}
   depthDarkening: 0.03
   godRays: 1
   godRayIntensity: 0.1
   godRaySteps: 24
   godRayMaxDistance: 60
   godRayAnisotropy: 0.6
-  godRayColor: {r: 0.7877358, g: 0.9310831, b: 1, a: 1}
+  godRayColor: {r: 0.23073156, g: 0.6242775, b: 0.8018868, a: 1}
   godRayPattern: 0.75
 --- !u!1 &1692280790
 GameObject:
@@ -17420,3 +17471,4 @@ SceneRoots:
   - {fileID: 1575564530}
   - {fileID: 212670142}
   - {fileID: 1238868465}
+  - {fileID: 497936541}

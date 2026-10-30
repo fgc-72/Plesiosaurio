@@ -74,7 +74,12 @@ public class OpeningCinematicAct1 : MonoBehaviour
     private void Start()
     {
         missionUI = Object.FindFirstObjectByType<MissionUI>();
-        if (CheckpointManager.Instance != null && CheckpointManager.Instance.HasCheckpointFor(sceneName))
+
+        bool shouldSkip = (SaveSystem.PendingLoadData != null) ||
+                          (SaveSystem.HasSaveFile() && SaveSystem.IsSceneMatch(SaveSystem.Load()?.sceneName, sceneName)) ||
+                          (CheckpointManager.Instance != null && CheckpointManager.Instance.HasCheckpointFor(sceneName));
+
+        if (shouldSkip)
             SkipToCheckpoint();
         else
             StartCoroutine(PlayIntro());
@@ -211,7 +216,12 @@ public class OpeningCinematicAct1 : MonoBehaviour
             maraGuide.enabled = true;
 
         // 5) Primer checkpoint, justo aquí.
-        if (CheckpointManager.Instance != null)
+        SaveData data = SaveSystem.CreateSaveDataFromCurrentScene("Act1_IntroEnd");
+        if (data != null)
+        {
+            SaveSystem.Save(data);
+        }
+        else if (CheckpointManager.Instance != null)
         {
             InputManagerBueno inputManager = playerControls.GetComponent<InputManagerBueno>();
             CheckpointUnlocks unlocks = inputManager != null

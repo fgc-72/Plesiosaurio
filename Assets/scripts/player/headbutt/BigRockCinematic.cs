@@ -262,6 +262,17 @@ public class BigRockCinematic : MonoBehaviour
 
         if (!changingScene && maraGuide != null)
             maraGuide.enabled = true;
+
+        if (changingScene)
+        {
+            SaveData wakeUpSave = SaveSystem.CreateSaveDataFromCurrentScene("Acto2_WakeUp");
+            if (wakeUpSave != null)
+            {
+                wakeUpSave.hasMara = false;
+                SaveSystem.Save(wakeUpSave);
+                Debug.Log("[BigRockCinematic] Checkpoint automático guardado al despertar en Acto 2.");
+            }
+        }
     }
 
     private IEnumerator ImpactAndFadeOut()

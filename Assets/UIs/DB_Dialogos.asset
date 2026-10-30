@@ -104,3 +104,11 @@ MonoBehaviour:
       text: "\xBF\xA1Eso es un tibur\xF3n!? \xA1Tengo que escapar!"
     - languageCode: en
       text: Is that a shark coming!? I have to get away!
+  - id: nami_superficie
+    speaker: Nami
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: "Mam\xE1 dijo que no deber\xEDa acercarme a la superficie..."
+    - languageCode: en
+      text: "Mom said I shouldn't go near the surface..."

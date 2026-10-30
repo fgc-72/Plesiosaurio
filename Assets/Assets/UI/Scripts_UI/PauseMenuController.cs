@@ -171,7 +171,19 @@ public class PauseMenuController : MonoBehaviour
     }
 
     private void OnSettings() => settingsTransition.Open();
-    private void OnSave()     { Debug.Log("Guardar: pendiente de implementar"); }
+    private void OnSave()
+    {
+        SaveData data = SaveSystem.CreateSaveDataFromCurrentScene("ManualSave");
+        if (data != null && SaveSystem.Save(data))
+        {
+            Debug.Log($"[PauseMenu] Partida guardada con éxito en '{data.sceneName}' ({data.saveTimestamp}).");
+            UISfx.PlaySelect();
+        }
+        else
+        {
+            Debug.LogError("[PauseMenu] Error al guardar la partida.");
+        }
+    }
 
     // ---------- Confirmación ----------
 
