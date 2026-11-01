@@ -23,13 +23,38 @@ public class InspectableObject : MonoBehaviour
     [Header("Interacción")]
     [Min(0.1f)] public float range = 2.5f;
 
+    [Header("Indicador en el mundo")]
+    [Tooltip("Hijo del objeto: un Canvas (World Space) con la Image del botón. Colócalo delante del objeto en el editor.")]
+    public GameObject worldPrompt;
+
+    [Tooltip("El indicador siempre mira a la cámara del jugador.")]
+public bool promptFacesCamera = true;
+
     // Registro estático: InspectViewer recorre esta lista para saber qué hay cerca.
     public static readonly List<InspectableObject> All = new();
 
-    void Awake()
-    {
-        EnsureInspectableLayer();
-    }
+void Awake()
+{
+    EnsureInspectableLayer();
+    if (worldPrompt != null) worldPrompt.SetActive(false);
+}
+
+public void SetPromptVisible(bool visible)
+{
+    if (worldPrompt != null && worldPrompt.activeSelf != visible)
+        worldPrompt.SetActive(visible);
+}
+
+void LateUpdate()
+{
+    if (!promptFacesCamera || worldPrompt == null || !worldPrompt.activeSelf) return;
+
+    Camera cam = Camera.main;
+    if (cam == null) return;
+
+    // El Canvas mira en la misma dirección que la cámara (no se ve volteado ni inclinado).
+    worldPrompt.transform.rotation = cam.transform.rotation;
+}
 
 #if UNITY_EDITOR
     void OnValidate()

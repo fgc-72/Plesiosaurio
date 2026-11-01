@@ -57,6 +57,7 @@ public class InspectViewer : MonoBehaviour
     RenderTexture rt;
     bool isOpen;
     InspectableObject lastReported;
+    InspectableObject promptShownFor;
 
     void Awake()
     {
@@ -118,6 +119,7 @@ public class InspectViewer : MonoBehaviour
         if (isOpen && pauseTimeWhileOpen) Time.timeScale = 1f;
         isOpen = false;
         IsOpen = false;
+        ShowWorldPromptFor(null);
     }
 
     void Update()
@@ -135,6 +137,7 @@ public class InspectViewer : MonoBehaviour
 
         InspectableObject current = FindClosestInRange();
         if (promptRoot != null) promptRoot.SetActive(current != null);
+        ShowWorldPromptFor(current);
 
         if (current != lastReported)
         {
@@ -150,7 +153,15 @@ public class InspectViewer : MonoBehaviour
         if (current != null && WasInteractPressed())
             OpenInspect(current);
     }
+        // Muestra el indicador del objeto dado y oculta el del anterior. null = ocultar todos.
+        void ShowWorldPromptFor(InspectableObject target)
+        {
+            if (promptShownFor == target) return;
 
+            if (promptShownFor != null) promptShownFor.SetPromptVisible(false);
+            promptShownFor = target;
+            if (promptShownFor != null) promptShownFor.SetPromptVisible(true);
+        }
     bool WasInteractPressed()
     {
         if (interact != null && interact.WasPressedThisFrame()) return true;
@@ -276,6 +287,7 @@ public class InspectViewer : MonoBehaviour
         SpawnObject(source);
 
         promptRoot.SetActive(false);
+        ShowWorldPromptFor(null);
         SetViewVisible(true);
         SetBlocked(true);
         isOpen = true;
