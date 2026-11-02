@@ -134,9 +134,8 @@ public class BigRockCinematic : MonoBehaviour
         if (maraGuide != null)
             maraGuide.enabled = false;
 
-        // Limpiamos las rocas normales que sigan en el aire
-        foreach (FallingRock rock in FindObjectsByType<FallingRock>(FindObjectsSortMode.None))
-            Destroy(rock.gameObject);
+        // Limpiamos las rocas normales que sigan en el aire, fragmentos y partículas
+        ClearRockParticlesAndDebris();
 
         // Primer plano de la caída
         int closeUpOriginalPriority = 0;
@@ -179,6 +178,12 @@ public class BigRockCinematic : MonoBehaviour
         if (playerAnimation != null)
             playerAnimation.SetAnimationOverride(true);
 
+        // Ocultamos el modelo visual de Nami para que no se interponga en la cámara al desmayarse
+        SetNamiRenderersVisible(false);
+
+        // Limpiamos inmediatamente cualquier fragmento de roca que se haya roto o partícula residual
+        ClearRockParticlesAndDebris();
+
         // Marcamos persistencia si vamos a cambiar de escena
         if (changingScene)
         {
@@ -220,6 +225,9 @@ public class BigRockCinematic : MonoBehaviour
             namiRigidbody.position = wakeUpPoint.position;
             namiRigidbody.rotation = wakeUpPoint.rotation;
         }
+
+        // Reactivamos el modelo visual de Nami para que esté visible al despertar
+        SetNamiRenderersVisible(true);
 
         // Preparamos el desenfoque al despertar (borroso para que aclare poco a poco)
         InitDepthOfField();
@@ -456,5 +464,90 @@ public class BigRockCinematic : MonoBehaviour
             namiAnimator.SetInteger("AnimationState", state);
             yield return null;
         }
+    }
+
+    private Renderer[] namiRenderers;
+
+    /// <summary>
+    /// Activa o desactiva la visibilidad de todos los renderers del modelo de Nami sin desactivar el GameObject.
+    /// </summary>
+    private void SetNamiRenderersVisible(bool visible)
+    {
+        if (namiRenderers == null || namiRenderers.Length == 0 || namiRenderers[0] == null)
+        {
+            if (namiRigidbody != null)
+                namiRenderers = namiRigidbody.GetComponentsInChildren<Renderer>(true);
+            else if (playerControls != null)
+                namiRenderers = playerControls.GetComponentsInChildren<Renderer>(true);
+            else
+            {
+                PlayerControls pc = Object.FindFirstObjectByType<PlayerControls>();
+                if (pc != null)
+                    namiRenderers = pc.GetComponentsInChildren<Renderer>(true);
+            }
+        }
+
+        if (namiRenderers != null)
+        {
+            foreach (Renderer r in namiRenderers)
+            {
+                if (r != null)
+                    r.enabled = visible;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Elimina fragmentos de rocas rotas, rocas cayendo activas y limpia sistemas de partículas en la escena.
+    /// </summary>
+    private void ClearRockParticlesAndDebris()
+    {
+        // 1. Limpiar fragmentos/cubos registrados en DestructibleRock
+        DestructibleRock.ClearAllDebris();
+
+        // 2. Destruir cualquier roca destructible o cayendo que quede activa (excepto la roca grande de la cinemática)
+        foreach (DestructibleRock rock in Object.FindObjectsByType<DestructibleRock>(FindObjectsSortMode.None))
+        {
+            if (rock != null && (bigRockObject == null || rock.transform != bigRockObject))
+            {
+                Destroy(rock.gameObject);
+            }
+        }
+
+        foreach (FallingRock falling in Object.FindObjectsByType<FallingRock>(FindObjectsSortMode.None))
+        {
+            if (falling != null && (bigRockObject == null || falling.transform != bigRockObject))
+            {
+                Destroy(falling.gameObject);
+            }
+        }
+
+        // 3. Detener y limpiar cualquier ParticleSystem que exista en la escena
+        foreach (ParticleSystem ps in Object.FindObjectsByType<ParticleSystem>(FindObjectsSortMode.None))
+        {
+            if (ps != null)
+            {
+                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                ps.Clear(true);
+            }
+        }
+
+        // 4. Limpieza de seguridad: cualquier cubo huérfano con nombre RockDebris o Cube sin colisionador
+        foreach (GameObject go in Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+        {
+            if (go != null && (go.name == "RockDebris" || go.name == "Cube"))
+            {
+                if (go.transform.parent == null && go.GetComponent<Collider>() == null && go.GetComponent<MeshFilter>() != null)
+                {
+                    Destroy(go);
+                }
+            }
+        }
+    }
+
+    private void OnDisable()
+    {
+        // Seguridad: restaurar renderers si la cinemática se desactiva antes de tiempo
+        SetNamiRenderersVisible(true);
     }
 }

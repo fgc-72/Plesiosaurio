@@ -43,6 +43,37 @@ public class DestructibleRock : MonoBehaviour
     private int currentHits;
     private bool isBroken;
 
+    private static readonly System.Collections.Generic.List<GameObject> activeDebris = new System.Collections.Generic.List<GameObject>();
+    private readonly System.Collections.Generic.List<GameObject> localPieces = new System.Collections.Generic.List<GameObject>();
+
+    public static void ClearAllDebris()
+    {
+        for (int i = activeDebris.Count - 1; i >= 0; i--)
+        {
+            if (activeDebris[i] != null)
+            {
+                Destroy(activeDebris[i]);
+            }
+        }
+        activeDebris.Clear();
+    }
+
+    private void OnDestroy()
+    {
+        if (localPieces != null)
+        {
+            for (int i = localPieces.Count - 1; i >= 0; i--)
+            {
+                if (localPieces[i] != null)
+                {
+                    activeDebris.Remove(localPieces[i]);
+                    Destroy(localPieces[i]);
+                }
+            }
+            localPieces.Clear();
+        }
+    }
+
     public bool IsBroken => isBroken;
 
     public void TakeHit()
@@ -127,7 +158,11 @@ public class DestructibleRock : MonoBehaviour
         for (int i = 0; i < debrisCount; i++)
         {
             GameObject piece = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            piece.name = "RockDebris";
             Destroy(piece.GetComponent<Collider>());
+
+            activeDebris.Add(piece);
+            localPieces.Add(piece);
 
             if (debrisMaterial != null)
                 piece.GetComponent<Renderer>().sharedMaterial = debrisMaterial;
@@ -177,7 +212,14 @@ public class DestructibleRock : MonoBehaviour
         }
 
         foreach (Transform p in pieces)
-            if (p != null) Destroy(p.gameObject);
+        {
+            if (p != null)
+            {
+                activeDebris.Remove(p.gameObject);
+                localPieces.Remove(p.gameObject);
+                Destroy(p.gameObject);
+            }
+        }
 
         Destroy(gameObject);
     }
