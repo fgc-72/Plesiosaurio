@@ -111,4 +111,13 @@ MonoBehaviour:
     - languageCode: es
       text: "Mam\xE1 dijo que no deber\xEDa acercarme a la superficie..."
     - languageCode: en
-      text: "Mom said I shouldn't go near the surface..."
+      text: Mom said I shouldn't go near the surface...
+  - id: nami_lab
+    speaker: Nami
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: "\xBFQu\xE9 es eso? Tal vez all\xED pueda encontrar pistas del paradero
+        de mam\xE1"
+    - languageCode: en
+      text: Mom said I shouldn't go near the surface...

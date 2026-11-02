@@ -45,7 +45,8 @@ public class CheckpointManager : MonoBehaviour
         {
             DontDestroyOnLoad(gameObject);
         }
-        // NOTA: Se eliminó el ClearCheckpoint() automático que formateaba la partida cada vez que arrancaba el juego.
+
+        ClearCheckpoint();
     }
 
     public void SaveCheckpoint(string sceneName, Vector3 position, Vector3 maraPosition, CheckpointUnlocks unlocks)

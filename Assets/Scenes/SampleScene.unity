@@ -4166,8 +4166,8 @@ MonoBehaviour:
   mara: {fileID: 1809590202}
   maraTag: Mara
   searchInterval: 1
-  softRadius: 35
-  hardRadius: 40
+  softRadius: 52.7
+  hardRadius: 74.9
   warningDialogueId: nami_limite
   warningCooldown: 20
 --- !u!1 &650566557
@@ -6510,9 +6510,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1048190191}
-    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1035567542}
     - targetCorrespondingSourceObject: {fileID: 3982504166368023673, guid: 3957053478618df47b6b383e623d4ce4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2106138196}
@@ -7677,37 +7674,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1031303947}
   m_CullTransparentMesh: 1
---- !u!1 &1035567541
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1035567542}
-  m_Layer: 7
-  m_Name: SharkApproachPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1035567542
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1035567541}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.23, y: -0, z: 42.94}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 647012130}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1037176739
 GameObject:
   m_ObjectHideFlags: 0
@@ -11376,6 +11342,7 @@ Transform:
   - {fileID: 647012130}
   - {fileID: 330585546}
   - {fileID: 1600148751}
+  - {fileID: 1838350343}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 60.956, z: 0}
 --- !u!1 &1599249114
@@ -14464,11 +14431,11 @@ Transform:
   m_GameObject: {fileID: 1838350338}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 872.76996, y: 142.3, z: 867.22687}
+  m_LocalPosition: {x: 0, y: 175, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1585074510}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1858998348
 GameObject:
@@ -16442,7 +16409,6 @@ SceneRoots:
   - {fileID: 1207773934}
   - {fileID: 1019204217}
   - {fileID: 1057628215}
-  - {fileID: 1838350343}
   - {fileID: 2010061031}
   - {fileID: 1282899380}
   - {fileID: 228856456}

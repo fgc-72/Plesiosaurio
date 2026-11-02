@@ -31,3 +31,15 @@ MonoBehaviour:
       title: Sigue a Mara
       description: No te dejes golpear por las rocas
       hint: "Rompe m\xEDnimo 4"
+  - id: mision3
+    translations:
+    - languageCode: es
+      title: Escapa
+      description: "No te dejes alcanzar por el tibur\xF3n"
+      hint: 
+  - id: mision4
+    translations:
+    - languageCode: es
+      title: Inspecciona el laboratorio
+      description: 'pista: presiona arraba o abajo para mejor movilidad'
+      hint: 'Encuentra 4 pistas '
