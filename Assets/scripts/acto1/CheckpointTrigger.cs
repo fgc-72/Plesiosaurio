@@ -24,6 +24,31 @@ public class CheckpointTrigger : MonoBehaviour
         GetComponent<Collider>().isTrigger = true;
     }
 
+    private void Start()
+    {
+        // Si el jugador ya se encuentra dentro del trigger al iniciar la escena
+        // (ej. al despertar en WakeUpPoint), se guarda el checkpoint de inmediato.
+        CheckInitialOverlap();
+    }
+
+    private void CheckInitialOverlap()
+    {
+        if (saveOnlyOnce && hasSaved) return;
+
+        Collider col = GetComponent<Collider>();
+        if (col == null) return;
+
+        Collider[] hits = Physics.OverlapBox(col.bounds.center, col.bounds.extents, transform.rotation);
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag(playerTag) || (hit.transform.root != null && hit.transform.root.CompareTag(playerTag)))
+            {
+                TriggerSave(hit.gameObject);
+                break;
+            }
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (saveOnlyOnce && hasSaved)
@@ -31,6 +56,14 @@ public class CheckpointTrigger : MonoBehaviour
 
         // Comprueba si el objeto o su raíz tienen el tag de Player
         if (!other.CompareTag(playerTag) && !other.transform.root.CompareTag(playerTag))
+            return;
+
+        TriggerSave(other.gameObject);
+    }
+
+    public void TriggerSave(GameObject playerObj)
+    {
+        if (saveOnlyOnce && hasSaved)
             return;
 
         // 1. Guardar a través del SaveSystem JSON
@@ -49,7 +82,7 @@ public class CheckpointTrigger : MonoBehaviour
         // 2. Compatibilidad con CheckpointManager
         if (CheckpointManager.Instance != null)
         {
-            InputManagerBueno inputManager = other.GetComponent<InputManagerBueno>() ?? other.GetComponentInParent<InputManagerBueno>();
+            InputManagerBueno inputManager = playerObj.GetComponent<InputManagerBueno>() ?? playerObj.GetComponentInParent<InputManagerBueno>();
             CheckpointUnlocks unlocks = inputManager != null
                 ? new CheckpointUnlocks
                 {
@@ -60,8 +93,8 @@ public class CheckpointTrigger : MonoBehaviour
                 }
                 : default;
 
-            Vector3 maraPosition = maraTransform != null ? maraTransform.position : other.transform.position;
-            CheckpointManager.Instance.SaveCheckpoint(sceneName, other.transform.position, maraPosition, unlocks);
+            Vector3 maraPosition = maraTransform != null ? maraTransform.position : playerObj.transform.position;
+            CheckpointManager.Instance.SaveCheckpoint(sceneName, playerObj.transform.position, maraPosition, unlocks);
         }
 
         hasSaved = true;

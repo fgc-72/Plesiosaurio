@@ -57,33 +57,28 @@ public class MissionUI : MonoBehaviour
         if (Render(id))
             MissionState.CurrentMissionId = id;
         
-        if (titleLabel.text == "")
-            button1.enabled = false;
-        else
-            button1.enabled = true;
-        if (descriptionLabel.text == "")
-            button2.enabled = false;
-        else
-            button2.enabled = true;
-        if (hintLabel.text == "")
-            button3.enabled = false;
-        else
-            button3.enabled = true;
+        if (button1 != null)
+            button1.enabled = titleLabel != null && !string.IsNullOrEmpty(titleLabel.text);
+        if (button2 != null)
+            button2.enabled = descriptionLabel != null && !string.IsNullOrEmpty(descriptionLabel.text);
+        if (button3 != null)
+            button3.enabled = hintLabel != null && !string.IsNullOrEmpty(hintLabel.text);
     }
 
     public void Hide()
     {
         MissionState.CurrentMissionId = null;
-        titleLabel.text = "";
-        descriptionLabel.text = "";
-        hintLabel.text = "";
-        button1.enabled = false;
-        button2.enabled = false;
-        button3.enabled = false;
+        if (titleLabel != null) titleLabel.text = "";
+        if (descriptionLabel != null) descriptionLabel.text = "";
+        if (hintLabel != null) hintLabel.text = "";
+        if (button1 != null) button1.enabled = false;
+        if (button2 != null) button2.enabled = false;
+        if (button3 != null) button3.enabled = false;
     }
 
     private bool Render(string id)
     {
+        if (database == null) return false;
         var mission = database.GetById(id);
         if (mission == null) return false;
 

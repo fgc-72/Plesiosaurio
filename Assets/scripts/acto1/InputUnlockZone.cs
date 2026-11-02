@@ -18,10 +18,13 @@ public class InputUnlockZone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag(playerTag))
+        if (!other.CompareTag(playerTag) && (other.transform.root == null || !other.transform.root.CompareTag(playerTag)))
             return;
 
-        InputManagerBueno inputManager = other.GetComponent<InputManagerBueno>();
+        InputManagerBueno inputManager = other.GetComponent<InputManagerBueno>()
+            ?? other.GetComponentInParent<InputManagerBueno>()
+            ?? other.GetComponentInChildren<InputManagerBueno>();
+
         if (inputManager == null)
             return;
 
@@ -41,6 +44,19 @@ public class InputUnlockZone : MonoBehaviour
                 break;
         }
 
-        Destroy(gameObject);
+        if (CheckpointManager.Instance != null)
+        {
+            string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            CheckpointUnlocks cur = CheckpointManager.Instance.GetCheckpointUnlocks();
+            if (unlockType == UnlockType.MovimientoVertical) cur.canMoveVertical = true;
+            if (unlockType == UnlockType.Sprint) cur.canSprint = true;
+            if (unlockType == UnlockType.Cabezazo) cur.canHeadbutt = true;
+            if (unlockType == UnlockType.ModoEscucha) cur.canListen = true;
+
+            CheckpointManager.Instance.SaveCheckpoint(scene, other.transform.position, other.transform.position, cur);
+        }
+
+        // Destruye únicamente este componente para no interrumpir otros scripts en el mismo GameObject (ej. ScriptedEvent o CheckpointTrigger)
+        Destroy(this);
     }
 }

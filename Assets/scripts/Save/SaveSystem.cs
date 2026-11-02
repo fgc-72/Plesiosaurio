@@ -112,6 +112,17 @@ public static class SaveSystem
 
             LatestSaveData = null;
             PendingLoadData = null;
+
+            PlayerPrefs.DeleteKey("HasCheckpoint");
+            PlayerPrefs.DeleteKey("CheckpointScene");
+            PlayerPrefs.DeleteKey("CheckpointX");
+            PlayerPrefs.DeleteKey("CheckpointY");
+            PlayerPrefs.DeleteKey("CheckpointZ");
+            PlayerPrefs.DeleteKey("CheckpointMaraX");
+            PlayerPrefs.DeleteKey("CheckpointMaraY");
+            PlayerPrefs.DeleteKey("CheckpointMaraZ");
+            PlayerPrefs.Save();
+
             Debug.Log("[SaveSystem] Partida eliminada.");
 
             OnSaveDeleted?.Invoke();

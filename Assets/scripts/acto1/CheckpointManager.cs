@@ -46,7 +46,6 @@ public class CheckpointManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
 
-        ClearCheckpoint();
     }
 
     public void SaveCheckpoint(string sceneName, Vector3 position, Vector3 maraPosition, CheckpointUnlocks unlocks)
@@ -98,10 +97,23 @@ public class CheckpointManager : MonoBehaviour
 
     public Vector3 GetCheckpointPosition()
     {
+        // 1. Si hay una posición de checkpoint guardada específicamente por un CheckpointTrigger,
+        // esa es la posición oficial del punto de reaparición tras morir en el nivel.
+        if (PlayerPrefs.GetInt(HasCheckpointKey, 0) == 1)
+        {
+            return new Vector3(
+                PlayerPrefs.GetFloat(PosXKey, 0f),
+                PlayerPrefs.GetFloat(PosYKey, 0f),
+                PlayerPrefs.GetFloat(PosZKey, 0f)
+            );
+        }
+
+        // 2. Si no, consultamos SaveSystem (siempre que no sea un guardado manual de pausa en pleno nado)
         if (SaveSystem.HasSaveFile())
         {
             SaveData data = SaveSystem.Load();
-            if (data != null) return data.namiPosition;
+            if (data != null && data.savepointName != "ManualSave")
+                return data.namiPosition;
         }
 
         return new Vector3(

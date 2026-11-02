@@ -100,7 +100,7 @@ public class SharkChaseEvent : MonoBehaviour
             Debug.LogWarning("SharkChaseEvent: falta asignar 'Shark Camera'. Nami se bloquea pero la cámara no cambia.");
         }
 
-        // 3) Texto (sale ya) y, tras la pausa, el tiburón arranca.
+        // 3) Texto (sale ya mientras la cámara enfoca al tiburón a lo lejos).
         float dialogueDuration = 0f;
         if (!string.IsNullOrEmpty(dialogueId) && ThoughtUI.Instance != null)
         {
@@ -108,6 +108,20 @@ public class SharkChaseEvent : MonoBehaviour
             ThoughtUI.Instance.ShowById(dialogueId);
         }
 
+        // 4) Se queda en cámara el tiempo del texto o el mínimo, lo que sea mayor.
+        //    (El tiburón permanece quieto en su posición para NO devorarse a Nami mientras ella está quieta).
+        float total = Mathf.Max(minCameraSeconds, dialogueDuration);
+        if (total > 0f)
+            yield return new WaitForSeconds(total);
+
+        // 5) La cámara vuelve a Nami y Nami recupera el control para poder huir.
+        if (sharkCamera != null)
+            sharkCamera.Priority = originalPriority;
+
+        if (playerAnimation != null) playerAnimation.SetAnimationOverride(false);
+        controls.SetControlEnabled(true);
+
+        // 6) Breve margen para que el jugador empiece a nadar y luego el tiburón arranca la persecución desde lejos.
         if (delayBeforeChase > 0f)
             yield return new WaitForSeconds(delayBeforeChase);
 
@@ -116,25 +130,23 @@ public class SharkChaseEvent : MonoBehaviour
         else
             Debug.LogWarning("SharkChaseEvent: no encontré ningún SharkChaser en la escena.");
 
-        // 4) Se queda en cámara el tiempo del texto o el mínimo, lo que sea mayor.
-        float total = Mathf.Max(minCameraSeconds, dialogueDuration);
-        float remaining = total - delayBeforeChase;
-        if (remaining > 0f)
-            yield return new WaitForSeconds(remaining);
-
-        // 5) Todo vuelve a la normalidad.
-        if (sharkCamera != null)
-            sharkCamera.Priority = originalPriority;
-
-        if (playerAnimation != null) playerAnimation.SetAnimationOverride(false);
-        controls.SetControlEnabled(true);
-
         if (!string.IsNullOrEmpty(missionIdOnFinish))
         {
             if (MissionUI.Instance != null)
-                MissionUI.Instance.ShowMission(missionIdOnFinish);
+            {
+                try
+                {
+                    MissionUI.Instance.ShowMission(missionIdOnFinish);
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"SharkChaseEvent: no se pudo mostrar la misión '{missionIdOnFinish}': {ex.Message}");
+                }
+            }
             else
+            {
                 Debug.LogWarning($"SharkChaseEvent: misión '{missionIdOnFinish}' pero no hay MissionUI en la escena.");
+            }
         }
     }
 }

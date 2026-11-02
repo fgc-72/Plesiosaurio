@@ -75,9 +75,8 @@ public class OpeningCinematicAct1 : MonoBehaviour
     {
         missionUI = Object.FindFirstObjectByType<MissionUI>();
 
-        bool shouldSkip = (SaveSystem.PendingLoadData != null) ||
-                          (SaveSystem.HasSaveFile() && SaveSystem.IsSceneMatch(SaveSystem.Load()?.sceneName, sceneName)) ||
-                          (CheckpointManager.Instance != null && CheckpointManager.Instance.HasCheckpointFor(sceneName));
+        // Solo se salta la cinemática de apertura si se viene explícitamente de "Continuar" partida
+        bool shouldSkip = (SaveSystem.PendingLoadData != null);
 
         if (shouldSkip)
             SkipToCheckpoint();

@@ -50,21 +50,33 @@ public class ScreenBlackoutEffect : MonoBehaviour
         canvasGroup.interactable = false;
     }
 
-    public Coroutine FadeToBlack() => StartCoroutine(Fade(1f));
-    public Coroutine FadeFromBlack() => StartCoroutine(Fade(0f));
+    public static ScreenBlackoutEffect GetOrCreate()
+    {
+        ScreenBlackoutEffect instance = Object.FindFirstObjectByType<ScreenBlackoutEffect>();
+        if (instance == null)
+        {
+            GameObject go = new GameObject("ScreenBlackoutEffect");
+            instance = go.AddComponent<ScreenBlackoutEffect>();
+        }
+        return instance;
+    }
 
-    private IEnumerator Fade(float targetAlpha)
+    public Coroutine FadeToBlack(float overrideDuration = -1f) => StartCoroutine(Fade(1f, overrideDuration));
+    public Coroutine FadeFromBlack(float overrideDuration = -1f) => StartCoroutine(Fade(0f, overrideDuration));
+
+    private IEnumerator Fade(float targetAlpha, float overrideDuration = -1f)
     {
         if (canvasGroup == null) BuildCanvas();
+        float duration = overrideDuration > 0f ? overrideDuration : fadeDuration;
         float startAlpha = canvasGroup.alpha;
         float elapsed = 0f;
 
         // Time.unscaledDeltaTime: así el fade funciona aunque en el futuro
         // pausen el juego con Time.timeScale = 0 durante la cinemática.
-        while (elapsed < fadeDuration)
+        while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / fadeDuration);
+            canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
             yield return null;
         }
 

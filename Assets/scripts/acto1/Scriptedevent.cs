@@ -70,6 +70,13 @@ public class ScriptedEvent : MonoBehaviour
              "hasta que tengas una animación específica de 'arrastrado/indefenso'.")]
     [SerializeField] private int animationStateDuringEvent = 1;
 
+    [Header("Desbloqueo de habilidad al terminar (opcional)")]
+    [Tooltip("Desbloquea el movimiento vertical (nadar hacia arriba y abajo) al terminar el evento.")]
+    [SerializeField] private bool unlockMovementVertical = false;
+    [SerializeField] private bool unlockSprint = false;
+    [SerializeField] private bool unlockHeadbutt = false;
+    [SerializeField] private bool unlockListen = false;
+
     [Header("Activar algo al soltar al jugador (opcional)")]
     [Tooltip("Spawner de rocas que debe arrancar justo cuando este evento termina y el " +
              "jugador recupera el control (no antes, mientras todavía está bloqueado " +
@@ -101,7 +108,7 @@ public class ScriptedEvent : MonoBehaviour
         if (hasTriggered && triggerOnce)
             return;
 
-        if (!other.CompareTag(playerTag))
+        if (!other.CompareTag(playerTag) && !other.transform.root.CompareTag(playerTag))
             return;
 
         if (requireMaraNearby && !IsMaraNearby(other.transform))
@@ -112,8 +119,14 @@ public class ScriptedEvent : MonoBehaviour
         if (tetherToRelease != null)
             tetherToRelease.enabled = false;
 
-        PlayerControls playerControls = other.GetComponent<PlayerControls>();
-        Rigidbody rb = other.GetComponent<Rigidbody>();
+        PlayerControls playerControls = other.GetComponent<PlayerControls>()
+            ?? other.GetComponentInParent<PlayerControls>()
+            ?? other.GetComponentInChildren<PlayerControls>()
+            ?? Object.FindFirstObjectByType<PlayerControls>();
+
+        Rigidbody rb = other.attachedRigidbody;
+        if (rb == null && playerControls != null)
+            rb = playerControls.GetComponent<Rigidbody>();
 
         StartCoroutine(RunEvent(playerControls, rb));
     }
@@ -144,14 +157,30 @@ public class ScriptedEvent : MonoBehaviour
         if (playerControls != null)
             playerControls.SetControlEnabled(false);
 
+        if (rb != null && !rb.isKinematic)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
         PlayerAnimation playerAnimation = playerControls != null
             ? playerControls.GetComponent<PlayerAnimation>()
+            : null;
+
+        Animator namiAnimator = playerControls != null
+            ? playerControls.GetComponent<Animator>()
             : null;
 
         if (overrideAnimation && playerAnimation != null)
         {
             playerAnimation.SetAnimationOverride(true);
-            playerControls.GetComponent<Animator>().SetInteger("AnimationState", animationStateDuringEvent);
+            if (namiAnimator != null) namiAnimator.SetInteger("AnimationState", animationStateDuringEvent);
+        }
+        else if (movementMode == ForcedMovementMode.Ninguno && playerAnimation != null)
+        {
+            // Para eventos puramente de diálogo/cámara, dejamos a Nami en pose quieta (Idle)
+            playerAnimation.SetAnimationOverride(true);
+            if (namiAnimator != null) namiAnimator.SetInteger("AnimationState", 0);
         }
 
         int originalPriority = 0;
@@ -218,11 +247,43 @@ public class ScriptedEvent : MonoBehaviour
         if (guidedCamera != null)
             guidedCamera.Priority = originalPriority;
 
-        if (overrideAnimation && playerAnimation != null)
+        if (playerAnimation != null)
             playerAnimation.SetAnimationOverride(false);
 
         if (playerControls != null)
+        {
+            playerControls.SyncRotationToCurrentTransform();
             playerControls.SetControlEnabled(true);
+        }
+
+        // Desbloqueo de habilidades al terminar el evento (ej. nadar arriba/abajo tras diálogo del laboratorio)
+        InputManagerBueno inputMgr = playerControls != null ? playerControls.GetComponent<InputManagerBueno>() : null;
+        if (inputMgr == null && playerControls != null)
+            inputMgr = playerControls.GetComponentInParent<InputManagerBueno>() ?? playerControls.GetComponentInChildren<InputManagerBueno>();
+
+        if (inputMgr != null)
+        {
+            if (unlockMovementVertical) inputMgr.canMoveVertical = true;
+            if (unlockSprint) inputMgr.canSprint = true;
+            if (unlockHeadbutt) inputMgr.canHeadbutt = true;
+            if (unlockListen) inputMgr.canListen = true;
+
+            if (unlockMovementVertical || unlockSprint || unlockHeadbutt || unlockListen)
+            {
+                if (CheckpointManager.Instance != null)
+                {
+                    string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                    CheckpointUnlocks cur = CheckpointManager.Instance.GetCheckpointUnlocks();
+                    if (unlockMovementVertical) cur.canMoveVertical = true;
+                    if (unlockSprint) cur.canSprint = true;
+                    if (unlockHeadbutt) cur.canHeadbutt = true;
+                    if (unlockListen) cur.canListen = true;
+
+                    Vector3 pos = playerControls != null ? playerControls.transform.position : transform.position;
+                    CheckpointManager.Instance.SaveCheckpoint(scene, pos, pos, cur);
+                }
+            }
+        }
 
         // Apenas el jugador recupera el control, mostramos la misión nueva (si hay una).
         if (!string.IsNullOrEmpty(missionIdOnFinish))

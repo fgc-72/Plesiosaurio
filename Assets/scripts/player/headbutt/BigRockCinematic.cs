@@ -265,6 +265,11 @@ public class BigRockCinematic : MonoBehaviour
 
         if (changingScene)
         {
+            if (playerControls != null)
+            {
+                CheckpointRespawner.SetAct2InitialSpawn(playerControls.transform.position, playerControls.transform.rotation);
+            }
+
             SaveData wakeUpSave = SaveSystem.CreateSaveDataFromCurrentScene("Acto2_WakeUp");
             if (wakeUpSave != null)
             {

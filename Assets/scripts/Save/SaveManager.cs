@@ -49,16 +49,53 @@ public class SaveManager : MonoBehaviour
         if (mode != LoadSceneMode.Single) return;
 
         // Si venimos del menú principal a una escena de menú, limpiamos pendientes
+        // y desactivamos temporalmente a Nami si quedó persistente en DontDestroyOnLoad
         if (scene.name.Equals("MENU", System.StringComparison.OrdinalIgnoreCase) ||
             scene.name.Equals("MainMenu", System.StringComparison.OrdinalIgnoreCase))
         {
             SaveSystem.PendingLoadData = null;
+            PlayerControls player = Object.FindFirstObjectByType<PlayerControls>();
+            if (player != null)
+            {
+                player.transform.root.gameObject.SetActive(false);
+            }
             return;
         }
 
         if (SaveSystem.PendingLoadData != null)
         {
             StartCoroutine(RestoreGameStateCoroutine(SaveSystem.PendingLoadData));
+        }
+        else if (SaveSystem.IsSceneMatch(scene.name, "acto2"))
+        {
+            StartCoroutine(CaptureAct2InitialSpawnCoroutine());
+        }
+    }
+
+    private IEnumerator CaptureAct2InitialSpawnCoroutine()
+    {
+        yield return new WaitForEndOfFrame();
+
+        PlayerControls playerControls = null;
+        while (playerControls == null)
+        {
+            playerControls = Object.FindFirstObjectByType<PlayerControls>();
+            yield return null;
+        }
+
+        // Si hay una cinemática en curso (como el despertar del Acto 2), esperamos a que termine
+        // y el jugador reciba el control (IsControlEnabled == true)
+        while (playerControls != null && !playerControls.IsControlEnabled)
+        {
+            yield return null;
+        }
+
+        if (playerControls != null)
+        {
+            Vector3 startPos = playerControls.transform.position;
+            Quaternion startRot = playerControls.transform.rotation;
+            CheckpointRespawner.SetAct2InitialSpawn(startPos, startRot);
+            Debug.Log($"[SaveManager] Capturada posición inicial libre de Acto 2: {startPos}");
         }
     }
 
@@ -71,8 +108,24 @@ public class SaveManager : MonoBehaviour
 
         // 1. Restaurar jugador (Nami)
         PlayerControls playerControls = Object.FindFirstObjectByType<PlayerControls>();
+
+        // Si entramos a Acto 2 tras un inicio en frío y Nami no vino por DontDestroyOnLoad,
+        // la traemos de SampleScene de forma aditiva en segundo plano
+        if (playerControls == null && SaveSystem.IsSceneMatch(data.sceneName, "acto2"))
+        {
+            Debug.Log("[SaveManager] PlayerControls no encontrado en Acto 2. Cargando Nami desde SampleScene de forma aditiva...");
+            yield return SceneManager.LoadSceneAsync("SampleScene", LoadSceneMode.Additive);
+            playerControls = Object.FindFirstObjectByType<PlayerControls>();
+            if (playerControls != null)
+            {
+                DontDestroyOnLoad(playerControls.transform.root.gameObject);
+            }
+            yield return SceneManager.UnloadSceneAsync("SampleScene");
+        }
+
         if (playerControls != null)
         {
+            playerControls.transform.root.gameObject.SetActive(true);
             Rigidbody namiRb = playerControls.GetComponent<Rigidbody>();
             if (namiRb != null)
             {
@@ -85,6 +138,8 @@ public class SaveManager : MonoBehaviour
             playerControls.transform.position = data.namiPosition;
             playerControls.transform.eulerAngles = data.namiEulerAngles;
             playerControls.SetControlEnabled(true);
+            Physics.SyncTransforms();
+            playerControls.SyncRotationToCurrentTransform();
 
             // Restaurar habilidades
             InputManagerBueno inputManager = playerControls.GetComponent<InputManagerBueno>();
@@ -94,6 +149,11 @@ public class SaveManager : MonoBehaviour
                 inputManager.canSprint = data.canSprint;
                 inputManager.canHeadbutt = data.canHeadbutt;
                 inputManager.canListen = data.canListen;
+            }
+
+            if (SaveSystem.IsSceneMatch(data.sceneName, "acto2"))
+            {
+                CheckpointRespawner.SetAct2InitialSpawn(data.namiPosition, Quaternion.Euler(data.namiEulerAngles));
             }
         }
         else

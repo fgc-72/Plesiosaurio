@@ -45,38 +45,71 @@ public class CheckpointRespawner : MonoBehaviour
 
     public bool IsRespawning => isRespawning;
 
-    // 'player' puede ser null: entonces se busca a Nami por el tag "Player".
-    public Coroutine Respawn(GameObject player = null)
+    private static Vector3 s_act2InitialPosition;
+    private static Quaternion s_act2InitialRotation = Quaternion.identity;
+    private static bool s_hasAct2InitialPosition;
+
+    public static bool HasAct2InitialPosition => s_hasAct2InitialPosition;
+    public static Vector3 Act2InitialPosition => s_act2InitialPosition;
+    public static Quaternion Act2InitialRotation => s_act2InitialRotation;
+
+    public static void SetAct2InitialSpawn(Vector3 pos, Quaternion rot)
     {
-        if (isRespawning) return null;
-        return StartCoroutine(RespawnRoutine(player));
+        s_act2InitialPosition = pos;
+        s_act2InitialRotation = rot;
+        s_hasAct2InitialPosition = true;
+        Debug.Log($"[CheckpointRespawner] Registrada posición inicial de Acto 2 en: {pos}");
     }
 
-    private IEnumerator RespawnRoutine(GameObject player)
+    public static void ClearAct2InitialSpawn()
+    {
+        s_hasAct2InitialPosition = false;
+    }
+
+    // 'player' puede ser null: entonces se busca a Nami por el tag "Player".
+    public Coroutine Respawn(GameObject player = null, float customFadeDuration = -1f, float customHoldDuration = -1f)
+    {
+        if (isRespawning) return null;
+        return StartCoroutine(RespawnRoutine(player, customFadeDuration, customHoldDuration));
+    }
+
+    private IEnumerator RespawnRoutine(GameObject player, float customFadeDuration, float customHoldDuration)
     {
         if (player == null)
             player = GameObject.FindWithTag("Player");
 
-        if (player == null)
+        PlayerControls controls = null;
+        Rigidbody namiRb = null;
+
+        if (player != null)
         {
-            Debug.LogWarning("CheckpointRespawner: no encontré a Nami (tag 'Player').");
+            controls = player.GetComponent<PlayerControls>()
+                ?? player.GetComponentInChildren<PlayerControls>()
+                ?? player.GetComponentInParent<PlayerControls>();
+
+            namiRb = player.GetComponent<Rigidbody>()
+                ?? player.GetComponentInChildren<Rigidbody>()
+                ?? player.GetComponentInParent<Rigidbody>();
+        }
+
+        if (controls == null)
+            controls = Object.FindFirstObjectByType<PlayerControls>();
+
+        if (controls != null && namiRb == null)
+            namiRb = controls.GetComponent<Rigidbody>();
+
+        if (controls == null || namiRb == null)
+        {
+            Debug.LogWarning("CheckpointRespawner: no encontré a Nami (tag 'Player' o PlayerControls/Rigidbody).");
             yield break;
         }
 
-        Rigidbody namiRb = player.GetComponent<Rigidbody>();
-        PlayerControls controls = player.GetComponent<PlayerControls>();
-        PlayerAnimation playerAnimation = player.GetComponent<PlayerAnimation>();
-        Animator namiAnimator = player.GetComponent<Animator>();
-
-        if (namiRb == null || controls == null)
-        {
-            Debug.LogWarning("CheckpointRespawner: Nami necesita Rigidbody y PlayerControls.");
-            yield break;
-        }
+        PlayerAnimation playerAnimation = controls.GetComponent<PlayerAnimation>();
+        Animator namiAnimator = controls.GetComponent<Animator>();
 
         isRespawning = true;
 
-        if (blackout == null) blackout = FindFirstObjectByType<ScreenBlackoutEffect>();
+        if (blackout == null) blackout = ScreenBlackoutEffect.GetOrCreate();
         FindDepthOfField();
 
         // 1) Nami pierde el control y se queda quieta.
@@ -86,14 +119,13 @@ public class CheckpointRespawner : MonoBehaviour
         namiRb.linearVelocity = Vector3.zero;
         namiRb.angularVelocity = Vector3.zero;
 
-        // 2) A negro.
+        // 2) A negro rápido.
         if (blackout != null)
-            yield return blackout.FadeToBlack();
-        else
-            Debug.LogWarning("CheckpointRespawner: no hay ScreenBlackoutEffect en la escena, no habrá fundido.");
+            yield return blackout.FadeToBlack(customFadeDuration);
 
-        if (blackHoldSeconds > 0f)
-            yield return new WaitForSeconds(blackHoldSeconds);
+        float hold = customHoldDuration >= 0f ? customHoldDuration : blackHoldSeconds;
+        if (hold > 0f)
+            yield return new WaitForSeconds(hold);
 
         // 3) (Opcional) diálogo con la pantalla en negro.
         yield return ShowDialogueAndWait(blackScreenDialogueId);
@@ -102,9 +134,12 @@ public class CheckpointRespawner : MonoBehaviour
         Teleport(namiRb, controls);
         SetBlurred();
 
+        // Restaurar habilidades para que persistan tras reaparecer
+        RestoreCheckpointUnlocks(controls);
+
         // 5) Vuelve de negro (y el borroso se aclara, si hay).
         if (blackout != null)
-            yield return blackout.FadeFromBlack();
+            yield return blackout.FadeFromBlack(customFadeDuration > 0f ? customFadeDuration : -1f);
         if (depthOfField != null)
             yield return ClearBlur();
 
@@ -113,6 +148,26 @@ public class CheckpointRespawner : MonoBehaviour
         controls.SetControlEnabled(true);
 
         isRespawning = false;
+    }
+
+    public void TeleportPlayerDirect(Rigidbody namiRb, PlayerControls controls)
+    {
+        Teleport(namiRb, controls);
+        RestoreCheckpointUnlocks(controls);
+    }
+
+    private void RestoreCheckpointUnlocks(PlayerControls controls)
+    {
+        if (controls == null || CheckpointManager.Instance == null) return;
+        InputManagerBueno inputMgr = controls.GetComponent<InputManagerBueno>() ?? controls.GetComponentInParent<InputManagerBueno>();
+        if (inputMgr != null)
+        {
+            CheckpointUnlocks u = CheckpointManager.Instance.GetCheckpointUnlocks();
+            inputMgr.canMoveVertical = u.canMoveVertical;
+            inputMgr.canSprint = u.canSprint;
+            inputMgr.canHeadbutt = u.canHeadbutt;
+            inputMgr.canListen = u.canListen;
+        }
     }
 
     // Busca en la escena un Volume que tenga Depth Of Field y toma ese override.
@@ -165,24 +220,74 @@ public class CheckpointRespawner : MonoBehaviour
         bool found = false;
 
         string sceneName = SceneManager.GetActiveScene().name;
-        bool hasCheckpoint = useCheckpointIfAvailable &&
-                             CheckpointManager.Instance != null &&
-                             CheckpointManager.Instance.HasCheckpointFor(sceneName);
+        bool isActo2 = SaveSystem.IsSceneMatch(sceneName, "acto2");
 
-        if (hasCheckpoint)
+        // En Acto 2, la muerte a manos del tiburón durante la persecución SIEMPRE debe
+        // reaparecer a Nami en la posición inicial de la escena donde comenzó a jugar libremente,
+        // sin mandarla detrás del terreno ni a triggers avanzados cerca del laboratorio.
+        if (isActo2)
         {
-            position = CheckpointManager.Instance.GetCheckpointPosition();
-            found = true;
-            Debug.Log($"CheckpointRespawner: reaparece en el checkpoint {position} (escena '{sceneName}').");
+            if (s_hasAct2InitialPosition)
+            {
+                position = s_act2InitialPosition;
+                rotation = s_act2InitialRotation;
+                found = true;
+                Debug.Log($"[CheckpointRespawner] Reapareciendo en la posición inicial capturada de Acto 2: {position}");
+            }
+            else if (SaveSystem.HasSaveFile())
+            {
+                SaveData save = SaveSystem.Load();
+                if (save != null && SaveSystem.IsSceneMatch(save.sceneName, "acto2") && save.savepointName == "Acto2_WakeUp")
+                {
+                    position = save.namiPosition;
+                    rotation = Quaternion.Euler(save.namiEulerAngles);
+                    found = true;
+                    Debug.Log($"[CheckpointRespawner] Reapareciendo usando guardado Acto2_WakeUp: {position}");
+                }
+            }
 
-            if (mara != null)
-                MoveTo(mara, CheckpointManager.Instance.GetCheckpointMaraPosition());
+            if (!found && fallbackSpawnPoint != null)
+            {
+                position = fallbackSpawnPoint.position;
+                rotation = fallbackSpawnPoint.rotation;
+                found = true;
+                Debug.Log($"[CheckpointRespawner] Reapareciendo usando fallbackSpawnPoint en {position}.");
+            }
         }
-        else if (fallbackSpawnPoint != null)
+        else
         {
-            position = fallbackSpawnPoint.position;
-            rotation = fallbackSpawnPoint.rotation;
-            found = true;
+            bool hasCheckpoint = useCheckpointIfAvailable &&
+                                 CheckpointManager.Instance != null &&
+                                 CheckpointManager.Instance.HasCheckpointFor(sceneName);
+
+            if (hasCheckpoint)
+            {
+                position = CheckpointManager.Instance.GetCheckpointPosition();
+                found = true;
+                Debug.Log($"CheckpointRespawner: reaparece en el checkpoint {position} (escena '{sceneName}').");
+
+                if (mara != null)
+                    MoveTo(mara, CheckpointManager.Instance.GetCheckpointMaraPosition());
+            }
+            else if (fallbackSpawnPoint != null)
+            {
+                position = fallbackSpawnPoint.position;
+                rotation = fallbackSpawnPoint.rotation;
+                found = true;
+                Debug.Log($"CheckpointRespawner: usando fallbackSpawnPoint en {position}.");
+            }
+        }
+
+        if (!found)
+        {
+            GameObject wakeUp = GameObject.Find("WakeUpPoint");
+            if (wakeUp != null)
+            {
+                position = wakeUp.transform.position;
+                rotation = wakeUp.transform.rotation;
+                found = true;
+                Debug.Log($"CheckpointRespawner: usando WakeUpPoint como respaldo en {position}.");
+            }
         }
 
         if (!found)

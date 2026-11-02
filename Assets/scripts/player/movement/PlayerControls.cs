@@ -216,6 +216,23 @@ public class PlayerControls : MonoBehaviour
     public void SetControlEnabled(bool isEnabled)
     {
         controlEnabled = isEnabled;
+        currentSpeed = 0f;
+        currentVerticalSpeed = 0f;
+        velocitySmoothRef = Vector3.zero;
+        verticalSmoothVelocity = 0f;
+
+        if (!isEnabled)
+        {
+            if (rb != null && !rb.isKinematic)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
+        }
+        else
+        {
+            SyncRotationToCurrentTransform();
+        }
     }
 
     // Sincroniza smoothYaw/currentPitch (el estado interno de rotación) con la

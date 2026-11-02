@@ -44,7 +44,9 @@ public class menuPrincipal : MonoBehaviour
 
         if (continueButton != null)
         {
-            continueButton.onClick.RemoveListener(ContinueGame);
+            // Limpia completamente los eventos persistentes heredados (ej. PlayGame clonado)
+            // y añade exclusivamente la llamada a ContinueGame
+            continueButton.onClick = new Button.ButtonClickedEvent();
             continueButton.onClick.AddListener(ContinueGame);
         }
 
@@ -72,11 +74,21 @@ public class menuPrincipal : MonoBehaviour
         }
 
         continueButton = clone.GetComponent<Button>();
+        // Limpia cualquier listener persistente que se haya copiado de playButton (como PlayGame)
+        continueButton.onClick = new Button.ButtonClickedEvent();
+        continueButton.onClick.AddListener(ContinueGame);
     }
 
     public void UpdateButtonStates()
     {
         bool hasSave = SaveSystem.HasSaveFile();
+
+        // Si se acaba de guardar una partida pero el botón dinámico aún no se había creado
+        if (continueButton == null && playButton != null && hasSave)
+        {
+            CreateDynamicContinueButton();
+        }
+
         if (continueButton != null)
         {
             continueButton.gameObject.SetActive(hasSave);
@@ -101,6 +113,14 @@ public class menuPrincipal : MonoBehaviour
     {
         // Nueva partida: limpia el guardado anterior para empezar desde cero
         SaveSystem.DeleteSave();
+
+        // Si quedó un objeto Nami persistente en DontDestroyOnLoad de una sesión previa, lo eliminamos
+        // para que SampleScene inicialice su Nami limpia y fresca.
+        PlayerControls oldPlayer = Object.FindFirstObjectByType<PlayerControls>();
+        if (oldPlayer != null)
+        {
+            Destroy(oldPlayer.transform.root.gameObject);
+        }
 
         UISfx.PlaySelect();
 
