@@ -114,7 +114,7 @@ MonoBehaviour:
       text: Mom said I shouldn't go near the surface...
   - id: final
     speaker: Mara
-    duration: 3.5
+    duration: 5
     translations:
     - languageCode: es
       text: "Nami...hija, si algun dia la correinte nos sepra, sigue los latidos

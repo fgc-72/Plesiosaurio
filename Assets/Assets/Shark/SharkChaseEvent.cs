@@ -47,6 +47,7 @@ public class SharkChaseEvent : MonoBehaviour
     private void Awake()
     {
         GetComponent<Collider>().isTrigger = true;
+        MusicManager.Instance.Play("Nami_Theme");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -104,6 +105,7 @@ public class SharkChaseEvent : MonoBehaviour
         float dialogueDuration = 0f;
         if (!string.IsNullOrEmpty(dialogueId) && ThoughtUI.Instance != null)
         {
+            MusicManager.Instance.Play("Persecusión");
             dialogueDuration = ThoughtUI.Instance.GetDurationById(dialogueId);
             ThoughtUI.Instance.ShowById(dialogueId);
         }

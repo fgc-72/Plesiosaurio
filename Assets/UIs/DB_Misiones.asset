@@ -29,17 +29,17 @@ MonoBehaviour:
     translations:
     - languageCode: es
       title: Sigue a Mara
-      description: No te dejes golpear por las rocas
+      description: "Presiona Tri\xE1ngulo para romper las rocas"
       hint: "Rompe m\xEDnimo 4"
   - id: mision3
     translations:
     - languageCode: es
       title: Escapa
       description: "No te dejes alcanzar por el tibur\xF3n"
-      hint: 
+      hint: "Presiona L2 para nadar m\xE1s r\xE1pido"
   - id: mision4
     translations:
     - languageCode: es
       title: Inspecciona el laboratorio
-      description: 'pista: presiona arraba o abajo para mejor movilidad'
-      hint: 'Encuentra 4 pistas '
+      description: Presiona L1 o R1 para nadar verticalmente
+      hint: 'Encuentra 3 pistas '
