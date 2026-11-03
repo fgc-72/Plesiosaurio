@@ -3679,6 +3679,10 @@ MonoBehaviour:
   vibrationStrength: 0.052
   overrideAnimation: 1
   animationStateDuringEvent: 0
+  unlockMovementVertical: 0
+  unlockSprint: 0
+  unlockHeadbutt: 0
+  unlockListen: 0
   rockSpawner: {fileID: 1838350342}
 --- !u!65 &615570592
 BoxCollider:
@@ -8309,8 +8313,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 28.36258, y: 22.350742, z: 27.441666}
-  m_Center: {x: 1.9358826, y: 10.675371, z: -0.7746506}
+  m_Size: {x: 28.36258, y: 5.4768867, z: 27.441666}
+  m_Center: {x: 1.9358826, y: 19.112299, z: -0.7746506}
 --- !u!1 &1130845645
 GameObject:
   m_ObjectHideFlags: 0

@@ -53,6 +53,10 @@ public class InspectViewer : MonoBehaviour
 
     public static bool IsOpen { get; private set; }
 
+    // Aviso para otros scripts (ej. el contador de pistas): se dispara cada vez que el
+    // jugador ABRE la inspección de un objeto.
+    public static event System.Action<InspectableObject> Inspected;
+
     Transform pivot;
     RenderTexture rt;
     bool isOpen;
@@ -295,6 +299,7 @@ public class InspectViewer : MonoBehaviour
 
         if (pauseTimeWhileOpen) Time.timeScale = 0f;
         onOpened.Invoke();
+        Inspected?.Invoke(source);
     }
 
     void SpawnObject(InspectableObject source)

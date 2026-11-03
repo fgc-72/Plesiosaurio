@@ -12,6 +12,25 @@ using System.Collections;
 // 4. Se carga la siguiente escena (acto2) donde Nami despierta sola y recupera la nitidez progresivamente.
 public class BigRockCinematic : MonoBehaviour
 {
+    // Objetos que marcamos con DontDestroyOnLoad. Si el jugador vuelve al menú principal
+    // hay que destruirlos, o al iniciar otra partida quedan duplicados (dos Nami, etc.).
+    private static readonly System.Collections.Generic.List<GameObject> persisted =
+        new System.Collections.Generic.List<GameObject>();
+
+    private static void Persist(GameObject go)
+    {
+        DontDestroyOnLoad(go);
+        persisted.Add(go);
+    }
+
+    // Llamar al volver al menú principal.
+    public static void DestroyPersisted()
+    {
+        foreach (GameObject go in persisted)
+            if (go != null) Destroy(go);
+        persisted.Clear();
+    }
+
     [Header("Nami")]
     [SerializeField] private PlayerControls playerControls;
     [SerializeField] private PlayerAnimation playerAnimation;
@@ -188,12 +207,12 @@ public class BigRockCinematic : MonoBehaviour
         if (changingScene)
         {
             if (namiRigidbody != null)
-                DontDestroyOnLoad(namiRigidbody.transform.root.gameObject);
-            DontDestroyOnLoad(gameObject);
+                Persist(namiRigidbody.transform.root.gameObject);
+            Persist(gameObject);
             if (blackout != null)
-                DontDestroyOnLoad(blackout.gameObject);
+                Persist(blackout.gameObject);
             if (wakeUpVolume != null)
-                DontDestroyOnLoad(wakeUpVolume.gameObject);
+                Persist(wakeUpVolume.gameObject);
         }
 
         // 3) Reacción de la cámara al golpe + Desplome/Caída + Desenfoque progresivo + Fundido a negro en paralelo

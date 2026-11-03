@@ -112,6 +112,16 @@ MonoBehaviour:
       text: "Mam\xE1 dijo que no deber\xEDa acercarme a la superficie..."
     - languageCode: en
       text: Mom said I shouldn't go near the surface...
+  - id: final
+    speaker: Mara
+    duration: 3.5
+    translations:
+    - languageCode: es
+      text: "Nami...hija, si algun dia la correinte nos sepra, sigue los latidos
+        de la tierra, ella te guiara hasta mi. A\xFAn queda un camino largo que debes
+        recorrer para copnocer mejor nuestra historia.."
+    - languageCode: en
+      text: Mom said I shouldn't go near the surface...
   - id: nami_lab
     speaker: Nami
     duration: 3.5
